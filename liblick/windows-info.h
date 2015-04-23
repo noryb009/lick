@@ -1,13 +1,14 @@
 #pragma once
 
 enum WINDOWS_FAMILY {
+    F_UNKNOWN,
     F_WINDOWS_9X,
     F_WINDOWS_NT,
     F_WINDOWS_VISTA,
-    F_UNKNOWN,
 };
 
 enum WINDOWS_VERSION {
+    V_UNKNOWN,
     V_WINDOWS_95,
     V_WINDOWS_98,
     V_WINDOWS_ME,
@@ -17,34 +18,42 @@ enum WINDOWS_VERSION {
     V_WINDOWS_7,
     V_WINDOWS_8,
     V_WINDOWS_8_1,
-    V_UNKNOWN,
 };
 
 enum WINDOWS_ARCHITECTURE {
+    A_UNKNOWN,
     A_WINDOWS_X86,
     A_WINDOWS_X86_64,
-    A_UNKNOWN,
 };
 
 enum IS_ADMIN {
+    ADMIN_UNKNOWN,
     ADMIN_YES,
     ADMIN_NO,
-    ADMIN_UNKNOWN,
 };
 
 enum IS_BIOS {
+    BIOS_UNKNOWN,
     BIOS_BIOS,
     BIOS_UEFI,
-    BIOS_UNKNOWN,
 };
+
+char *version_name(enum WINDOWS_VERSION v);
+char *family_name(enum WINDOWS_FAMILY f);
+char *arch_name(enum WINDOWS_ARCHITECTURE a);
+char *bios_name(enum IS_BIOS b);
 
 struct win_info_s {
     enum WINDOWS_FAMILY family;
+    char *family_name;
     enum WINDOWS_VERSION version;
+    char *version_name;
     enum WINDOWS_ARCHITECTURE arch;
-    enum IS_ADMIN is_admin;
+    char *arch_name;
     enum IS_BIOS is_bios;
+    char *bios_name;
+    enum IS_ADMIN is_admin;
 };
 typedef struct win_info_s win_info_t;
 
-win_info_t *get_windows_version_info();
+win_info_t get_windows_version_info();

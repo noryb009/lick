@@ -47,26 +47,6 @@ void version(win_info_t *v) {
     } else {
         v->version = V_UNKNOWN;
     }
-
-    switch(v->version) {
-        case V_WINDOWS_95:
-        case V_WINDOWS_98:
-        case V_WINDOWS_ME:
-            v->family = F_WINDOWS_9X;
-            break;
-        case V_WINDOWS_2000:
-        case V_WINDOWS_XP:
-            v->family = F_WINDOWS_NT;
-            break;
-        case V_WINDOWS_VISTA:
-        case V_WINDOWS_7:
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-            v->family = F_WINDOWS_VISTA;
-            break;
-        default:
-            v->family = F_UNKNOWN;
-    }
 }
 
 void arch(win_info_t *v) {
@@ -127,19 +107,105 @@ void bios(win_info_t *v) {
 }
 #endif
 
-win_info_t *get_windows_version_info() {
-    win_info_t *v = malloc(sizeof(win_info_t));
+void family(win_info_t *v) {
+    switch(v->version) {
+        case V_WINDOWS_95:
+        case V_WINDOWS_98:
+        case V_WINDOWS_ME:
+            v->family = F_WINDOWS_9X;
+            break;
+        case V_WINDOWS_2000:
+        case V_WINDOWS_XP:
+            v->family = F_WINDOWS_NT;
+            break;
+        case V_WINDOWS_VISTA:
+        case V_WINDOWS_7:
+        case V_WINDOWS_8:
+        case V_WINDOWS_8_1:
+            v->family = F_WINDOWS_VISTA;
+            break;
+        default:
+            v->family = F_UNKNOWN;
+    }
+}
+char *version_name(enum WINDOWS_VERSION v) {
+    switch(v) {
+        case V_UNKNOWN:
+            return "Unknown";
+        case V_WINDOWS_95:
+            return "Windows 95";
+        case V_WINDOWS_98:
+            return "Windows 98";
+        case V_WINDOWS_ME:
+            return "Windows ME";
+        case V_WINDOWS_2000:
+            return "Windows 2000";
+        case V_WINDOWS_XP:
+            return "Windows XP";
+        case V_WINDOWS_VISTA:
+            return "Windows Vista";
+        case V_WINDOWS_7:
+            return "Windows 7";
+        case V_WINDOWS_8:
+            return "Windows 8";
+        case V_WINDOWS_8_1:
+            return "Windows 8.1";
+    }
+}
+
+char *family_name(enum WINDOWS_FAMILY f) {
+    switch(f) {
+        case F_UNKNOWN:
+            return "Unknown";
+        case F_WINDOWS_9X:
+            return "Windows 9X";
+        case F_WINDOWS_NT:
+            return "Windows NT Family (Pre-Vista)";
+        case F_WINDOWS_VISTA:
+            return "Windows NT Family (Post-XP)";
+    }
+}
+
+char *arch_name(enum WINDOWS_ARCHITECTURE a) {
+    switch(a) {
+        case A_UNKNOWN:
+            return "Unknown";
+        case A_WINDOWS_X86:
+            return "32-bit";
+        case A_WINDOWS_X86_64:
+            return "64-bit";
+    }
+}
+
+char *bios_name(enum IS_BIOS b) {
+    switch(b) {
+        case BIOS_UNKNOWN:
+            return "Unknown";
+        case BIOS_BIOS:
+            return "BIOS";
+        case BIOS_UEFI:
+            return "UEFI";
+    }
+}
+
+win_info_t get_windows_version_info() {
+    win_info_t v;
 #ifdef _WIN32
-    version(v);
-    arch(v);
-    admin(v);
-    bios(v);
+    version(&v);
+    family(&v);
+    arch(&v);
+    admin(&v);
+    bios(&v);
 #else
-    v->version = V_WINDOWS_XP;
-    v->family = F_WINDOWS_NT;
-    v->arch = A_WINDOWS_X86;
-    v->is_admin = ADMIN_YES;
-    v->is_bios = BIOS_BIOS;
+    v.version = V_WINDOWS_95;
+    family(&v);
+    v.arch = A_WINDOWS_X86;
+    v.is_admin = ADMIN_YES;
+    v.is_bios = BIOS_BIOS;
 #endif
+    v.version_name = version_name(v.version);
+    v.family_name = family_name(v.family);
+    v.arch_name = arch_name(v.arch);
+    v.bios_name = bios_name(v.is_bios);
     return v;
 }
