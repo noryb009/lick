@@ -4,6 +4,9 @@ set(lib_shared_name "lick-shared")
 set(sources
     "drives.c"
     "install-loader.c"
+    "install-loader/9x.c"
+    "install-loader/nt.c"
+    "install-loader/vista.c"
     "llist.c"
     "uniso.c"
     "utils.c"

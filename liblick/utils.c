@@ -141,3 +141,10 @@ char *get_windows_drive() {
     return "/";
 #endif
 }
+
+char *advance_to_newline(char *s) {
+    while(s[0] != '\0' && s[0] != '\n')
+        s++;
+    return s;
+}
+

@@ -28,6 +28,24 @@ void print_info(win_info_t *info) {
     printf("bios type: %s\n", info->bios_name);
 }
 
+void loud_test_install() {
+    win_info_t info = get_windows_version_info();
+
+    printf("check: %d\n", check_loader(&info));
+    printf("install: %d\n", install_loader(&info));
+    printf("check: %d\n", check_loader(&info));
+    getchar(); // to modify file
+    printf("uninstall:%d\n", uninstall_loader(&info));
+    printf("check: %d\n", check_loader(&info));
+}
+
+void test_install() {
+    win_info_t info = get_windows_version_info();
+
+    install_loader(&info);
+    uninstall_loader(&info);
+}
+
 int main(int argc, char* argv[]) {
     // dirname and basename
     test_path("/usr/lib", "/usr", "lib");
@@ -40,10 +58,7 @@ int main(int argc, char* argv[]) {
     win_info_t info = get_windows_version_info();
     print_info(&info);
 
-    // test install / uninstall
-    printf("%d\n", install_loader(&info));
-    //getchar(); // to modify file
-    printf("%d\n", uninstall_loader(&info));
+    test_install();
 
     return 0;
 }
