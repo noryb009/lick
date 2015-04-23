@@ -126,8 +126,9 @@ char *file_to_str(FILE *f) {
     int len = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    char *buf = malloc(len);
+    char *buf = malloc(len + 1);
     fread(buf, 1, len, f);
+    buf[len] = '\0';
 
     return buf;
 }
