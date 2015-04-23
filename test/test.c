@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "install-loader.h"
 #include "uniso.h"
 #include "utils.h"
 #include "windows-info.h"
@@ -38,6 +39,11 @@ int main(int argc, char* argv[]) {
 
     win_info_t info = get_windows_version_info();
     print_info(&info);
+
+    // test install / uninstall
+    printf("%d\n", install_loader(&info));
+    //getchar(); // to modify file
+    printf("%d\n", uninstall_loader(&info));
 
     return 0;
 }

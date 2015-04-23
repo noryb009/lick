@@ -3,6 +3,7 @@ set(lib_shared_name "lick-shared")
 
 set(sources
     "drives.c"
+    "install-loader.c"
     "llist.c"
     "uniso.c"
     "utils.c"
@@ -19,4 +20,4 @@ endif()
 include_directories(${inc_dirs})
 
 add_library(${lib_name} STATIC ${sources})
-add_library(${lib_shared_name} SHARED ${sources})
+#add_library(${lib_shared_name} SHARED ${sources})
