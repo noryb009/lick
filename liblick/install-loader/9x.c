@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "9x.h"
+#include "../drives.h"
 #include "../utils.h"
 
 #define MENU_ITEM "menuitem=LICK, Start Puppy Linux\r\n"

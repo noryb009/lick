@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "nt.h"
+#include "../drives.h"
 #include "../utils.h"
 
 #define BOOT_ITEM "=\"Start Puppy Linux\""

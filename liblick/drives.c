@@ -55,8 +55,69 @@ node_t *all_drives() {
 
     return drives;
 }
+
+drive_t *get_windows_drive() {
+    TCHAR buf[30];
+    if(GetSystemWindowsDirectory(buf, 30) == 0)
+        return NULL;
+
+    char letters[3];
+    letters[0] = (char)buf[0];
+    letters[1] = (char)buf[1];
+    letters[2] = '\0';
+
+    return drive =new_drive(letters, DRV_HDD);
+}
 #else
 node_t *all_drives() {
     return new_node(new_drive("/", DRV_HDD), NULL);
 }
+
+drive_t *get_windows_drive() {
+    return new_drive("/", DRV_HDD);
+}
 #endif
+
+int is_lick_drive(drive_t *drive) {
+    char *lick_file;
+    int exists;
+
+    lick_file = concat_strs(2, drive->path, "/lick/grub.exe");
+    exists = file_exists(lick_file);
+    free(lick_file);
+
+    if(exists)
+        return 0;
+
+    lick_file = concat_strs(2, drive->path, "/lick/pupldr");
+    exists = file_exists(lick_file);
+    free(lick_file);
+    return 0;
+}
+
+node_t *get_lick_drives() {
+    node_t *drives = all_drives();
+
+    while(drives != NULL && !is_lick_drive(drives->val)) {
+        node_t *next = drives->next;
+        free_drive(drives->val);
+        drives = next;
+    }
+
+    if(drives == NULL)
+        return NULL;
+
+    node_t *head = drives;
+
+    while(drives->next != NULL) {
+        node_t *next = drives->next;
+        if(is_lick_drive(next->val))
+            drives = next;
+        else {
+            drives->next = next->next;
+            free(next->val);
+        }
+    }
+
+    return head;
+}

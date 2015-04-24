@@ -133,18 +133,16 @@ char *file_to_str(FILE *f) {
     return buf;
 }
 
-char *get_windows_drive() {
-#ifdef _WIN32
-    // TODO
-    return "C:\\";
-#else
-    return "/";
-#endif
-}
-
 char *advance_to_newline(char *s) {
     while(s[0] != '\0' && s[0] != '\n')
         s++;
     return s;
 }
 
+int file_exists(char *path) {
+    FILE *f = fopen(path, "r");
+    if(!f)
+        return 0;
+    fclose(f);
+    return 1;
+}
