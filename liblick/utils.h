@@ -4,6 +4,8 @@
 
 int makeDir(const char *d);
 int makeDirR(const char *d);
+int unlinkDir(const char *d);
+int unlinkFile(const char *f);
 char *strdup(const char *s);
 char *dirname(const char *p);
 char *basename(const char *p);

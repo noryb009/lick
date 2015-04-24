@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #ifdef _WIN32
     #include <direct.h>
@@ -49,6 +50,22 @@ int makeDirR(const char *d) {
     free(buf);
     return ret;
 }
+
+#ifdef _WIN32
+int unlinkDir(const char *d) {
+    return !_rmdir(d);
+}
+int unlinkFile(const char *f) {
+    return !_unlink(f);
+}
+#else
+int unlinkDir(const char *d) {
+    return !rmdir(d);
+}
+int unlinkFile(const char *f) {
+    return !unlink(f);
+}
+#endif
 
 char *strdup(const char *s) {
     char *n = malloc(strlen(s) + 1);
