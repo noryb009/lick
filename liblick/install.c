@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,14 +7,9 @@ typedef __u_short u_short; // TODO: fix
 #include <fts.h>
 
 #include "install.h"
+#include "menu.h"
 #include "uniso.h"
 #include "utils.h"
-
-
-#define MENU_TITLE   "title\t%s"
-#define MENU_LINUX   "\tlinux\t%s"
-#define MENU_INITRD  "\tinitrd\t%s"
-#define MENU_OPTIONS "\toptions\tpfix=%s %s"
 
 #define LINE_SIZE_START 1024
 
@@ -133,25 +127,9 @@ int install(char *id, char *name, char *iso,
         return 0;
     }
 
-    FILE *menu_f = fopen(menu, "w");
-    fprintf(menu_f, MENU_TITLE, id);
-    if(status->kernel)
-        fprintf(menu_f, MENU_LINUX, status->kernel);
-    if(status->initrd)
-        fprintf(menu_f, MENU_INITRD, status->initrd);
-    // TODO: psubdir="install_dir" (but currently has C:/...)
-    fprintf(menu_f, MENU_OPTIONS, "fsck", "");
-
-    fprintf(menu_f, "\n");
-
-    fprintf(menu_f, MENU_TITLE, id);
-    if(status->kernel)
-        fprintf(menu_f, MENU_LINUX, status->kernel);
-    if(status->initrd)
-        fprintf(menu_f, MENU_INITRD, status->initrd);
-    fprintf(menu_f, MENU_OPTIONS, "ram", "");
-
-    fclose(menu_f);
+    // write menu entries
+    write_menu_frag(menu, name, status);
+    regenerate_menu();
 
     FILE *info_f = fopen(info, "w");
     // TODO: headers?

@@ -9,6 +9,7 @@ set(sources
     "install-loader/nt.c"
     "install-loader/vista.c"
     "llist.c"
+    "menu.c"
     "uniso.c"
     "utils.c"
     "windows-info.c")
