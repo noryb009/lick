@@ -10,8 +10,9 @@
 
 // TODO: dynamic drive
 FILE *get_config_sys(char *mode) {
-    char *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive, "config.sys");
+    drive_t *drive = get_windows_drive();
+    char *loc = concat_strs(2, drive->path, "config.sys");
+    free_drive(drive);
     FILE *f = fopen(loc, mode);
     free(loc);
 
@@ -104,7 +105,9 @@ int install_loader_9x(win_info_t *info) {
         after = menuitem;
     }
 
-    char *grub_exe = concat_strs(2, get_windows_drive(), "lick\\grub.exe");
+    drive_t *drive = get_windows_drive();
+    char *grub_exe = concat_strs(2, drive->path, "lick\\grub.exe");
+    free_drive(drive);
 
     menuitem[0] = '\0';
     fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);

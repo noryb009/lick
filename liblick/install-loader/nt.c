@@ -9,8 +9,9 @@
 
 // TODO: dynamic drive
 FILE *get_boot_ini(char *mode) {
-    char *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive, "boot.ini");
+    drive_t *drive = get_windows_drive();
+    char *loc = concat_strs(2, drive->path, "boot.ini");
+    free_drive(drive);
     FILE *f = fopen(loc, mode);
     free(loc);
 
@@ -102,7 +103,9 @@ int install_loader_nt(win_info_t *info) {
         after = bootitem;
     }
 
-    char *pupldr = concat_strs(2, get_windows_drive(), "lick\\pupldr");
+    drive_t *drive = get_windows_drive();
+    char *pupldr = concat_strs(2, drive->path, "lick\\pupldr");
+    free_drive(drive);
 
     bootitem[0] = '\0';
     // print start of file, newline,

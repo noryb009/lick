@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "vista.h"
+#include "../drives.h"
 #include "../utils.h"
 
 
@@ -92,11 +93,12 @@ int install_loader_vista(win_info_t *info) {
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
-    char *drive = get_windows_drive();
+    drive_t *drive = get_windows_drive();
 
     get_id_from_command(COMMAND_CREATE, id);
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive->path);
+    free_drive(drive);
     if(!system(c)) {return 0;}
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id);
     if(!system(c)) {return 0;}
