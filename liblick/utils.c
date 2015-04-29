@@ -163,3 +163,29 @@ int file_exists(char *path) {
     fclose(f);
     return 1;
 }
+
+#define LINE_SIZE_START 1024
+
+char *read_line(FILE *f, int *done) {
+    char *s = malloc(sizeof(char) * LINE_SIZE_START);
+    int size = LINE_SIZE_START;
+
+    for(int i = 0;; ++i) {
+        if(i == size) {
+            size *= 2;
+            s = realloc(s, size);
+        }
+
+        int c = getc(f);
+        if(c == EOF && i == 0) {
+            free(s);
+            *done = 1;
+            return NULL;
+        } else if(c == '\n' || c == EOF) {
+            s[i] = '\0';
+            return s;
+        }
+
+        s[i] = c;
+    }
+}

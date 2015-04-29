@@ -42,13 +42,13 @@ menu_t *get_menus() {
     return menu;
 }
 
-int regenerate_menu() {
+int regenerate_menu(char *menu_dir) {
     menu_t *menu = get_menus();
 
     for(int i = 0; i < NUM_MENUS; ++i) {
         // TODO: check support
         if(1) {
-            menu[i].regenerate();
+            menu[i].regenerate(menu_dir);
             free(menu);
             return 1;
         }

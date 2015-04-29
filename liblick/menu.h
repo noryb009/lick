@@ -3,11 +3,13 @@
 #include "uniso.h"
 
 struct menu_s {
-    int (*regenerate)();
+    // TODO: install
+    int (*regenerate)(char *menu_dir);
+    // TODO: uninstall?
 };
 
 typedef struct menu_s menu_t;
 
 int write_menu_frag(char *dst, char *name, uniso_status_t *info);
 
-int regenerate_menu();
+int regenerate_menu(char *menu_dir);

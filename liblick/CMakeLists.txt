@@ -10,6 +10,8 @@ set(sources
     "install-loader/vista.c"
     "llist.c"
     "menu.c"
+    "menu/grub4dos.c"
+    "menu/utils.c"
     "uniso.c"
     "utils.c"
     "windows-info.c")

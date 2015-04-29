@@ -13,3 +13,4 @@ char *concat_strs(int n, ...);
 char *file_to_str(FILE *f);
 char *advance_to_newline(char *s);
 int file_exists(char *path);
+char *read_line(FILE *f, int *done);

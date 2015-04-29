@@ -12,9 +12,9 @@ Boot Manager
 Install/uninstall
 - uniso - done
 - add to menu - done
-- list currently installed
-- uninstall - done
+- list currently installed - done
+- install/uninstall - done
 
 Menu
-- menu conversion
-- specify format
+- menu conversion - done
+- specify format - done-ish

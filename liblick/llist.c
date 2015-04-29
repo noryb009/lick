@@ -17,3 +17,14 @@ size_t list_length(node_t *lst) {
     }
     return len;
 }
+
+void free_list(node_t *n, void (*free_fn)(void *n)) {
+    node_t *next;
+    while(n != NULL) {
+        next = n->next;
+        if(free_fn != NULL)
+            free_fn(n->val);
+        free(n);
+        n = next;
+    }
+}

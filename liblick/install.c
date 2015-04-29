@@ -11,36 +11,13 @@ typedef __u_short u_short; // TODO: fix
 #include "uniso.h"
 #include "utils.h"
 
-#define LINE_SIZE_START 1024
-
-char *read_line(FILE *f, int *done) {
-    char *s = malloc(sizeof(char) * LINE_SIZE_START);
-    int size = LINE_SIZE_START;
-
-    for(int i = 0;; ++i) {
-        if(i == size) {
-            size *= 2;
-            s = realloc(s, size);
-        }
-
-        int c = getc(f);
-        if(c == EOF && i == 0) {
-            free(s);
-            *done = 1;
-            return NULL;
-        } else if(c == '\n' || c == EOF) {
-            s[i] = '\0';
-            return s;
-        }
-
-        s[i] = c;
-    }
-}
-
 installed_t *get_installed(char *path, char *filename) {
     // if ends with .conf
-    char *conf = strstr(filename, ".conf");
-    if(conf == NULL || strlen(conf) != 5)
+    char *conf;
+    do {
+        conf = strstr(conf + 1, ".conf");
+    } while(conf != NULL && strlen(conf) > 5);
+    if(conf == NULL)
         return NULL;
 
     FILE *f = fopen(path, "r");
@@ -129,7 +106,7 @@ int install(char *id, char *name, char *iso,
 
     // write menu entries
     write_menu_frag(menu, name, status);
-    regenerate_menu();
+    regenerate_menu(menu);
 
     FILE *info_f = fopen(info, "w");
     // TODO: headers?
