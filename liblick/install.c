@@ -77,12 +77,7 @@ void free_installed(installed_t *i) {
 }
 
 void free_list_installed(node_t *n) {
-    while(n != NULL) {
-        node_t *next = n->next;
-        free_installed(n->val);
-        free(n);
-        n = next;
-    }
+    free_list(n, (void (*)(void *))free_installed);
 }
 
 int install(char *id, char *name, char *iso,

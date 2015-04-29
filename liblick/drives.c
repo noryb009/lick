@@ -15,13 +15,8 @@ void free_drive(drive_t *drive) {
     free(drive);
 }
 
-void free_drive_lst(node_t *lst) {
-    node_t *next;
-    while(lst != NULL) {
-        next = lst->next;
-        free_drive(lst->val);
-        lst = next;
-    }
+void free_drive_list(node_t *lst) {
+    free_list(lst, (void (*)(void *))free_drive);
 }
 
 #ifdef _WIN32
@@ -97,27 +92,21 @@ int is_lick_drive(drive_t *drive) {
 
 node_t *get_lick_drives() {
     node_t *drives = all_drives();
+    node_t *lick_drives = NULL;
+    node_t *to_delete = NULL;
 
-    while(drives != NULL && !is_lick_drive(drives->val)) {
+    while(drives != NULL) {
         node_t *next = drives->next;
-        free_drive(drives->val);
+        if(is_lick_drive(drives->val)) {
+            drives->next = lick_drives;
+            lick_drives = drives;
+        } else {
+            drives->next = to_delete;
+            to_delete = drives;
+        }
         drives = next;
     }
 
-    if(drives == NULL)
-        return NULL;
-
-    node_t *head = drives;
-
-    while(drives->next != NULL) {
-        node_t *next = drives->next;
-        if(is_lick_drive(next->val))
-            drives = next;
-        else {
-            drives->next = next->next;
-            free(next->val);
-        }
-    }
-
-    return head;
+    free_drive_list(drives);
+    return lick_drives;
 }

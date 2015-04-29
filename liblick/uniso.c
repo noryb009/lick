@@ -123,13 +123,6 @@ void uniso_status_free(uniso_status_t *s) {
     if(s->error != NULL) {
         free(s->error);
     }
-    node_t *f = s->files, *next;
-    while(f != NULL) {
-        next = f->next;
-        free(f->val);
-        free(f);
-        f = next;
-    }
-
+    free_list(s->files, free);
     free(s);
 }
