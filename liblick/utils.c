@@ -7,25 +7,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-    #include <direct.h>
-    #include <windows.h>
-#endif
-
 int makeDir(const char *d) {
 #ifdef _WIN32
-        // TODO: check success
-        _mkdir(d);
-        return 1;
+        if(mkdir(d) == 0)
 #else
-        if(mkdir(d, S_IRWXU) != -1) {
-            return 1;
-        } else if(errno == EEXIST ||
-                errno == ENOENT) {
-            return 1;
-        }
-        return 0;
+        if(mkdir(d, S_IRWXU) == 0)
 #endif
+            return 1;
+        else if(errno == EEXIST)
+            return 1;
+        return 0;
 }
 
 int makeDirR(const char *d) {
@@ -51,21 +42,12 @@ int makeDirR(const char *d) {
     return ret;
 }
 
-#ifdef _WIN32
-int unlinkDir(const char *d) {
-    return !_rmdir(d);
-}
-int unlinkFile(const char *f) {
-    return !_unlink(f);
-}
-#else
 int unlinkDir(const char *d) {
     return !rmdir(d);
 }
 int unlinkFile(const char *f) {
     return !unlink(f);
 }
-#endif
 
 char *strdup(const char *s) {
     char *n = malloc(strlen(s) + 1);

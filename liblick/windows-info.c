@@ -56,7 +56,7 @@ void arch(win_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
 
     typedef void (WINAPI *SysInfo)(LPSYSTEM_INFO lpSystemInfo);
-    SysInfo fn = GetProcAddress(k, "GetNativeSystemInfo");
+    SysInfo fn = (SysInfo)GetProcAddress(k, "GetNativeSystemInfo");
     if(!fn) {v->arch = A_WINDOWS_X86; return;}
 
     SYSTEM_INFO sys_info;
@@ -92,14 +92,15 @@ void admin(win_info_t *v) {
 void bios(win_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
 
-    typedef DWORD (WINAPI *GetVar)(LPCTSTR lpName, LPCTSTR lpGuid, PVOID pBuffer, DWORD nSize);
-    GetVar fn = GetProcAddress(k, "GetFirmwareEnvironmentVariable");
-    if(!fn) {fn = GetProcAddress(k, "GetFirmwareEnvironmentVariableA");}
-    if(!fn) {fn = GetProcAddress(k, "GetFirmwareEnvironmentVariableW");}
+    typedef DWORD (WINAPI *GetVar)(LPCTSTR lpName, LPCTSTR lpGuid,
+                                   PVOID pBuffer, DWORD nSize);
+    GetVar fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariable");
+    if(!fn) {fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariableA");}
+    if(!fn) {fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariableW");}
     if(!fn) {v->is_bios = BIOS_BIOS;}
 
     typedef DWORD (WINAPI *GetError)(void);
-    GetError errfn = GetProcAddress(k, "GetLastError");
+    GetError errfn = (GetError)GetProcAddress(k, "GetLastError");
 
     fn("", "{00000000-0000-0000-0000-000000000000}", NULL, 0);
     if(!errfn || errfn() == ERROR_INVALID_FUNCTION) {
