@@ -4,6 +4,7 @@
 #include "9x.h"
 #include "utils.h"
 #include "../drives.h"
+#include "../menu/grub4dos.h"
 #include "../utils.h"
 
 #define MENU_ITEM "menuitem=LICK, Start Puppy Linux\r\n"
@@ -211,5 +212,6 @@ loader_t get_9x() {
     loader.check = check_loader_9x;
     loader.install = install_loader_9x;
     loader.uninstall = uninstall_loader_9x;
+    loader.get_menu = get_grub4dos;
     return loader;
 }

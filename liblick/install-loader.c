@@ -15,13 +15,14 @@ loader_t *get_loaders() {
     return loaders;
 }
 
-int check_loader(win_info_t *info) {
+loader_t *get_loader(win_info_t *info) {
     loader_t *loaders = get_loaders();
 
-    int ret = 0;
+    loader_t *ret = NULL;
     for(int i = 0; i < NUM_LOADERS; ++i) {
         if(loaders[i].supported(info)) {
-            ret = loaders[i].check(info);
+            ret = malloc(sizeof(loader_t));
+            *ret = loaders[i];
             break;
         }
     }
@@ -29,32 +30,35 @@ int check_loader(win_info_t *info) {
     return ret;
 }
 
-int install_loader(win_info_t *info, char *lick_res_dir) {
-    loader_t *loaders = get_loaders();
-
-    int ret = 0;
-    for(int i = 0; i < NUM_LOADERS; ++i) {
-        if(loaders[i].supported(info)) {
-            if(!loaders[i].check(info))
-                ret = loaders[i].install(info, lick_res_dir);
-            break;
-        }
-    }
-    free(loaders);
-    return ret;
+// consistency
+int check_loader(loader_t *l, win_info_t *info) {
+    return l->check(info);
 }
 
-int uninstall_loader(win_info_t *info, char *lick_res_dir) {
-    loader_t *loaders = get_loaders();
-
-    int ret = 0;
-    for(int i = 0; i < NUM_LOADERS; i++) {
-        if(loaders[i].supported(info)) {
-            if(loaders[i].check(info))
-                ret = loaders[i].uninstall(info, lick_res_dir);
-            break;
-        }
+int install_loader(loader_t *l, win_info_t *info,
+        char *lick_menu, char *lick_res) {
+    if(!l->check(info) && l->install(info, lick_res)) {
+        menu_t *m = get_menu(l);
+        m->install(lick_menu, lick_res);
+        free(m);
+        return 0;
     }
-    free(loaders);
-    return ret;
+    return -1; // already installed
+}
+
+int uninstall_loader(loader_t *l, win_info_t *info,
+        char *lick_menu, char *lick_res) {
+    if(!l->check(info) && l->uninstall(info, lick_res)) {
+        menu_t *m = get_menu(l);
+        m->uninstall(lick_menu, lick_res);
+        free(m);
+        return 0;
+    }
+    return -1; // already uninstalled
+}
+
+menu_t *get_menu(loader_t *l) {
+    menu_t *m = malloc(sizeof(menu_t));
+    *m = l->get_menu();
+    return m;
 }

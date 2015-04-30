@@ -46,8 +46,27 @@ int regenerate_grub4dos(char *menu_dir) {
     return 1;
 }
 
+int install_grub4dos(char *menu_dir, char *res_dir) {
+    char *header = concat_strs(2, menu_dir, "\\00_header.conf");
+    FILE *f = fopen(header, "w");
+    free(header);
+
+    if(!f)
+        return 0;
+
+    fprintf(f, "timeout=5\n");
+    fprintf(f, "default=0\n");
+    char *gfxmenu = concat_strs(2, res_dir, "\\grub4dos-gui.exe");
+    fprintf(f, "gfxmenu=%s\n", gfxmenu);
+    free(gfxmenu);
+
+    fclose(f);
+    return 0;
+}
+
 menu_t get_grub4dos() {
     menu_t menu;
     menu.regenerate = regenerate_grub4dos;
+    menu.install = install_grub4dos;
     return menu;
 }

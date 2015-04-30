@@ -3,6 +3,7 @@
 
 #include "vista.h"
 #include "../drives.h"
+#include "../menu/grub4dos.h"
 #include "../utils.h"
 
 
@@ -145,5 +146,6 @@ loader_t get_vista() {
     loader.check = check_loader_vista;
     loader.install = install_loader_vista;
     loader.uninstall = uninstall_loader_vista;
+    loader.get_menu = get_grub4dos;
     return loader;
 }

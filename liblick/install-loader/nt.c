@@ -4,6 +4,7 @@
 #include "nt.h"
 #include "utils.h"
 #include "../drives.h"
+#include "../menu/grub4dos.h"
 #include "../utils.h"
 
 #define BOOT_ITEM "=\"Start Puppy Linux\""
@@ -184,5 +185,6 @@ loader_t get_nt() {
     loader.check = check_loader_nt;
     loader.install = install_loader_nt;
     loader.uninstall = uninstall_loader_nt;
+    loader.get_menu = get_grub4dos;
     return loader;
 }
