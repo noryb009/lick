@@ -29,14 +29,14 @@ int check_loader(win_info_t *info) {
     return ret;
 }
 
-int install_loader(win_info_t *info) {
+int install_loader(win_info_t *info, char *lick_res_dir) {
     loader_t *loaders = get_loaders();
 
     int ret = 0;
     for(int i = 0; i < NUM_LOADERS; ++i) {
         if(loaders[i].supported(info)) {
             if(!loaders[i].check(info))
-                ret = loaders[i].install(info);
+                ret = loaders[i].install(info, lick_res_dir);
             break;
         }
     }
@@ -44,14 +44,14 @@ int install_loader(win_info_t *info) {
     return ret;
 }
 
-int uninstall_loader(win_info_t *info) {
+int uninstall_loader(win_info_t *info, char *lick_res_dir) {
     loader_t *loaders = get_loaders();
 
     int ret = 0;
     for(int i = 0; i < NUM_LOADERS; i++) {
         if(loaders[i].supported(info)) {
             if(loaders[i].check(info))
-                ret = loaders[i].uninstall(info);
+                ret = loaders[i].uninstall(info, lick_res_dir);
             break;
         }
     }

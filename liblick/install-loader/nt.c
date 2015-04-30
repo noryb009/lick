@@ -7,7 +7,6 @@
 
 #define BOOT_ITEM "=\"Start Puppy Linux\""
 
-// TODO: dynamic drive
 FILE *get_boot_ini(char *mode) {
     drive_t *drive = get_windows_drive();
     char *loc = concat_strs(2, drive->path, "boot.ini");
@@ -42,7 +41,7 @@ int check_loader_nt(win_info_t *info) {
 // load boot.ini
 // make sure good timeout
 // [operating systems] ~> /path/to/grldr="Puppy Linux"
-int install_loader_nt(win_info_t *info) {
+int install_loader_nt(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_nt(info)) {
         return 0;
     }
@@ -103,9 +102,7 @@ int install_loader_nt(win_info_t *info) {
         after = bootitem;
     }
 
-    drive_t *drive = get_windows_drive();
-    char *pupldr = concat_strs(2, drive->path, "lick\\pupldr");
-    free_drive(drive);
+    char *pupldr = concat_strs(2, lick_res_dir, "\\lick\\pupldr");
 
     bootitem[0] = '\0';
     // print start of file, newline,
@@ -118,7 +115,7 @@ int install_loader_nt(win_info_t *info) {
     return 1;
 }
 
-int uninstall_loader_nt(win_info_t *info) {
+int uninstall_loader_nt(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_nt(info)) {
         return 0;
     }

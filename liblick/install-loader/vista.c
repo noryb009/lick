@@ -12,7 +12,7 @@
 // install
 #define COMMAND_CREATE "bcdedit /create /d \"Puppy Linux\" /application bootsector"
 #define COMMAND_DEVICE "bcdedit /set {%s} device \"partition=%s\""
-#define COMMAND_PATH "bcdedit /set {%s} path \\pupldr.mbr"
+#define COMMAND_PATH "bcdedit /set {%s} path %s%s"
 #define COMMAND_ADD_LAST "bcdedit /displayorder {%s} /addlast"
 #define COMMAND_TIME_OUT "bcdedit /timeout 5"
 #define COMMAND_BOOT_MENU "bcdedit /set {default} bootmenupolicy legacy"
@@ -26,7 +26,6 @@ int get_id_from_command_range(const char *c, char *out, char *start, char *end) 
     out[0] = '\0';
     int ret = 0;
 
-    // TODO: portable popen
     FILE *pipe = popen(c, "r");
     if(!pipe) {return 0;}
 
@@ -86,21 +85,28 @@ int check_loader_vista(win_info_t *info) {
     return get_id_from_command_range(COMMAND_ENUM, id, "----------", "pupldr.mbr");
 }
 
-int install_loader_vista(win_info_t *info) {
+int install_loader_vista(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_vista(info)) {
         return 0;
     }
 
+    if(strlen(lick_res_dir) < 2 || lick_res_dir[1] != ':')
+        return 0;
+
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
-    drive_t *drive = get_windows_drive();
+
+    char *drive = "C:";
+    drive[0] = lick_res_dir[0];
+    char lick_res_dir_path[strlen(lick_res_dir)+1];
+    strcpy(lick_res_dir_path, lick_res_dir + 2);
 
     get_id_from_command(COMMAND_CREATE, id);
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive->path);
-    free_drive(drive);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive);
     if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id,
+            lick_res_dir_path, "\\pupldr.mbr");
     if(!system(c)) {return 0;}
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, id);
     if(!system(c)) {return 0;}
@@ -118,7 +124,7 @@ int install_loader_vista(win_info_t *info) {
     return 1;
 }
 
-int uninstall_loader_vista(win_info_t *info) {
+int uninstall_loader_vista(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_vista(info)) {
         return 0;
     }

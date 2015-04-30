@@ -8,7 +8,6 @@
 #define MENU_ITEM "menuitem=LICK, Start Puppy Linux\r\n"
 #define LICK_SECTION "\r\n[LICK]\r\nshell="
 
-// TODO: dynamic drive
 FILE *get_config_sys(char *mode) {
     drive_t *drive = get_windows_drive();
     char *loc = concat_strs(2, drive->path, "config.sys");
@@ -44,7 +43,7 @@ int check_loader_9x(win_info_t *info) {
 // set [menu] menuitem="PUPPYLINUX, Start Puppy"
 // create [PUPPYLINUX] ~> add shell="/path/to/grub.exe"
 // save, with attributes
-int install_loader_9x(win_info_t *info) {
+int install_loader_9x(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_9x(info)) {
         return 0;
     }
@@ -105,9 +104,7 @@ int install_loader_9x(win_info_t *info) {
         after = menuitem;
     }
 
-    drive_t *drive = get_windows_drive();
-    char *grub_exe = concat_strs(2, drive->path, "lick\\grub.exe");
-    free_drive(drive);
+    char *grub_exe = concat_strs(2, lick_res_dir, "\\lick\\grub.exe");
 
     menuitem[0] = '\0';
     fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);
@@ -120,7 +117,7 @@ int install_loader_9x(win_info_t *info) {
     return 1;
 }
 
-int uninstall_loader_9x(win_info_t *info) {
+int uninstall_loader_9x(win_info_t *info, char *lick_res_dir) {
     if(!supported_loader_9x(info)) {
         return 0;
     }

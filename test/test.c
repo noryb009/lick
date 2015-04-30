@@ -32,18 +32,18 @@ void loud_test_install() {
     win_info_t info = get_windows_version_info();
 
     printf("check: %d\n", check_loader(&info));
-    printf("install: %d\n", install_loader(&info));
+    printf("install: %d\n", install_loader(&info, "D:\\lick"));
     printf("check: %d\n", check_loader(&info));
     getchar(); // to modify file
-    printf("uninstall:%d\n", uninstall_loader(&info));
+    printf("uninstall:%d\n", uninstall_loader(&info, "D:\\lick"));
     printf("check: %d\n", check_loader(&info));
 }
 
 void test_install() {
     win_info_t info = get_windows_version_info();
 
-    install_loader(&info);
-    uninstall_loader(&info);
+    install_loader(&info, "D:\\lick");
+    uninstall_loader(&info, "D:\\lick");
 }
 
 int main(int argc, char* argv[]) {
