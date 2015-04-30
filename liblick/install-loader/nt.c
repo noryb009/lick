@@ -2,19 +2,17 @@
 #include <string.h>
 
 #include "nt.h"
+#include "utils.h"
 #include "../drives.h"
 #include "../utils.h"
 
 #define BOOT_ITEM "=\"Start Puppy Linux\""
 
-FILE *get_boot_ini(char *mode) {
+char *boot_ini_path() {
     drive_t *drive = get_windows_drive();
     char *loc = concat_strs(2, drive->path, "boot.ini");
     free_drive(drive);
-    FILE *f = fopen(loc, mode);
-    free(loc);
-
-    return f;
+    return loc;
 }
 
 int supported_loader_nt(win_info_t *info) {
@@ -27,9 +25,12 @@ int check_loader_nt(win_info_t *info) {
     }
 
     // load boot.ini into a string
-    FILE *f = get_boot_ini("r");
+    char *boot_ini = boot_ini_path();
+    FILE *f = fopen(boot_ini, "r");
+    free(boot_ini);
     if(!f)
         return 0;
+
     char *boot = file_to_str(f);
     fclose(f);
 
@@ -47,9 +48,12 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
     }
 
     // load boot.ini into a string
-    FILE *f = get_boot_ini("r");
-    if(!f)
+    char *boot_ini = boot_ini_path();
+    FILE *f = fopen(boot_ini, "r");
+    if(!f) {
+        free(boot_ini);
         return 0;
+    }
     char *boot = file_to_str(f);
     fclose(f);
 
@@ -58,6 +62,7 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
     char *start = strstr(boot, "[operating systems]");
     if(start == NULL) {
         free(boot);
+        free(boot_ini);
         return 0;
     }
     char *end = strchr(start + 1, '[');
@@ -87,10 +92,12 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
         bootitem = advance_to_newline(start);
 
     // TODO: backup boot.ini?
-    // TODO: attributes?
 
-    f = get_boot_ini("w");
+    attrib_t *attrib = attrib_open(boot_ini);
+    f = fopen(boot_ini, "w");
     if(!f) {
+        attrib_save(boot_ini, attrib);
+        free(boot_ini);
         free(boot);
         return 0;
     }
@@ -109,9 +116,11 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
     //   C:\lick\pupldr="Start Puppy Linux", rest of file
     fprintf(f, "%s%s%s%s\r\n%s", boot, before, pupldr, BOOT_ITEM, after);
     fclose(f);
+    attrib_save(boot_ini, attrib);
 
     free(pupldr);
     free(boot);
+    free(boot_ini);
     return 1;
 }
 
@@ -121,9 +130,12 @@ int uninstall_loader_nt(win_info_t *info, char *lick_res_dir) {
     }
 
     // load boot.ini into a string
-    FILE *f = get_boot_ini("r");
-    if(!f)
+    char *boot_ini = boot_ini_path();
+    FILE *f = fopen(boot_ini, "r");
+    if(!f) {
+        free(boot_ini);
         return 0;
+    }
     char *boot = file_to_str(f);
     fclose(f);
 
@@ -131,6 +143,7 @@ int uninstall_loader_nt(win_info_t *info, char *lick_res_dir) {
     char *bootitem = strstr(boot, BOOT_ITEM);
     if(bootitem == NULL) {
         free(boot);
+        free(boot_ini);
         return 0;
     }
 
@@ -145,18 +158,23 @@ int uninstall_loader_nt(win_info_t *info, char *lick_res_dir) {
 
     bootitem[0] = '\0';
 
-    // TODO: backup config.sys?
-    // TODO: attributes?
+    // TODO: backup boot.ini?
 
-    f = get_boot_ini("w");
+    attrib_t *attrib = attrib_open(boot_ini);
+    f = fopen(boot_ini, "w");
     if(!f) {
+        attrib_save(boot_ini, attrib);
         free(boot);
+        free(boot_ini);
         return 0;
     }
 
     fprintf(f, "%s%s", boot, bootitem_end);
     fclose(f);
+    attrib_save(boot_ini, attrib);
+
     free(boot);
+    free(boot_ini);
     return 1;
 }
 

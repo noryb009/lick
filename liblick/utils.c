@@ -83,24 +83,6 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-char *file_to_str(FILE *f) {
-    fseek(f, 0, SEEK_END);
-    int len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    char *buf = malloc(len + 1);
-    fread(buf, 1, len, f);
-    buf[len] = '\0';
-
-    return buf;
-}
-
-char *advance_to_newline(char *s) {
-    while(s[0] != '\0' && s[0] != '\n')
-        s++;
-    return s;
-}
-
 // 1 = yes, 0 = no, -1 = error
 int is_file(char *path) {
     struct stat s;
