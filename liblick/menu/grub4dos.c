@@ -66,9 +66,22 @@ int install_grub4dos(lickdir_t *lick) {
     return 0;
 }
 
+int uninstall_grub4dos(lickdir_t *lick) {
+    char *header = concat_strs(2, lick->menu, "\\00_header.conf");
+    unlinkFile(header);
+    free(header);
+
+    drive_t *win_drive = get_windows_drive();
+    char *menu_lst = concat_strs(2, win_drive->path, "\\menu.lst");
+    unlinkFile(menu_lst);
+    free(menu_lst);
+    free_drive(win_drive);
+}
+
 menu_t get_grub4dos() {
     menu_t menu;
     menu.regenerate = regenerate_grub4dos;
     menu.install = install_grub4dos;
+    menu.uninstall = uninstall_grub4dos;
     return menu;
 }
