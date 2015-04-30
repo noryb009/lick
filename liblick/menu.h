@@ -1,11 +1,12 @@
 #pragma once
 
+#include "lickdir.h"
 #include "uniso.h"
 
 struct menu_s {
-    int (*install)(char *menu_dir, char *res_dir);
-    int (*regenerate)(char *menu_dir);
-    int (*uninstall)(char *menu_dir, char *res_dir);
+    int (*install)(lickdir_t *lick);
+    int (*regenerate)(lickdir_t *lick);
+    int (*uninstall)(lickdir_t *lick);
 };
 
 typedef struct menu_s menu_t;

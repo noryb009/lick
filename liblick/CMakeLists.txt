@@ -9,6 +9,7 @@ set(sources
     "install-loader/nt.c"
     "install-loader/vista.c"
     "install-loader/utils.c"
+    "lickdir.c"
     "llist.c"
     "menu.c"
     "menu/grub4dos.c"

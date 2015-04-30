@@ -36,10 +36,10 @@ int check_loader(loader_t *l, win_info_t *info) {
 }
 
 int install_loader(loader_t *l, win_info_t *info,
-        char *lick_menu, char *lick_res) {
-    if(!l->check(info) && l->install(info, lick_res)) {
+        lickdir_t *lick) {
+    if(!l->check(info) && l->install(info, lick)) {
         menu_t *m = get_menu(l);
-        m->install(lick_menu, lick_res);
+        m->install(lick);
         free(m);
         return 0;
     }
@@ -47,10 +47,10 @@ int install_loader(loader_t *l, win_info_t *info,
 }
 
 int uninstall_loader(loader_t *l, win_info_t *info,
-        char *lick_menu, char *lick_res) {
-    if(!l->check(info) && l->uninstall(info, lick_res)) {
+        lickdir_t *lick) {
+    if(!l->check(info) && l->uninstall(info, lick)) {
         menu_t *m = get_menu(l);
-        m->uninstall(lick_menu, lick_res);
+        m->uninstall(lick);
         free(m);
         return 0;
     }

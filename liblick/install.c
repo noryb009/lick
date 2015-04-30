@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "install.h"
-#include "menu.h"
+#include "install-loader.h"
 #include "scandir.h"
 #include "uniso.h"
 #include "utils.h"
@@ -13,8 +13,8 @@ int is_conf(const struct dirent *e) {
     return is_conf_file(e->d_name);
 }
 
-installed_t *get_installed(char *entry_dir, char *filename) {
-    char *path = concat_strs(3, entry_dir, "/", filename);
+installed_t *get_installed(lickdir_t *lick, char *filename) {
+    char *path = concat_strs(3, lick->entry, "/", filename);
     FILE *f = fopen(path, "r");
     free(path);
     if(!f)
@@ -37,19 +37,19 @@ installed_t *get_installed(char *entry_dir, char *filename) {
     return i;
 }
 
-node_t *list_installed(char *entry_dir) {
+node_t *list_installed(lickdir_t *lick) {
     node_t *lst = NULL;
     installed_t *n2;
 
     struct dirent **e;
-    int n = scandir2(entry_dir, &e, is_conf, alphasort2);
+    int n = scandir2(lick->entry, &e, is_conf, alphasort2);
     if(n < 0)
         return NULL;
 
     for(int i = 0; i < n; ++i) {
         printf("%s\n", e[i]->d_name); // TODO: remove
         if(is_file(e[i]->d_name)) {
-            n2 = get_installed(entry_dir, e[i]->d_name);
+            n2 = get_installed(lick, e[i]->d_name);
             if(n2)
                 lst = new_node(n2, lst);
         }
@@ -71,29 +71,29 @@ void free_list_installed(node_t *n) {
 }
 
 int install(char *id, char *name, char *iso,
-        char *entry_dir, char *menu_dir, char *install_dir) {
-    char *info = concat_strs(4, entry_dir, "/", id, ".conf");
-    char *menu = concat_strs(4, menu_dir, "/", id, ".conf");
+        lickdir_t *lick, char *install_dir, menu_t *menu) {
+    char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
+    char *menu_path = concat_strs(4, lick->menu, "/", id, ".conf");
 
-    if(file_exists(info) || file_exists(menu)) {
-        free(info);
-        free(menu);
+    if(file_exists(info_path) || file_exists(menu_path)) {
+        free(info_path);
+        free(menu_path);
         return 0;
     }
 
     uniso_status_t *status = uniso(iso, install_dir);
     if(status->finished == 0) {
         uniso_status_free(status);
-        free(info);
-        free(menu);
+        free(info_path);
+        free(menu_path);
         return 0;
     }
 
     // write menu entries
-    write_menu_frag(menu, name, status, install_dir);
-    regenerate_menu(menu);
+    write_menu_frag(menu_path, name, status, install_dir);
+    menu->regenerate(lick);
 
-    FILE *info_f = fopen(info, "w");
+    FILE *info_f = fopen(info_path, "w");
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {
@@ -102,8 +102,8 @@ int install(char *id, char *name, char *iso,
     fclose(info_f);
 
     uniso_status_free(status);
-    free(info);
-    free(menu);
+    free(info_path);
+    free(menu_path);
     return 1;
 }
 
@@ -143,8 +143,8 @@ int uninstall_delete_files(char *info) {
     return 1;
 }
 
-int uninstall(char *entry_dir, char *id) {
-    char *info = concat_strs(4, entry_dir, "/", id, ".conf");
+int uninstall(lickdir_t *lick, char *id) {
+    char *info = concat_strs(4, lick->entry, "/", id, ".conf");
     int ret = uninstall_delete_files(info);
     free(info);
     return ret;

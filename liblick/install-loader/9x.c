@@ -4,6 +4,7 @@
 #include "9x.h"
 #include "utils.h"
 #include "../drives.h"
+#include "../lickdir.h"
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
@@ -46,7 +47,7 @@ int check_loader_9x(win_info_t *info) {
 // set [menu] menuitem="PUPPYLINUX, Start Puppy"
 // create [PUPPYLINUX] ~> add shell="/path/to/grub.exe"
 // save, with attributes
-int install_loader_9x(win_info_t *info, char *lick_res_dir) {
+int install_loader_9x(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_9x(info)) {
         return 0;
     }
@@ -113,7 +114,7 @@ int install_loader_9x(win_info_t *info, char *lick_res_dir) {
         after = menuitem;
     }
 
-    char *grub_exe = concat_strs(2, lick_res_dir, "\\lick\\grub.exe");
+    char *grub_exe = concat_strs(2, lick->res, "\\grub.exe");
 
     menuitem[0] = '\0';
     fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);
@@ -128,7 +129,7 @@ int install_loader_9x(win_info_t *info, char *lick_res_dir) {
     return 1;
 }
 
-int uninstall_loader_9x(win_info_t *info, char *lick_res_dir) {
+int uninstall_loader_9x(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_9x(info)) {
         return 0;
     }

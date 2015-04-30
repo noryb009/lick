@@ -1,6 +1,8 @@
 #pragma once
 
+#include "lickdir.h"
 #include "llist.h"
+#include "menu.h"
 
 struct installed_s {
     char *id;
@@ -9,11 +11,11 @@ struct installed_s {
 
 typedef struct installed_s installed_t;
 
-node_t *list_installed(char *entry_dir);
+node_t *list_installed(lickdir_t *lick);
 void free_installed(installed_t *i);
 void free_list_installed(node_t *n);
 
 int install(char *id, char *name, char *iso,
-        char *entry_dir, char *menu_dir, char *install_dir);
+        lickdir_t *lick, char *install_dir, menu_t *menu);
 
-int uninstall(char *entry_dir, char *id);
+int uninstall(lickdir_t *lick, char *id);

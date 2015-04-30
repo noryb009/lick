@@ -4,6 +4,7 @@
 #include "nt.h"
 #include "utils.h"
 #include "../drives.h"
+#include "../lickdir.h"
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
@@ -43,7 +44,7 @@ int check_loader_nt(win_info_t *info) {
 // load boot.ini
 // make sure good timeout
 // [operating systems] ~> /path/to/grldr="Puppy Linux"
-int install_loader_nt(win_info_t *info, char *lick_res_dir) {
+int install_loader_nt(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_nt(info)) {
         return 0;
     }
@@ -110,7 +111,7 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
         after = bootitem;
     }
 
-    char *pupldr = concat_strs(2, lick_res_dir, "\\lick\\pupldr");
+    char *pupldr = concat_strs(2, lick->res, "\\pupldr");
 
     bootitem[0] = '\0';
     // print start of file, newline,
@@ -125,7 +126,7 @@ int install_loader_nt(win_info_t *info, char *lick_res_dir) {
     return 1;
 }
 
-int uninstall_loader_nt(win_info_t *info, char *lick_res_dir) {
+int uninstall_loader_nt(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_nt(info)) {
         return 0;
     }

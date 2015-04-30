@@ -3,6 +3,7 @@
 
 #include "vista.h"
 #include "../drives.h"
+#include "../lickdir.h"
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
@@ -87,21 +88,21 @@ int check_loader_vista(win_info_t *info) {
     return get_id_from_command_range(COMMAND_ENUM, id, "----------", "pupldr.mbr");
 }
 
-int install_loader_vista(win_info_t *info, char *lick_res_dir) {
+int install_loader_vista(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_vista(info)) {
         return 0;
     }
 
-    if(strlen(lick_res_dir) < 2 || lick_res_dir[1] != ':')
+    if(strlen(lick->res) < 2 || lick->res[1] != ':')
         return 0;
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
 
     char *drive = "C:";
-    drive[0] = lick_res_dir[0];
-    char lick_res_dir_path[strlen(lick_res_dir)+1];
-    strcpy(lick_res_dir_path, lick_res_dir + 2);
+    drive[0] = lick->res[0];
+    char lick_res_dir_path[strlen(lick->res)+1];
+    strcpy(lick_res_dir_path, lick->res + 2);
 
     get_id_from_command(COMMAND_CREATE, id);
 
@@ -126,7 +127,7 @@ int install_loader_vista(win_info_t *info, char *lick_res_dir) {
     return 1;
 }
 
-int uninstall_loader_vista(win_info_t *info, char *lick_res_dir) {
+int uninstall_loader_vista(win_info_t *info, lickdir_t *lick) {
     if(!supported_loader_vista(info)) {
         return 0;
     }

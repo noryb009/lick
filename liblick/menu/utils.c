@@ -10,11 +10,11 @@ int is_conf(const struct dirent *e) {
     return is_conf_file(e->d_name);
 }
 
-node_t *get_files(char *menu_dir) {
+node_t *get_conf_files(char *dir) {
     node_t *lst = NULL;
 
     struct dirent **e;
-    int n = scandir2(menu_dir, &e, is_conf, alphasort2);
+    int n = scandir2(dir, &e, is_conf, alphasort2);
     if(n < 0)
         return NULL;
 

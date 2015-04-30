@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "install-loader.h"
+#include "lickdir.h"
 #include "uniso.h"
 #include "utils.h"
 #include "windows-info.h"
@@ -18,24 +19,28 @@ void print_info(win_info_t *info) {
 void loud_test_install() {
     win_info_t info = get_windows_version_info();
     loader_t *loader = get_loader(&info);
+    lickdir_t *lick = expand_lick_dir("D:\\lick");
 
     printf("check: %d\n", check_loader(loader, &info));
-    printf("install: %d\n", install_loader(loader, &info, "D:\\lick\\menu", "D:\\lick\\res"));
+    printf("install: %d\n", install_loader(loader, &info, lick));
     printf("check: %d\n", check_loader(loader, &info));
     getchar(); // to modify file
-    printf("uninstall:%d\n", uninstall_loader(loader, &info, "D:\\lick\\menu", "D:\\lick\\res"));
+    printf("uninstall:%d\n", uninstall_loader(loader, &info, lick));
     printf("check: %d\n", check_loader(loader, &info));
 
+    free(lick);
     free(loader);
 }
 
 void test_install() {
     win_info_t info = get_windows_version_info();
     loader_t *loader = get_loader(&info);
+    lickdir_t *lick = expand_lick_dir("D:\\lick");
 
-    install_loader(loader, &info, "D:\\lick\\menu", "D:\\lick\\res");
-    uninstall_loader(loader, &info, "D:\\lick\\menu", "D:\\lick\\res");
+    install_loader(loader, &info, lick);
+    uninstall_loader(loader, &info, lick);
 
+    free(lick);
     free(loader);
 }
 

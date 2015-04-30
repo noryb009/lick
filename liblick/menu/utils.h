@@ -13,6 +13,6 @@ struct entry_s {
 
 typedef struct entry_s entry_t;
 
-node_t *get_files(char *menu_dir);
+node_t *get_conf_files(char *dir);
 entry_t *get_entry(FILE *f);
 void free_entry(entry_t *e);
