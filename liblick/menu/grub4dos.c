@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-typedef __u_short u_short; // TODO: fix
-#include <fts.h>
 
 #include "grub4dos.h"
 #include "utils.h"

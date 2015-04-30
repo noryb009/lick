@@ -1,17 +1,15 @@
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-typedef __u_short u_short; // TODO: fix
-#include <fts.h>
 
 #include "install.h"
 #include "menu.h"
+#include "scandir.h"
 #include "uniso.h"
 #include "utils.h"
 
-installed_t *get_installed(char *path, char *filename) {
+installed_t *get_installed(char *entry_dir, char *filename) {
     // if ends with .conf
     char *conf;
     do {
@@ -20,7 +18,9 @@ installed_t *get_installed(char *path, char *filename) {
     if(conf == NULL)
         return NULL;
 
+    char *path = concat_strs(3, entry_dir, "/", filename);
     FILE *f = fopen(path, "r");
+    free(path);
     if(!f)
         return NULL;
     int done = 0;
@@ -42,32 +42,26 @@ installed_t *get_installed(char *path, char *filename) {
 }
 
 node_t *list_installed(char *entry_dir) {
-    FTS *fts;
-    FTSENT *p, *cp;
-    int fts_opts = FTS_NOCHDIR | FTS_COMFOLLOW
-        | FTS_LOGICAL | FTS_NOCHDIR;
-
-    fts = fts_open(&entry_dir, fts_opts, NULL);
-    if(fts == NULL)
-        return NULL;
-
-    p = fts_children(fts, 0);
-    if(p == NULL)
-        return NULL;
-
-    node_t *n = NULL;
+    node_t *lst = NULL;
     installed_t *n2;
 
-    while((p = fts_read(fts)) != NULL)
-        switch(p->fts_info) {
-            case FTS_F:
-                n2 = get_installed(p->fts_path, p->fts_name);
-                if(n2)
-                    n = new_node(n2, n);
-                break;
-        }
-    fts_close(fts);
-    return n;
+    struct dirent **e;
+    int n = scandir2(entry_dir, &e, 0, alphasort2);
+    if(n < 0)
+        return NULL;
+
+    for(int i = 0; i < n; ++i) {
+        printf("%s\n", e[i]->d_name); // TODO: remove
+        //TODO: make sure file, not directory
+        //TODO: use filter
+        n2 = get_installed(entry_dir, e[i]->d_name);
+        if(n2)
+            lst = new_node(n2, lst);
+        free(e[i]);
+    }
+
+    free(e);
+    return lst;
 }
 
 void free_installed(installed_t *i) {

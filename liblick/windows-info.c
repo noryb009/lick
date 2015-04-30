@@ -17,8 +17,8 @@ void version(win_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
     typedef int (WINAPI *getVersion)(LPOSVERSIONINFO lpVersionInfo);
     getVersion fn = GetProcAddress(k, "GetVersionEx");
-    if(!fn) {fn = GetProcAddress(l, "GetVersionExA");}
-    if(!fn) {fn = GetProcAddress(l, "GetVersionExW");}
+    if(!fn) {fn = GetProcAddress(k, "GetVersionExA");}
+    if(!fn) {fn = GetProcAddress(k, "GetVersionExW");}
     if(!fn) {v->version = V_UNKNOWN;return;}
 
     OSVERSIONINFO verInfo;
@@ -44,6 +44,9 @@ void version(win_info_t *v) {
         v->version = V_WINDOWS_7;
     } else if(M == 6 && m == 2) {
         v->version = V_WINDOWS_8;
+    } else if(M == 6 && m == 3) {
+        v->version = V_WINDOWS_8_1;
+    // TODO: M == 10 && m == 0
     } else {
         v->version = V_UNKNOWN;
     }
@@ -58,11 +61,11 @@ void arch(win_info_t *v) {
 
     SYSTEM_INFO sys_info;
     fn(&sys_info);
-    switch(sys_info.wProcessorArchitecture)
-        case: PROCESSOR_ARCHITECTURE_INTEL:
+    switch(sys_info.wProcessorArchitecture) {
+        case PROCESSOR_ARCHITECTURE_INTEL:
             v->arch = A_WINDOWS_X86;
             break;
-        case: PROCESSOR_ARCHITECTURE_AMD64:
+        case PROCESSOR_ARCHITECTURE_AMD64:
             v->arch = A_WINDOWS_X86_64;
             break;
         default:
@@ -74,7 +77,7 @@ void admin(win_info_t *v) {
     HMODULE s = LoadLibrary("Shell32.dll");
 
     typedef BOOL (WINAPI *IsAdmin)(void);
-    IsAdmin fn = GetProcAddress(shell32, "IsUserAnAdmin");
+    IsAdmin fn = GetProcAddress(s, "IsUserAnAdmin");
 
     if(!fn) {v->is_admin = ADMIN_YES; return;}
 
@@ -99,7 +102,7 @@ void bios(win_info_t *v) {
     GetError errfn = GetProcAddress(k, "GetLastError");
 
     fn("", "{00000000-0000-0000-0000-000000000000}", NULL, 0);
-    if(!getError || getError() == ERROR_INVALID_FUNCTION) {
+    if(!errfn || errfn() == ERROR_INVALID_FUNCTION) {
         v->is_bios = BIOS_BIOS;
     } else {
         v->is_bios = BIOS_UEFI;

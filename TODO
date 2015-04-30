@@ -5,11 +5,11 @@ Manage Drives
 - create LICK drive - later
 - remove LICK drive - later
 
-Boot Manager
+Boot Manager - done
 - boot manager installed - done
 - install/uninstall - done
 
-Install/uninstall
+Install/uninstall - done
 - uniso - done
 - add to menu - done
 - list currently installed - done
@@ -18,3 +18,6 @@ Install/uninstall
 Menu
 - menu conversion - done
 - specify format - done-ish
+- link menu used to boot manager
+
+Test

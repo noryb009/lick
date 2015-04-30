@@ -24,28 +24,31 @@ void free_drive_list(node_t *lst) {
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+enum DRIVE_TYPES drive_type(char *path) {
+    switch(GetDriveType(path)) {
+        case DRIVE_FIXED:
+            return DRV_HDD;
+        case DRIVE_REMOTE:
+            return DRV_REMOVABLE;
+        default:
+            return DRV_UNKNOWN;
+    }
+}
+
 node_t *all_drives() {
     char paths[MAX_PATH];
-    DWORD n = GetLogicalStrings(MAX_PATH, paths);
+    // TODO: GetLogicalDrives?
+    DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 
-    for(DWORD p = 0; p < n; p += strlen(&paths[p]) + 1) {
-        DRIVE_TYPES type;
-        switch(GetDriveType(&paths[p])) {
-            case 3:
-                type = DRV_HDD;
-                break;
-            case 2:
-                type = DRV_REMOVABLE;
-                break;
-            case 4:
-                type = DRV_REMOTE;
-                break;
-            default:
-                type = DRV_UNKNOWN:
+    DWORD n = 1;
+    char *path = "a:\\";
+    for(int i = 0; i < 32; ++i, n = n << 1) {
+        if(n == n & drive_flags) {
+            path[0] = 'A' + i;
+            printf("Drive exists: %s\n", path); //TODO: remove
+            drives = new_node(new_drive(path, drive_type(path)), drives);
         }
-
-        drives = new_node(new_drive(&paths[p], type), drives);
     }
 
     return drives;
@@ -61,7 +64,7 @@ drive_t *get_windows_drive() {
     letters[1] = (char)buf[1];
     letters[2] = '\0';
 
-    return drive =new_drive(letters, DRV_HDD);
+    return new_drive(letters, DRV_HDD);
 }
 #else
 node_t *all_drives() {

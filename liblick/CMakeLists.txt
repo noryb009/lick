@@ -16,13 +16,8 @@ set(sources
     "utils.c"
     "windows-info.c")
 
-set(inc_dirs) # TODO
-
-if(WIN32)
-    # TODO
-    set(inc_dirs
-        ${inc_dirs})
-endif()
+set(inc_dirs
+    ${CMAKE_BINARY_DIR}/libarchive/include)
 
 include_directories(${inc_dirs})
 

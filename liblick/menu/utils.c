@@ -1,14 +1,12 @@
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-typedef __u_short u_short; // TODO: fix
-#include <fts.h>
 
 #include "utils.h"
+#include "../scandir.h"
 #include "../utils.h"
 
-int is_file(char *path, char *filename) {
+int is_file(char *filename) {
     // if ends with .conf
     char *conf;
     do {
@@ -20,36 +18,23 @@ int is_file(char *path, char *filename) {
     return 1;
 }
 
-int alphabetical(const FTSENT **a, const FTSENT **b) {
-    return strcmp((*a)->fts_name, (*b)->fts_name);
-}
-
 node_t *get_files(char *menu_dir) {
-    FTS *fts;
-    FTSENT *p, *cp;
-    int fts_opts = FTS_NOCHDIR | FTS_COMFOLLOW
-        | FTS_LOGICAL | FTS_NOCHDIR;
+    node_t *lst = NULL;
 
-    fts = fts_open(&menu_dir, fts_opts, &alphabetical);
-    if(fts == NULL)
+    struct dirent **e;
+    int n = scandir2(menu_dir, &e, is_file, alphasort2);
+    if(n < 0)
         return NULL;
 
-    p = fts_children(fts, 0);
-    if(p == NULL)
-        return NULL;
+    for(int i = 0; i < n; ++i) {
+        printf("%s\n", e[i]->d_name); // TODO: remove
+        //TODO: make sure file, not directory
+        lst = new_node(strdup(e[i]->d_name), lst);
+        free(e[i]);
+    }
 
-    node_t *n = NULL;
-
-    while((p = fts_read(fts)) != NULL)
-        switch(p->fts_info) {
-            case FTS_F:
-                printf("DEBUG: %s\n", p->fts_path);
-                if(is_file(p->fts_path, p->fts_name))
-                    n = new_node(strdup(p->fts_path), n);
-                break;
-        }
-    fts_close(fts);
-    return n;
+    free(e);
+    return lst;
 }
 
 int is_space(char c) {
