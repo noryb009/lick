@@ -13,6 +13,7 @@ set(sources
     "menu.c"
     "menu/grub4dos.c"
     "menu/utils.c"
+    "scandir.c"
     "uniso.c"
     "utils.c"
     "windows-info.c")
