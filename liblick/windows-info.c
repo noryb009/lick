@@ -46,7 +46,8 @@ void version(win_info_t *v) {
         v->version = V_WINDOWS_8;
     } else if(M == 6 && m == 3) {
         v->version = V_WINDOWS_8_1;
-    // TODO: M == 10 && m == 0
+    } else if(M == 10 && m == 0) {
+        v->version = V_WINDOWS_10;
     } else {
         v->version = V_UNKNOWN;
     }
@@ -126,6 +127,7 @@ void family(win_info_t *v) {
         case V_WINDOWS_7:
         case V_WINDOWS_8:
         case V_WINDOWS_8_1:
+        case V_WINDOWS_10:
             v->family = F_WINDOWS_VISTA;
             break;
         default:
@@ -154,6 +156,8 @@ char *version_name(enum WINDOWS_VERSION v) {
             return "Windows 8";
         case V_WINDOWS_8_1:
             return "Windows 8.1";
+        case V_WINDOWS_10:
+            return "Windows 10";
     }
 }
 

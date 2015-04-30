@@ -70,6 +70,7 @@ int supported_loader_vista(win_info_t *info) {
         case V_WINDOWS_7:
         case V_WINDOWS_8:
         case V_WINDOWS_8_1:
+        //case V_WINDOWS_10: // TODO: test
             return 1;
     }
     return 0;
