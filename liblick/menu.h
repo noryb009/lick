@@ -10,6 +10,7 @@ struct menu_s {
 
 typedef struct menu_s menu_t;
 
-int write_menu_frag(char *dst, char *name, uniso_status_t *info);
+int write_menu_frag(char *dst, char *name, uniso_status_t *info,
+        char *subdir);
 
 int regenerate_menu(char *menu_dir);

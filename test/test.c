@@ -8,19 +8,6 @@
 #include "utils.h"
 #include "windows-info.h"
 
-void test_path(char *path, char *dir, char *base) {
-    //printf("%s\n", path);
-    char *d = dirname(path), *b = basename(base);
-
-    //printf("-> %s\n", d);
-    assert(strcmp(dir, d) == 0);
-    //printf("-> %s\n", b);
-    assert(strcmp(base, b) == 0);
-
-    free(d);
-    free(b);
-}
-
 void print_info(win_info_t *info) {
     printf("family: %s\n", info->family_name);
     printf("version: %s\n", info->version_name);
@@ -47,14 +34,6 @@ void test_install() {
 }
 
 int main(int argc, char* argv[]) {
-    // dirname and basename
-    test_path("/usr/lib", "/usr", "lib");
-    test_path("/usr/", "/", "usr");
-    test_path("usr", ".", "usr");
-    test_path("/", "/", "/");
-    test_path(".", ".", ".");
-    test_path("..", ".", "..");
-
     win_info_t info = get_windows_version_info();
     print_info(&info);
 

@@ -37,7 +37,6 @@ enum DRIVE_TYPES drive_type(char *path) {
 
 node_t *all_drives() {
     char paths[MAX_PATH];
-    // TODO: GetLogicalDrives?
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 

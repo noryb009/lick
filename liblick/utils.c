@@ -61,43 +61,6 @@ int is_slash(char c) {
     return (c == '/' || c == '\\');
 }
 
-// TODO: C:/
-char *dirname(const char *p) {
-    if(strcmp(p, "/") == 0) {
-        return strdup("/");
-    }
-    int l = strlen(p);
-    while(l > 0 && is_slash(p[l-1])) {l--;} // trailing /
-    while(l > 0 && !is_slash(p[l-1])) {l--;} // name
-    while(l > 1 && is_slash(p[l-1])) {l--;} // trailing /
-
-    if(l == 0) {
-        return strdup(".");
-    }
-    char *n = malloc(l + 1);
-    strncpy(n, p, l);
-    n[l] = '\0';
-    return n;
-}
-
-// TODO: C:/
-char *basename(const char *p) {
-    int l = strlen(p);
-    while(l > 0 && is_slash(p[l-1])) {l--;}
-
-    if(l == 0) {
-        return strdup("/");
-    }
-
-    int s = l;
-    while(s > 0 && !is_slash(s)) {s--;}
-
-    char *n = malloc(l - s + 1);
-    strncpy(n, p + s, l - s);
-    n[l - s] = '\0';
-    return n;
-}
-
 char *concat_strs(int n, ...) {
     va_list args;
     int len = 1;
@@ -138,6 +101,16 @@ char *advance_to_newline(char *s) {
     return s;
 }
 
+// 1 = yes, 0 = no, -1 = error
+int is_file(char *path) {
+    struct stat s;
+    if(stat(path, &s) != 0)
+        return -1;
+    if(S_ISDIR(s.st_mode))
+        return 0;
+    return 1;
+}
+
 int file_exists(char *path) {
     FILE *f = fopen(path, "r");
     if(!f)
@@ -170,4 +143,16 @@ char *read_line(FILE *f, int *done) {
 
         s[i] = c;
     }
+}
+
+int is_conf_file(const char *name) {
+    // if ends with .conf
+    char *conf = strstr(name, ".conf");
+    while(conf != NULL && strcmp(conf, ".conf") != 0) {
+        conf = strstr(conf + 1, ".conf");
+    }
+
+    if(conf == NULL)
+        return 0;
+    return 1;
 }

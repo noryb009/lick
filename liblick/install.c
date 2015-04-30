@@ -9,16 +9,11 @@
 #include "uniso.h"
 #include "utils.h"
 
+int is_conf(const struct dirent *e) {
+    return is_conf_file(e->d_name);
+}
+
 installed_t *get_installed(char *entry_dir, char *filename) {
-    // if ends with .conf
-    char *conf = strstr(filename, ".conf");
-    while(conf != NULL && strcmp(conf, ".conf") != 0) {
-        conf = strstr(conf + 1, ".conf");
-    }
-
-    if(conf == NULL)
-        return NULL;
-
     char *path = concat_strs(3, entry_dir, "/", filename);
     FILE *f = fopen(path, "r");
     free(path);
@@ -47,17 +42,17 @@ node_t *list_installed(char *entry_dir) {
     installed_t *n2;
 
     struct dirent **e;
-    int n = scandir2(entry_dir, &e, 0, alphasort2);
+    int n = scandir2(entry_dir, &e, is_conf, alphasort2);
     if(n < 0)
         return NULL;
 
     for(int i = 0; i < n; ++i) {
         printf("%s\n", e[i]->d_name); // TODO: remove
-        //TODO: make sure file, not directory
-        //TODO: use filter
-        n2 = get_installed(entry_dir, e[i]->d_name);
-        if(n2)
-            lst = new_node(n2, lst);
+        if(is_file(e[i]->d_name)) {
+            n2 = get_installed(entry_dir, e[i]->d_name);
+            if(n2)
+                lst = new_node(n2, lst);
+        }
         free(e[i]);
     }
 
@@ -95,12 +90,12 @@ int install(char *id, char *name, char *iso,
     }
 
     // write menu entries
-    write_menu_frag(menu, name, status);
+    write_menu_frag(menu, name, status, install_dir);
     regenerate_menu(menu);
 
     FILE *info_f = fopen(info, "w");
-    // TODO: headers?
-    fprintf(info_f, "%s\n", name);
+    fprintf(info_f, "name %s\n", name);
+    fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {
         fprintf(info_f, "%s\n", n->val);
     }
@@ -119,8 +114,16 @@ int uninstall_delete_files(char *info) {
 
     int done = 0;
 
-    // TODO: headers?
-    char *ln = read_line(f, &done); // name
+    char *ln;
+
+    // headers
+    while(1) {
+        ln = read_line(f, &done);
+        if(done || strcmp(ln, "-----"))
+            break;
+    }
+
+    // files
     while(1) {
         ln = read_line(f, &done);
         if(done)

@@ -6,30 +6,22 @@
 #include "../scandir.h"
 #include "../utils.h"
 
-int is_file(const struct dirent *e) {
-    // if ends with .conf
-    char *conf = strstr(e->d_name, ".conf");
-    while(conf != NULL && strcmp(conf, ".conf") != 0) {
-        conf = strstr(conf + 1, ".conf");
-    }
-
-    if(conf == NULL)
-        return 0;
-    return 1;
+int is_conf(const struct dirent *e) {
+    return is_conf_file(e->d_name);
 }
 
 node_t *get_files(char *menu_dir) {
     node_t *lst = NULL;
 
     struct dirent **e;
-    int n = scandir2(menu_dir, &e, is_file, alphasort2);
+    int n = scandir2(menu_dir, &e, is_conf, alphasort2);
     if(n < 0)
         return NULL;
 
     for(int i = 0; i < n; ++i) {
         printf("%s\n", e[i]->d_name); // TODO: remove
-        //TODO: make sure file, not directory
-        lst = new_node(strdup(e[i]->d_name), lst);
+        if(is_file(e[i]->d_name))
+            lst = new_node(strdup(e[i]->d_name), lst);
         free(e[i]);
     }
 
