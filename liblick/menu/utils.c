@@ -6,12 +6,12 @@
 #include "../scandir.h"
 #include "../utils.h"
 
-int is_file(char *filename) {
+int is_file(const struct dirent *e) {
     // if ends with .conf
-    char *conf;
-    do {
+    char *conf = strstr(e->d_name, ".conf");
+    while(conf != NULL && strcmp(conf, ".conf") != 0) {
         conf = strstr(conf + 1, ".conf");
-    } while(conf != NULL && strlen(conf) > 5);
+    }
 
     if(conf == NULL)
         return 0;

@@ -11,10 +11,11 @@
 
 installed_t *get_installed(char *entry_dir, char *filename) {
     // if ends with .conf
-    char *conf;
-    do {
+    char *conf = strstr(filename, ".conf");
+    while(conf != NULL && strcmp(conf, ".conf") != 0) {
         conf = strstr(conf + 1, ".conf");
-    } while(conf != NULL && strlen(conf) > 5);
+    }
+
     if(conf == NULL)
         return NULL;
 
