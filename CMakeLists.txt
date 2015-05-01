@@ -24,7 +24,8 @@ ExternalProject_Add(
         -DPOSIX-REGEX-LIB:BOOL=FALSE -DXATTR:BOOL=FALSE -DXML2:BOOL=FALSE
         -DZLIB:BOOL=FALSE
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive)
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
+        -DCMAKE_C_FLAGS=-static-libgcc)
 
 add_subdirectory(liblick)
 add_subdirectory(test)
