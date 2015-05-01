@@ -47,7 +47,6 @@ node_t *list_installed(lickdir_t *lick) {
         return NULL;
 
     for(int i = 0; i < n; ++i) {
-        printf("%s\n", e[i]->d_name); // TODO: remove
         if(is_file(e[i]->d_name)) {
             n2 = get_installed(lick, e[i]->d_name);
             if(n2)

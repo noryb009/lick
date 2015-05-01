@@ -37,9 +37,12 @@ int check_loader(loader_t *l, win_info_t *info) {
 
 int install_loader(loader_t *l, win_info_t *info,
         lickdir_t *lick) {
-    if(!l->check(info) && l->install(info, lick)) {
+    if(!l->check(info)) {
+        if(!l->install(info, lick))
+            return 1;
         menu_t *m = get_menu(l);
         m->install(lick);
+        m->regenerate(lick);
         free(m);
         return 0;
     }
@@ -48,7 +51,9 @@ int install_loader(loader_t *l, win_info_t *info,
 
 int uninstall_loader(loader_t *l, win_info_t *info,
         lickdir_t *lick) {
-    if(!l->check(info) && l->uninstall(info, lick)) {
+    if(l->check(info)) {
+        if(!l->uninstall(info, lick))
+            return 1;
         menu_t *m = get_menu(l);
         m->uninstall(lick);
         free(m);

@@ -20,9 +20,11 @@ char *advance_to_newline(char *s) {
 }
 
 char *file_to_str(FILE *f) {
-    fseek(f, 0, SEEK_END);
-    int len = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    int len = 0;
+    rewind(f);
+    while(getc(f) != EOF)
+        len++;
+    rewind(f);
 
     char *buf = malloc(len + 1);
     fread(buf, 1, len, f);

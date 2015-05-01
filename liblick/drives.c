@@ -40,12 +40,14 @@ node_t *all_drives() {
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 
-    DWORD n = 1;
-    char *path = "a:\\";
-    for(int i = 0; i < 32; ++i, n = n << 1) {
-        if(n == n & drive_flags) {
+    DWORD n = 1 << 31;
+    char path[4];
+    strcpy(path, "a:\\");
+
+    // go backwards, pushing to front of list, so returns in order
+    for(int i = 31; i >= 0; --i, n = n >> 1) {
+        if(n == (n & drive_flags)) {
             path[0] = 'A' + i;
-            printf("Drive exists: %s\n", path); //TODO: remove
             drives = new_node(new_drive(path, drive_type(path)), drives);
         }
     }
@@ -58,10 +60,11 @@ drive_t *get_windows_drive() {
     if(GetSystemWindowsDirectory(buf, 30) == 0)
         return NULL;
 
-    char letters[3];
+    char letters[4];
     letters[0] = (char)buf[0];
     letters[1] = (char)buf[1];
-    letters[2] = '\0';
+    letters[2] = '\\';
+    letters[3] = '\0';
 
     return new_drive(letters, DRV_HDD);
 }

@@ -12,7 +12,7 @@
 
 char *boot_ini_path() {
     drive_t *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive->path, "boot.ini");
+    char *loc = concat_strs(2, drive->path, "\\boot.ini");
     free_drive(drive);
     return loc;
 }

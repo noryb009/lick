@@ -13,7 +13,7 @@
 
 char *config_sys_path() {
     drive_t *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive->path, "config.sys");
+    char *loc = concat_strs(2, drive->path, "\\config.sys");
     free_drive(drive);
     return loc;
 }

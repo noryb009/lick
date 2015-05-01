@@ -9,6 +9,7 @@ struct entry_s {
     char *initrd;
     char *kernel;
     char *options;
+    char *static_text;
 };
 
 typedef struct entry_s entry_t;

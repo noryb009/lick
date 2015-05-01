@@ -19,9 +19,8 @@ node_t *get_conf_files(char *dir) {
         return NULL;
 
     for(int i = 0; i < n; ++i) {
-        printf("%s\n", e[i]->d_name); // TODO: remove
         if(is_file(e[i]->d_name))
-            lst = new_node(strdup(e[i]->d_name), lst);
+            lst = new_node(concat_strs(3, dir, "\\", e[i]->d_name), lst);
         free(e[i]);
     }
 
@@ -45,6 +44,7 @@ entry_t *get_entry(FILE *f) {
 
         int len = strlen(ln);
         char *keyword_start = NULL;
+        int keyword_done = 0;
         char *item_start = NULL;
         for(int i = 0; i < len; i++) {
             int space = is_space(ln[i]);
@@ -53,9 +53,10 @@ entry_t *get_entry(FILE *f) {
             else if(keyword_start == NULL && space) { // padding
             } else if(keyword_start == NULL) // keyword
                 keyword_start = ln + i;
-            else if(item_start == NULL && space) // space between
+            else if(item_start == NULL && space) { // space between
                 ln[i] = '\0';
-            else if(item_start == NULL) // item
+                keyword_done = 1;
+            } else if(item_start == NULL && keyword_done == 1) // item
                 item_start = ln + i;
         }
 
@@ -69,16 +70,19 @@ entry_t *get_entry(FILE *f) {
             KERNEL,
             INITRD,
             OPTIONS,
+            STATIC,
         } type;
 
         if(strcmp(keyword_start, "title") == 0)
             type = TITLE;
-        else if(strcmp(keyword_start, "title") == 0)
+        else if(strcmp(keyword_start, "kernel") == 0)
             type = KERNEL;
-        else if(strcmp(keyword_start, "title") == 0)
+        else if(strcmp(keyword_start, "initrd") == 0)
             type = INITRD;
-        else if(strcmp(keyword_start, "title") == 0)
+        else if(strcmp(keyword_start, "options") == 0)
             type = OPTIONS;
+        else if(strcmp(keyword_start, "static") == 0)
+            type = STATIC;
         else {
             free(ln);
             continue;
@@ -110,6 +114,9 @@ entry_t *get_entry(FILE *f) {
             case OPTIONS:
                 target = &(e->options);
                 break;
+            case STATIC:
+                target = &(e->static_text);
+                break;
         }
 
         if(*target != NULL)
@@ -119,6 +126,8 @@ entry_t *get_entry(FILE *f) {
 
         if(e->title && e->kernel && e->initrd && e->options)
             return e;
+        if(e->static_text)
+            return e;
     }
 
     if(e)
@@ -127,6 +136,8 @@ entry_t *get_entry(FILE *f) {
 }
 
 void free_entry(entry_t *e) {
+    if(e == NULL)
+        return;
     if(e->title)
         free(e->title);
     if(e->kernel)
@@ -135,4 +146,7 @@ void free_entry(entry_t *e) {
         free(e->initrd);
     if(e->options)
         free(e->options);
+    if(e->static_text)
+        free(e->static_text);
+    free(e);
 }
