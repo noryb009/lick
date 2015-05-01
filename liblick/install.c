@@ -9,7 +9,7 @@
 #include "uniso.h"
 #include "utils.h"
 
-int is_conf(const struct dirent *e) {
+int is_conf_ent(const struct dirent *e) {
     return is_conf_file(e->d_name);
 }
 
@@ -42,7 +42,7 @@ node_t *list_installed(lickdir_t *lick) {
     installed_t *n2;
 
     struct dirent **e;
-    int n = scandir2(lick->entry, &e, is_conf, alphasort2);
+    int n = scandir2(lick->entry, &e, is_conf_ent, alphasort2);
     if(n < 0)
         return NULL;
 
