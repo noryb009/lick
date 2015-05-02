@@ -17,7 +17,7 @@ uniso_status_t *new_status() {
     return s;
 }
 
-int filter_file(uniso_status_t *s, const char *f) {
+int filter_file(uniso_status_t *s, const char *f, const char *dst) {
     if(strcmp(f, "boot.cat") == 0
             || strcmp(f, "boot.msg") == 0
             || strcmp(f, "help.msg") == 0
@@ -30,11 +30,11 @@ int filter_file(uniso_status_t *s, const char *f) {
     }
 
     // check for kernel or initrd
-    if(s->kernel == NULL && strstr(f, "vmlinu")) {
-        s->kernel = strdup(f);
+    if(s->kernel == NULL && (strstr(f, "vmlinu") || strstr(f, "VMLINU"))) {
+        s->kernel = concat_strs(3, dst, "/", f);
     }
-    if(s->initrd == NULL && strstr(f, "initr")) {
-        s->initrd = strdup(f);
+    if(s->initrd == NULL && (strstr(f, "initr") || strstr(f, "INITR"))) {
+        s->initrd = concat_strs(3, dst, "/", f);
     }
 
     return 1;
@@ -78,7 +78,7 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst) {
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
         const struct stat *stat = archive_entry_stat(e);
         char *name = strdup(archive_entry_pathname(e));
-        if(S_ISDIR(stat->st_mode) || !filter_file(s, name)) {
+        if(S_ISDIR(stat->st_mode) || !filter_file(s, name, dst)) {
             free(name);
             continue;
         }

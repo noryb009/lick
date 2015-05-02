@@ -20,16 +20,30 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
     if(!f)
         return NULL;
     int done = 0;
-    char *name = read_line(f, &done);
-    fclose(f);
-    if(done) {
-        return NULL;
+    char *name;
+    while(1) {
+        char *ln = read_line(f, &done);
+        if(done) {
+            fclose(f);
+            return NULL;
+        }
+
+        char *keyword_start;
+        char *item_start;
+        conf_option(ln, &keyword_start, &item_start);
+
+        if(strcmp(keyword_start, "name") == 0 && item_start != NULL) {
+            fclose(f);
+            name = strdup(item_start);
+            free(ln);
+            break;
+        }
     }
 
-    int l = strlen(filename);
-    char *id = malloc(l - 5 + 1);
-    strncpy(filename, id, l - 5);
-    id[l - 5 + 1] = '\0';
+    int id_len = strlen(filename) - 5; // length of file name, - .conf
+    char *id = malloc(id_len + 1);
+    strncpy(id, filename, id_len);
+    id[id_len] = '\0';
 
     installed_t *i = malloc(sizeof(installed_t));
     i->id = id;
@@ -72,7 +86,7 @@ void free_list_installed(node_t *n) {
 int install(char *id, char *name, char *iso,
         lickdir_t *lick, char *install_dir, menu_t *menu) {
     char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
-    char *menu_path = concat_strs(4, lick->menu, "/", id, ".conf");
+    char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
 
     if(file_exists(info_path) || file_exists(menu_path)) {
         free(info_path);
@@ -96,8 +110,11 @@ int install(char *id, char *name, char *iso,
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {
-        fprintf(info_f, "%s\n", n->val);
+        char *s = concat_strs(3, install_dir, "/", n->val);
+        fprintf(info_f, "%s\n", s);
+        free(s);
     }
+    fprintf(info_f, "%s\n", install_dir);
     fclose(info_f);
 
     uniso_status_free(status);
@@ -106,7 +123,7 @@ int install(char *id, char *name, char *iso,
     return 1;
 }
 
-int uninstall_delete_files(char *info) {
+int uninstall_delete_files(char *info, char *menu) {
     FILE *f = fopen(info, "r");
     if(!f)
         return 0;
@@ -129,7 +146,7 @@ int uninstall_delete_files(char *info) {
             break;
         else if(strcmp(ln, "") != 0) {
             int l = strlen(ln);
-            if(ln[l-1] == '/' || ln[l-1] == '\\')
+            if(is_file(ln) == 0)
                 unlinkDir(ln);
             else
                 unlinkFile(ln);
@@ -139,12 +156,17 @@ int uninstall_delete_files(char *info) {
 
     fclose(f);
     unlinkFile(info);
+    unlinkFile(menu);
     return 1;
 }
 
-int uninstall(lickdir_t *lick, char *id) {
+int uninstall(lickdir_t *lick, char *id, menu_t *menu) {
     char *info = concat_strs(4, lick->entry, "/", id, ".conf");
-    int ret = uninstall_delete_files(info);
+    char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
+    int ret = uninstall_delete_files(info, menu_path);
     free(info);
+    free(menu_path);
+    if(menu && !menu->regenerate(lick))
+        ret = 0;
     return ret;
 }

@@ -5,16 +5,16 @@
 #include "menu.h"
 #include "menu/grub4dos.h"
 
-#define MENU_TITLE   "title\t%s%s"
-#define MENU_LINUX   "\tlinux\t%s"
-#define MENU_INITRD  "\tinitrd\t%s"
-#define MENU_OPTIONS "\toptions\t%s"
+#define MENU_TITLE   "title\t%s%s\n"
+#define MENU_KERNEL   "\tkernel\t%s\n"
+#define MENU_INITRD  "\tinitrd\t%s\n"
+#define MENU_OPTIONS "\toptions\t%s\n"
 
 int print_frag(FILE *f, char *name, char *suffix,
         uniso_status_t *info, char *ops) {
     fprintf(f, MENU_TITLE, name, suffix);
     if(info->kernel)
-        fprintf(f, MENU_LINUX, info->kernel);
+        fprintf(f, MENU_KERNEL, info->kernel);
     if(info->initrd)
         fprintf(f, MENU_INITRD, info->initrd);
     fprintf(f, MENU_OPTIONS, ops);
@@ -25,13 +25,14 @@ int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
     if(!f)
         return 0;
 
-    int len = 16;
-    if(subdir != NULL)
+    int len = 20;
+    if(subdir != NULL) {
         len += strlen(subdir);
-    subdir[len-1] = '\0';
+    }
 
     char options[len];
-    if(subdir == NULL)
+    options[len-1] = '\0';
+    if(subdir != NULL)
         snprintf(options, len - 1, "pfix=fsck psubdir=%s", subdir);
     else
         strcpy(options, "pfix=fsck");
@@ -39,11 +40,11 @@ int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
 
     fprintf(f, "\n");
 
-    if(subdir == NULL)
+    if(subdir != NULL)
         snprintf(options, len - 1, "pfix=ram psubdir=%s", subdir);
     else
         strcpy(options, "pfix=ram");
-    print_frag(f, name, " (no save file)", info, "pfix=fsck");
+    print_frag(f, name, " (no save file)", info, options);
 
     fclose(f);
     return 1;

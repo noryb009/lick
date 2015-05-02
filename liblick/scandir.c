@@ -4,7 +4,7 @@
 #include "scandir.h"
 
 int alphasort2(const struct dirent **a, const struct dirent **b) {
-    return strcmp((*a)->d_name, (*b)->d_name);
+    return strcmp((*b)->d_name, (*a)->d_name);
 }
 
 #define original_size 2

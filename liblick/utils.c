@@ -138,3 +138,37 @@ int is_conf_file(const char *name) {
         return 0;
     return 1;
 }
+
+int is_space(char c) {
+    return (c == ' ' || c == '\t');
+}
+
+void conf_option(char *ln, char **keyword_start, char **item_start) {
+    *keyword_start = NULL;
+    *item_start = NULL;
+
+    int len = strlen(ln);
+    int keyword_done = 0;
+    for(int i = 0; i < len; i++) {
+        int space = is_space(ln[i]);
+        if(ln[i] == '#') // comment
+            break;
+        else if(*keyword_start == NULL && space) { // padding
+        } else if(*keyword_start == NULL) // keyword
+            *keyword_start = ln + i;
+        else if(*item_start == NULL && space) { // space between
+            ln[i] = '\0';
+            keyword_done = 1;
+        } else if(*item_start == NULL && keyword_done == 1) // item
+            *item_start = ln + i;
+    }
+
+    if(*item_start != NULL) // has item
+        // trim end padding
+        for(int i = strlen(*item_start) - 1; i >= 0; i--) {
+            if(is_space((*item_start)[i]))
+                (*item_start)[i] = '\0';
+            else
+                break;
+        }
+}

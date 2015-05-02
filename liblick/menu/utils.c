@@ -28,37 +28,30 @@ node_t *get_conf_files(char *dir) {
     return lst;
 }
 
-int is_space(char c) {
-    return (c == ' ' || c == '\t');
+entry_t *new_entry() {
+    entry_t *e = malloc(sizeof(entry_t));
+    e->title = NULL;
+    e->kernel = NULL;
+    e->initrd = NULL;
+    e->options = NULL;
+    e->static_text = NULL;
 }
 
 entry_t *get_entry(FILE *f) {
     entry_t *e = NULL;
     int done = 0;
+    fpos_t pos;
 
     while(1) {
         char *v = concat_strs(0);
+        fgetpos(f, &pos);
         char *ln = read_line(f, &done);
         if(done)
             break;
 
-        int len = strlen(ln);
-        char *keyword_start = NULL;
-        int keyword_done = 0;
-        char *item_start = NULL;
-        for(int i = 0; i < len; i++) {
-            int space = is_space(ln[i]);
-            if(ln[i] == '#') // comment
-                break;
-            else if(keyword_start == NULL && space) { // padding
-            } else if(keyword_start == NULL) // keyword
-                keyword_start = ln + i;
-            else if(item_start == NULL && space) { // space between
-                ln[i] = '\0';
-                keyword_done = 1;
-            } else if(item_start == NULL && keyword_done == 1) // item
-                item_start = ln + i;
-        }
+        char *keyword_start;
+        char *item_start;
+        conf_option(ln, &keyword_start, &item_start);
 
         if(keyword_start == NULL) { // nothing found
             free(ln);
@@ -88,17 +81,8 @@ entry_t *get_entry(FILE *f) {
             continue;
         }
 
-        if(item_start != NULL) // has item
-            // trim end padding
-            for(int i = strlen(item_start) - 1; i >= 0; i--) {
-                if(is_space(item_start[i]))
-                    item_start[i] = '\0';
-                else
-                    break;
-            }
-
         if(e == NULL)
-            e = malloc(sizeof(entry_t));
+            e = new_entry();
 
         char **target;
         switch(type) {
@@ -119,20 +103,19 @@ entry_t *get_entry(FILE *f) {
                 break;
         }
 
-        if(*target != NULL)
-            // TODO: error/warning
-            free(*target);
+        // if item already found, current entry complete; unread line
+        if(*target != NULL) {
+            fsetpos(f, &pos);
+            return e;
+        }
+
         *target = strdup(item_start);
 
-        if(e->title && e->kernel && e->initrd && e->options)
-            return e;
-        if(e->static_text)
+        if((e->title && e->kernel && e->initrd && e->options) || e->static_text)
             return e;
     }
 
-    if(e)
-        free_entry(e);
-    return NULL;
+    return e;
 }
 
 void free_entry(entry_t *e) {

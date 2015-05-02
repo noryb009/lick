@@ -12,3 +12,4 @@ int is_file(char *path);
 int file_exists(char *path);
 char *read_line(FILE *f, int *done);
 int is_conf_file(const char *name);
+void conf_option(char *ln, char **keyword_start, char **item_start);

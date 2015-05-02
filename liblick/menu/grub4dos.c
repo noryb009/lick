@@ -13,12 +13,17 @@ void write_entry(FILE *f, entry_t *e) {
         fprintf(f, "%s\n", e->static_text);
         return;
     }
-    fprintf(f, "\n\n");
-    fprintf(f, "# %s\n", e->title);
+    if(e->title == NULL || e->kernel == NULL || e->options == NULL)
+    {printf("what?\n");
+        return;
+}
+
+    fprintf(f, "\n");
     fprintf(f, "title %s\n", e->title);
-    fprintf(f, "\tfind --set-root --ignore-floppies %s", e->initrd);
+    fprintf(f, "\tfind --set-root --ignore-floppies %s\n", e->kernel);
     fprintf(f, "\tkernel %s %s\n", e->kernel, e->options);
-    fprintf(f, "\tinitrd %s\n", e->initrd);
+    if(e->initrd != NULL)
+        fprintf(f, "\tinitrd %s\n", e->initrd);
     fprintf(f, "\tboot\n");
 }
 
@@ -54,7 +59,7 @@ int regenerate_grub4dos(lickdir_t *lick) {
 }
 
 int install_grub4dos(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "\\00_header.conf");
+    char *header = concat_strs(2, lick->menu, "\\00-header.conf");
     FILE *f = fopen(header, "w");
     free(header);
 
@@ -72,7 +77,7 @@ int install_grub4dos(lickdir_t *lick) {
 }
 
 int uninstall_grub4dos(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "\\00_header.conf");
+    char *header = concat_strs(2, lick->menu, "\\00-header.conf");
     unlinkFile(header);
     free(header);
 

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "drives.h"
+#include "install.h"
 #include "install-loader.h"
 #include "lickdir.h"
 #include "uniso.h"
@@ -16,15 +18,46 @@ void print_info(win_info_t *info) {
     printf("bios type: %s\n", info->bios_name);
 }
 
-void loud_test_install() {
+void print_installed(lickdir_t *lick) {
+    node_t *l = list_installed(lick);
+    for(node_t *n = l; n != NULL; n = n->next) {
+        installed_t *i = n->val;
+        printf("ID: %s, NAME: %s\n", i->id, i->name);
+    }
+    free_list_installed(l);
+}
+
+void install_iso(char *iso, char *to) {
     win_info_t info = get_windows_version_info();
     loader_t *loader = get_loader(&info);
-    lickdir_t *lick = expand_lick_dir("D:\\lick");
+    lickdir_t *lick = expand_lick_dir("C:\\lick");
+    menu_t *menu = get_menu(loader);
+
+    printf("Before install:\n");
+    print_installed(lick);
+    install("myID", "myNAME", iso, lick, to, menu);
+    print_installed(lick);
+    printf("After install:\n");
+    getchar();
+    uninstall(lick, "myID", menu);
+    print_installed(lick);
+    printf("After uninstall:\n");
+
+    free(menu);
+    free(lick);
+    free(loader);
+}
+
+void loud_test_install(char *iso) {
+    win_info_t info = get_windows_version_info();
+    loader_t *loader = get_loader(&info);
+    lickdir_t *lick = expand_lick_dir("C:\\lick");
 
     printf("check: %d\n", check_loader(loader, &info));
     printf("install: %d\n", install_loader(loader, &info, lick));
     printf("check: %d\n", check_loader(loader, &info));
     getchar(); // to modify file
+    install_iso("puppy_cli.iso", "C:\\CLI");
     printf("uninstall:%d\n", uninstall_loader(loader, &info, lick));
     printf("check: %d\n", check_loader(loader, &info));
 
@@ -35,7 +68,7 @@ void loud_test_install() {
 void test_install() {
     win_info_t info = get_windows_version_info();
     loader_t *loader = get_loader(&info);
-    lickdir_t *lick = expand_lick_dir("D:\\lick");
+    lickdir_t *lick = expand_lick_dir("C:\\lick");
 
     install_loader(loader, &info, lick);
     uninstall_loader(loader, &info, lick);
@@ -44,11 +77,25 @@ void test_install() {
     free(loader);
 }
 
+void print_drives() {
+    node_t *drv = all_drives();
+    for(node_t *n = drv; n != NULL; n = n->next) {
+        drive_t *d = n->val;
+        printf("- %s\n", d->path);
+    }
+    free_drive_list(drv);
+}
+
 int main(int argc, char* argv[]) {
     win_info_t info = get_windows_version_info();
     print_info(&info);
 
-    test_install();
+    if(argc < 2)
+        test_install();
+    else
+        loud_test_install(argv[1]);
+
+    //print_drives();
 
     return 0;
 }

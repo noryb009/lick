@@ -18,4 +18,4 @@ void free_list_installed(node_t *n);
 int install(char *id, char *name, char *iso,
         lickdir_t *lick, char *install_dir, menu_t *menu);
 
-int uninstall(lickdir_t *lick, char *id);
+int uninstall(lickdir_t *lick, char *id, menu_t *menu);
