@@ -8,23 +8,27 @@
 #include "../lickdir.h"
 #include "../utils.h"
 
+#define GRUB4DOS_TITLE "title %s\n"
+#define GRUB4DOS_FIND "\tfind --set-root --ignore-floppies \"%s\"\n"
+#define GRUB4DOS_KERNEL "\tkernel \"%s\" %s\n"
+#define GRUB4DOS_INITRD "\tinitrd \"%s\"\n"
+#define GRUB4DOS_BOOT "\tboot\n"
+
 void write_entry(FILE *f, entry_t *e) {
     if(e->static_text != NULL) {
         fprintf(f, "%s\n", e->static_text);
         return;
     }
     if(e->title == NULL || e->kernel == NULL || e->options == NULL)
-    {printf("what?\n");
         return;
-}
 
     fprintf(f, "\n");
-    fprintf(f, "title %s\n", e->title);
-    fprintf(f, "\tfind --set-root --ignore-floppies %s\n", e->kernel);
-    fprintf(f, "\tkernel %s %s\n", e->kernel, e->options);
+    fprintf(f, GRUB4DOS_TITLE, e->title);
+    fprintf(f, GRUB4DOS_FIND, e->kernel);
+    fprintf(f, GRUB4DOS_KERNEL, e->kernel, e->options);
     if(e->initrd != NULL)
-        fprintf(f, "\tinitrd %s\n", e->initrd);
-    fprintf(f, "\tboot\n");
+        fprintf(f, GRUB4DOS_INITRD, e->initrd);
+    fprintf(f, GRUB4DOS_BOOT);
 }
 
 int regenerate_grub4dos(lickdir_t *lick) {

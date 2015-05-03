@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "menu.h"
-#include "menu/grub4dos.h"
 
 #define MENU_TITLE   "title\t%s%s\n"
 #define MENU_KERNEL   "\tkernel\t%s\n"
@@ -25,7 +24,7 @@ int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
     if(!f)
         return 0;
 
-    int len = 20;
+    int len = strlen("pfix=fsck psubdir=\"\"") + 1;
     if(subdir != NULL) {
         len += strlen(subdir);
     }
@@ -33,7 +32,7 @@ int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
     char options[len];
     options[len-1] = '\0';
     if(subdir != NULL)
-        snprintf(options, len - 1, "pfix=fsck psubdir=%s", subdir);
+        snprintf(options, len - 1, "pfix=fsck psubdir=\"%s\"", subdir);
     else
         strcpy(options, "pfix=fsck");
     print_frag(f, name, "", info, options);
@@ -41,7 +40,7 @@ int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
     fprintf(f, "\n");
 
     if(subdir != NULL)
-        snprintf(options, len - 1, "pfix=ram psubdir=%s", subdir);
+        snprintf(options, len - 1, "pfix=ram psubdir=\"%s\"", subdir);
     else
         strcpy(options, "pfix=ram");
     print_frag(f, name, " (no save file)", info, options);
