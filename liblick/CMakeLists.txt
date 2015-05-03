@@ -2,13 +2,13 @@ set(lib_name "lick")
 set(lib_static_name "lick_static")
 
 set(sources
+    "boot-loader.c"
+    "boot-loader/9x.c"
+    "boot-loader/nt.c"
+    "boot-loader/vista.c"
+    "boot-loader/utils.c"
     "drives.c"
     "install.c"
-    "install-loader.c"
-    "install-loader/9x.c"
-    "install-loader/nt.c"
-    "install-loader/vista.c"
-    "install-loader/utils.c"
     "lickdir.c"
     "llist.c"
     "menu.c"

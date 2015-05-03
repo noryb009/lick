@@ -1,5 +1,5 @@
 #pragma once
 
-#include "../install-loader.h"
+#include "../boot-loader.h"
 
 loader_t get_9x();

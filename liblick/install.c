@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "boot-loader.h"
 #include "install.h"
-#include "install-loader.h"
 #include "scandir.h"
 #include "uniso.h"
 #include "utils.h"

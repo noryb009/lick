@@ -1,9 +1,9 @@
 #include <stdlib.h>
 
-#include "install-loader.h"
-#include "install-loader/9x.h"
-#include "install-loader/nt.h"
-#include "install-loader/vista.h"
+#include "boot-loader.h"
+#include "boot-loader/9x.h"
+#include "boot-loader/nt.h"
+#include "boot-loader/vista.h"
 
 #define NUM_LOADERS 3
 
