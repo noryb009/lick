@@ -3,13 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "drives.h"
-#include "install.h"
-#include "install-loader.h"
-#include "lickdir.h"
-#include "uniso.h"
-#include "utils.h"
-#include "windows-info.h"
+#include "lick.h"
 
 void print_info(win_info_t *info) {
     printf("family: %s\n", info->family_name);

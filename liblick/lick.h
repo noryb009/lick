@@ -1,0 +1,6 @@
+#include "drives.h"
+#include "install.h"
+#include "install-loader.h"
+#include "lickdir.h"
+#include "menu.h"
+#include "windows-info.h"
