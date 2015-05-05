@@ -97,21 +97,24 @@ int is_lick_drive(drive_t *drive) {
 
 node_t *get_lick_drives() {
     node_t *drives = all_drives();
-    node_t *lick_drives = NULL;
-    node_t *to_delete = NULL;
+    node_t *lick_drives;
+    node_t *to_delete;
 
-    while(drives != NULL) {
-        node_t *next = drives->next;
-        if(is_lick_drive(drives->val)) {
-            drives->next = lick_drives;
-            lick_drives = drives;
-        } else {
-            drives->next = to_delete;
-            to_delete = drives;
-        }
-        drives = next;
-    }
+    double_filter_list((int (*)(void *))is_lick_drive,
+            drives, &lick_drives, &to_delete);
 
-    free_drive_list(drives);
+    free(to_delete);
     return lick_drives;
+}
+
+node_t *get_non_lick_drives() {
+    node_t *drives = all_drives();
+    node_t *non_lick_drives;
+    node_t *to_delete;
+
+    double_filter_list((int (*)(void *))is_lick_drive,
+            drives, &to_delete, &non_lick_drives);
+
+    free(to_delete);
+    return non_lick_drives;
 }
