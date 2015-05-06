@@ -11,7 +11,7 @@
  * the types of drives
  */
 enum DRIVE_TYPES {
-    // other
+    /// other
     DRV_UNKNOWN,
     /// an internal hard drive
     DRV_HDD,
