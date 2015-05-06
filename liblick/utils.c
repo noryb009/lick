@@ -83,7 +83,6 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-// 1 = yes, 0 = no, -1 = error
 int is_file(char *path) {
     struct stat s;
     if(stat(path, &s) != 0)
@@ -103,6 +102,7 @@ int file_exists(char *path) {
 
 #define LINE_SIZE_START 1024
 
+// TODO: remove done parameter
 char *read_line(FILE *f, int *done) {
     char *s = malloc(sizeof(char) * LINE_SIZE_START);
     int size = LINE_SIZE_START;
