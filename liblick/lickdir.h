@@ -11,7 +11,7 @@
 
 // TODO: error message? info?
 /**
- * Paths to the LICK directory and its components
+ * @brief Paths to the LICK directory and its components
  */
 typedef struct {
     /// path to the lick directory

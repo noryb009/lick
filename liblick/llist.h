@@ -8,7 +8,7 @@
 typedef struct node_t node_t;
 
 /**
- * A linked list node
+ * @brief A linked list node
  */
 struct node_t {
     /// the current element value

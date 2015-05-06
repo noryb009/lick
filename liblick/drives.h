@@ -20,7 +20,7 @@ enum DRIVE_TYPES {
 };
 
 /**
- * info about a drive
+ * @brief info about a drive
  */
 typedef struct {
     /// the path to the root of a drive

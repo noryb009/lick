@@ -6,9 +6,6 @@
 
 #include <stdio.h>
 
-/**
- * an opaque structure to hold the attributes of a file
- */
 struct attrib_s;
 typedef struct attrib_s attrib_t;
 

@@ -6,6 +6,10 @@
 
 #include "utils.h"
 
+// TODO: document attrib_t instead
+/**
+ * @brief an opaque structure to hold the attributes of a file
+ */
 struct attrib_s {
 #ifdef _WIN32
     DWORD attrib;

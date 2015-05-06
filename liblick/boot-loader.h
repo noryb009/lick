@@ -10,8 +10,8 @@
 #include "windows-info.h"
 
 /**
- * functions relevant to a boot loader plugin. Do not use directly, use
- * the wrappers instead
+ * @brief functions relevant to a boot loader plugin. Do not use directly, use
+ *   the wrappers instead
  */
 typedef struct {
     /// determines if the plugin supports the system

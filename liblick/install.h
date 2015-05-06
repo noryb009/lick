@@ -10,7 +10,7 @@
 #include "menu.h"
 
 /**
- * information about an installed distribution
+ * @brief information about an installed distribution
  */
 typedef struct {
     /// the distribution id

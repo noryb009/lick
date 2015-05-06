@@ -70,7 +70,7 @@ char *arch_name(enum WINDOWS_ARCHITECTURE a);
 char *bios_name(enum IS_BIOS b);
 
 /**
- * relevant info about the system
+ * @brief relevant info about the system
  */
 typedef struct {
     /// the windows version family

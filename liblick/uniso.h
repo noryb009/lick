@@ -8,7 +8,7 @@
 #include "llist.h"
 
 /**
- * Info about the extraction of an ISO
+ * @brief Info about the extraction of an ISO
  */
 typedef struct {
     /// 1 if the extraction finished, otherwise 0
