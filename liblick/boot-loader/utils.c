@@ -6,7 +6,6 @@
 
 #include "utils.h"
 
-// TODO: document attrib_t instead
 /**
  * @brief an opaque structure to hold the attributes of a file
  */
