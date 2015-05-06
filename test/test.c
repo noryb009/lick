@@ -80,9 +80,36 @@ void print_drives() {
     free_drive_list(drv);
 }
 
+int even(int *i) {
+    return (*i % 2 == 0);
+}
+
+void test_list() {
+    int a=1, b=2, c=3, d=4, e=5;
+    node_t *lst =
+        new_node(&a, new_node(&b, new_node(&c, new_node(&d, new_node(&e, NULL)))));
+    node_t *even_lst, *odd_lst;
+
+    assert(list_length(lst) == 5);
+    double_filter_list((int (*)(void *))even, lst, &even_lst, &odd_lst);
+
+    assert(list_length(even_lst) == 2);
+    for(node_t *n = even_lst; n != NULL; n = n->next)
+        assert(even(n->val));
+
+    assert(list_length(odd_lst) == 3);
+    for(node_t *n = odd_lst; n != NULL; n = n->next)
+        assert(!even(n->val));
+
+    free(even_lst);
+    free(odd_lst);
+}
+
 int main(int argc, char* argv[]) {
     win_info_t info = get_windows_version_info();
     print_info(&info);
+
+    test_list();
 
     if(argc < 2)
         test_install();
