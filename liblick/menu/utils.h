@@ -4,15 +4,13 @@
 
 #include "../llist.h"
 
-struct entry_s {
+typedef struct {
     char *title;
     char *initrd;
     char *kernel;
     char *options;
     char *static_text;
-};
-
-typedef struct entry_s entry_t;
+} entry_t;
 
 node_t *get_conf_files(char *dir);
 entry_t *get_entry(FILE *f);

@@ -8,11 +8,10 @@ enum DRIVE_TYPES {
     DRV_UNKNOWN,
 };
 
-struct drive_s {
+typedef struct {
     char *path;
     enum DRIVE_TYPES type;
-};
-typedef struct drive_s drive_t;
+} drive_t;
 
 node_t *all_drives();
 void free_drive(drive_t *drive);

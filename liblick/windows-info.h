@@ -44,7 +44,7 @@ char *family_name(enum WINDOWS_FAMILY f);
 char *arch_name(enum WINDOWS_ARCHITECTURE a);
 char *bios_name(enum IS_BIOS b);
 
-struct win_info_s {
+typedef struct {
     enum WINDOWS_FAMILY family;
     char *family_name;
     enum WINDOWS_VERSION version;
@@ -54,7 +54,6 @@ struct win_info_s {
     enum IS_BIOS is_bios;
     char *bios_name;
     enum IS_ADMIN is_admin;
-};
-typedef struct win_info_s win_info_t;
+} win_info_t;
 
 win_info_t get_windows_version_info();

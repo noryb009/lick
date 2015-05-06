@@ -1,10 +1,11 @@
 #pragma once
 
-struct node_s {
+typedef struct node_t node_t;
+
+struct node_t {
     void *val;
-    struct node_s *next;
+    node_t *next;
 };
-typedef struct node_s node_t;
 
 node_t *new_node(void *val, node_t *next);
 size_t list_length(node_t *lst);

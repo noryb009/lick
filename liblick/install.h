@@ -4,12 +4,10 @@
 #include "llist.h"
 #include "menu.h"
 
-struct installed_s {
+typedef struct {
     char *id;
     char *name;
-};
-
-typedef struct installed_s installed_t;
+} installed_t;
 
 node_t *list_installed(lickdir_t *lick);
 void free_installed(installed_t *i);
