@@ -7,8 +7,13 @@
 
 typedef struct node_t node_t;
 
+/**
+ * A linked list node
+ */
 struct node_t {
+    /// the current element value
     void *val;
+    /// the next node in the linked list, or NULL if there are no more elements
     node_t *next;
 };
 
