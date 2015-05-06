@@ -39,14 +39,13 @@ entry_t *new_entry() {
 
 entry_t *get_entry(FILE *f) {
     entry_t *e = NULL;
-    int done = 0;
     fpos_t pos;
 
     while(1) {
         char *v = concat_strs(0);
         fgetpos(f, &pos);
-        char *ln = read_line(f, &done);
-        if(done)
+        char *ln = read_line(f);
+        if(ln == NULL)
             break;
 
         char *keyword_start;

@@ -62,10 +62,9 @@ int file_exists(char *path);
 /**
  * @brief read a line of any size from a file
  * @param f the file to read from
- * @param done the integer pointed to is set to 1 if finished reading the file
  * @return the line. Free with free().
  */
-char *read_line(FILE *f, int *done);
+char *read_line(FILE *f);
 /**
  * @brief determine if a file is a configuration file, from the file name
  * @param name the file name

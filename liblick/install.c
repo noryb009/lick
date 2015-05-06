@@ -19,11 +19,10 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
     free(path);
     if(!f)
         return NULL;
-    int done = 0;
     char *name;
     while(1) {
-        char *ln = read_line(f, &done);
-        if(done) {
+        char *ln = read_line(f);
+        if(ln == NULL) {
             fclose(f);
             return NULL;
         }
@@ -128,21 +127,19 @@ int uninstall_delete_files(char *info, char *menu) {
     if(!f)
         return 0;
 
-    int done = 0;
-
     char *ln;
 
     // headers
     while(1) {
-        ln = read_line(f, &done);
-        if(done || strcmp(ln, "-----"))
+        ln = read_line(f);
+        if(ln == NULL || strcmp(ln, "-----"))
             break;
     }
 
     // files
     while(1) {
-        ln = read_line(f, &done);
-        if(done)
+        ln = read_line(f);
+        if(ln == NULL)
             break;
         else if(strcmp(ln, "") != 0) {
             int l = strlen(ln);

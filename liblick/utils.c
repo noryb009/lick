@@ -102,8 +102,7 @@ int file_exists(char *path) {
 
 #define LINE_SIZE_START 1024
 
-// TODO: remove done parameter
-char *read_line(FILE *f, int *done) {
+char *read_line(FILE *f) {
     char *s = malloc(sizeof(char) * LINE_SIZE_START);
     int size = LINE_SIZE_START;
 
@@ -116,7 +115,6 @@ char *read_line(FILE *f, int *done) {
         int c = getc(f);
         if(c == EOF && i == 0) {
             free(s);
-            *done = 1;
             return NULL;
         } else if(c == '\n' || c == EOF) {
             s[i] = '\0';
