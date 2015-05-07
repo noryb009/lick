@@ -24,8 +24,25 @@ typedef struct {
     char *menu;
     /// path to the directory to store LICK's resource files
     char *res;
+    /// error message
+    char *err;
 } lickdir_t;
 
+/**
+ * @brief create a new lickdir_t, with the given attributes
+ * @param lick the root lick directory
+ * @param entry the entry subdirectory
+ * @param menu the subdirectory for menu fragments
+ * @param res the resource subdirectory
+ * @return a new lickdir_t. Must be freed with free_lick_dir
+ */
+lickdir_t *new_lick_dir(char *lick, char *entry, char *menu,
+        char *res);
+/**
+ * @brief free the memory a lickdir_t is using
+ * @param l the lickdir_t to free
+ */
+void free_lick_dir(lickdir_t *l);
 /**
  * @brief
  *   given the path to a LICK directory, return a lickdir_t structure with
@@ -34,5 +51,3 @@ typedef struct {
  * @return a lickdir_t with default subdirectory names
  */
 lickdir_t *expand_lick_dir(char *d);
-// TODO: new_lick_dir
-// TODO: free_lick_dir
