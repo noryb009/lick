@@ -33,11 +33,12 @@ void write_entry(FILE *f, entry_t *e) {
 
 int regenerate_grub4dos(lickdir_t *lick) {
     drive_t *win_drive = get_windows_drive();
-    // TODO: location
     char *menu_lst = concat_strs(2, win_drive->path, "\\menu.lst");
 
     FILE *menu = fopen(menu_lst, "w");
     if(!menu) {
+        if(lick->err == NULL)
+            lick->err = strdup("Could not write to menu.lst");
         free(menu_lst);
         free_drive(win_drive);
         return 0;
@@ -72,8 +73,11 @@ int install_grub4dos(lickdir_t *lick) {
     FILE *f = fopen(header, "w");
     free(header);
 
-    if(!f)
+    if(!f) {
+        if(lick->err == NULL)
+            lick->err = strdup("Could not write to menu folder");
         return 0;
+    }
 
     fprintf(f, "static timeout=5\n");
     fprintf(f, "static default=0\n");

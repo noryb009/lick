@@ -9,7 +9,6 @@
 
 #pragma once
 
-// TODO: error message? info?
 /**
  * @brief Paths to the LICK directory and its components
  */

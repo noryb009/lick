@@ -91,11 +91,15 @@ int install(char *id, char *name, char *iso,
     if(file_exists(info_path) || file_exists(menu_path)) {
         free(info_path);
         free(menu_path);
+        if(lick->err == NULL)
+            lick->err = strdup("ID conflict.");
         return 0;
     }
 
     uniso_status_t *status = uniso(iso, install_dir);
     if(status->finished == 0) {
+        if(lick->err == NULL)
+            lick->err = strdup(status->error);
         uniso_status_free(status);
         free(info_path);
         free(menu_path);
@@ -109,6 +113,8 @@ int install(char *id, char *name, char *iso,
     FILE *info_f = fopen(info_path, "w");
     if(!info_f) {
         // TODO: clean up extracted files
+        if(lick->err == NULL)
+            lick->err = strdup("Could not write to info file.");
         uniso_status_free(status);
         free(info_path);
         free(menu_path);
