@@ -165,11 +165,6 @@ int uninstall_loader_9x(win_info_t *info, lickdir_t *lick) {
         advance_to_newline(lick_section + strlen(LICK_SECTION) - 1);
     if(lick_section_end[0] != '\0')
         lick_section_end++;
-    if(lick_section == NULL) {
-        free(config);
-        free(config_sys);
-        return 0;
-    }
 
     while(lick_section[-4] == '\r'
             && lick_section[-3] == '\n'

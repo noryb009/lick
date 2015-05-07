@@ -104,6 +104,7 @@ entry_t *get_entry(FILE *f) {
 
         // if item already found, current entry complete; unread line
         if(*target != NULL) {
+            free(ln);
             if(!fsetpos(f, &pos)) {
                 // unlikely to happen
                 free(e);
@@ -113,6 +114,7 @@ entry_t *get_entry(FILE *f) {
         }
 
         *target = strdup(item_start);
+        free(ln);
 
         if((e->title && e->kernel && e->initrd && e->options) || e->static_text)
             return e;

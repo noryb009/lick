@@ -37,6 +37,7 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
             free(ln);
             break;
         }
+        free(ln);
     }
 
     int id_len = strlen(filename) - 5; // length of file name, - .conf
@@ -141,7 +142,10 @@ int uninstall_delete_files(char *info, char *menu) {
         ln = read_line(f);
         if(ln == NULL || strcmp(ln, "-----"))
             break;
+        free(ln);
     }
+    if(ln != NULL)
+        free(ln);
 
     // files
     while(1) {
