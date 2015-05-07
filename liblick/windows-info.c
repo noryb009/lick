@@ -19,7 +19,7 @@ void version(win_info_t *v) {
     getVersion fn = GetProcAddress(k, "GetVersionEx");
     if(!fn) {fn = GetProcAddress(k, "GetVersionExA");}
     if(!fn) {fn = GetProcAddress(k, "GetVersionExW");}
-    if(!fn) {v->version = V_UNKNOWN;return;}
+    if(!fn) {v->version = V_UNKNOWN;FreeLibrary(k);return;}
 
     OSVERSIONINFO verInfo;
     memset(&verInfo, 0, sizeof(OSVERSIONINFO));
@@ -51,6 +51,7 @@ void version(win_info_t *v) {
     } else {
         v->version = V_UNKNOWN;
     }
+    FreeLibrary(k);
 }
 
 void arch(win_info_t *v) {
@@ -58,7 +59,7 @@ void arch(win_info_t *v) {
 
     typedef void (WINAPI *SysInfo)(LPSYSTEM_INFO lpSystemInfo);
     SysInfo fn = (SysInfo)GetProcAddress(k, "GetNativeSystemInfo");
-    if(!fn) {v->arch = A_WINDOWS_X86; return;}
+    if(!fn) {v->arch = A_WINDOWS_X86; FreeLibrary(k); return;}
 
     SYSTEM_INFO sys_info;
     fn(&sys_info);
@@ -72,6 +73,7 @@ void arch(win_info_t *v) {
         default:
             v->arch = A_UNKNOWN;
     }
+    FreeLibrary(k);
 }
 
 void admin(win_info_t *v) {
@@ -80,7 +82,7 @@ void admin(win_info_t *v) {
     typedef BOOL (WINAPI *IsAdmin)(void);
     IsAdmin fn = GetProcAddress(s, "IsUserAnAdmin");
 
-    if(!fn) {v->is_admin = ADMIN_YES; return;}
+    if(!fn) {v->is_admin = ADMIN_YES; FreeLibrary(s); return;}
 
     BOOL result = fn();
     if(result == TRUE) {
@@ -88,6 +90,7 @@ void admin(win_info_t *v) {
     } else {
         v->is_admin = ADMIN_NO;
     }
+    FreeLibrary(s);
 }
 
 void bios(win_info_t *v) {
@@ -98,7 +101,7 @@ void bios(win_info_t *v) {
     GetVar fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariable");
     if(!fn) {fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariableA");}
     if(!fn) {fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariableW");}
-    if(!fn) {v->is_bios = BIOS_BIOS;}
+    if(!fn) {v->is_bios = BIOS_BIOS; FreeLibrary(k); return;}
 
     typedef DWORD (WINAPI *GetError)(void);
     GetError errfn = (GetError)GetProcAddress(k, "GetLastError");
@@ -109,6 +112,7 @@ void bios(win_info_t *v) {
     } else {
         v->is_bios = BIOS_UEFI;
     }
+    FreeLibrary(k);
 }
 #endif
 

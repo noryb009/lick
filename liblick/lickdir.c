@@ -9,4 +9,5 @@ lickdir_t *expand_lick_dir(char *d) {
     l->entry = concat_strs(2, d, "\\entries");
     l->menu = concat_strs(2, d, "\\menu");
     l->res = concat_strs(2, d, "\\res");
+    return l;
 }

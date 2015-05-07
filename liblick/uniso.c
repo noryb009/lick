@@ -61,6 +61,7 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
         if(size == 0) {
             break;
         } else if(size < 0) {
+            fclose(out);
             return 0;
         } else {
             fwrite(buf, 1, size, out);

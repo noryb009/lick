@@ -35,6 +35,7 @@ entry_t *new_entry() {
     e->initrd = NULL;
     e->options = NULL;
     e->static_text = NULL;
+    return e;
 }
 
 entry_t *get_entry(FILE *f) {
@@ -42,7 +43,6 @@ entry_t *get_entry(FILE *f) {
     fpos_t pos;
 
     while(1) {
-        char *v = concat_strs(0);
         fgetpos(f, &pos);
         char *ln = read_line(f);
         if(ln == NULL)
@@ -104,7 +104,11 @@ entry_t *get_entry(FILE *f) {
 
         // if item already found, current entry complete; unread line
         if(*target != NULL) {
-            fsetpos(f, &pos);
+            if(!fsetpos(f, &pos)) {
+                // unlikely to happen
+                free(e);
+                return NULL;
+            }
             return e;
         }
 

@@ -139,6 +139,7 @@ int uninstall_loader_vista(win_info_t *info, lickdir_t *lick) {
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, id);
     if(!system(c)) {return 0;}
+    return 1;
 }
 
 loader_t get_vista() {

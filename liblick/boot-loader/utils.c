@@ -17,6 +17,8 @@ struct attrib_s {
 };
 
 char *advance_to_newline(char *s) {
+    if(s == NULL)
+        return NULL;
     while(s[0] != '\0' && s[0] != '\n')
         s++;
     return s;
@@ -30,7 +32,10 @@ char *file_to_str(FILE *f) {
     rewind(f);
 
     char *buf = malloc(len + 1);
-    fread(buf, 1, len, f);
+    if(fread(buf, 1, len, f) < len) {
+        free(buf);
+        return NULL;
+    }
     buf[len] = '\0';
 
     return buf;

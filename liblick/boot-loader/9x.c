@@ -156,6 +156,11 @@ int uninstall_loader_9x(win_info_t *info, lickdir_t *lick) {
         menuitem_end++;
 
     char *lick_section = strstr(config, LICK_SECTION);
+    if(lick_section == NULL) {
+        free(config);
+        free(config_sys);
+        return 0;
+    }
     char *lick_section_end =
         advance_to_newline(lick_section + strlen(LICK_SECTION) - 1);
     if(lick_section_end[0] != '\0')

@@ -9,7 +9,7 @@
 #define MENU_INITRD  "\tinitrd\t%s\n"
 #define MENU_OPTIONS "\toptions\t%s\n"
 
-int print_frag(FILE *f, char *name, char *suffix,
+void print_frag(FILE *f, char *name, char *suffix,
         uniso_status_t *info, char *ops) {
     fprintf(f, MENU_TITLE, name, suffix);
     if(info->kernel)

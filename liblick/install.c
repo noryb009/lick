@@ -106,6 +106,13 @@ int install(char *id, char *name, char *iso,
     menu->regenerate(lick);
 
     FILE *info_f = fopen(info_path, "w");
+    if(!info_f) {
+        // TODO: clean up extracted files
+        uniso_status_free(status);
+        free(info_path);
+        free(menu_path);
+        return 0;
+    }
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {
