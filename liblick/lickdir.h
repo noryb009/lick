@@ -16,6 +16,8 @@
 typedef struct {
     /// path to the lick directory
     char *lick;
+    /// path to the drive the lick directory is on
+    char *drive;
     /// path to the directory to store information about installed distributions
     char *entry;
     /// path to the directory to store menu files

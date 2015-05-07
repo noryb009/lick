@@ -89,10 +89,10 @@ int is_lick_drive(drive_t *drive) {
     if(exists)
         return 0;
 
-    lick_file = concat_strs(2, drive->path, "/lick/pupldr");
-    exists = file_exists(lick_file);
+    lick_file = concat_strs(2, drive->path, "/lick/");
+    exists = is_file(lick_file);
     free(lick_file);
-    return 0;
+    return (exists == 0);
 }
 
 node_t *get_lick_drives() {

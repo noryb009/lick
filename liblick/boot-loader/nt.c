@@ -111,11 +111,11 @@ int install_loader_nt(win_info_t *info, lickdir_t *lick) {
         after = bootitem;
     }
 
-    char *pupldr = concat_strs(2, lick->res, "\\pupldr");
+    char *pupldr = concat_strs(2, lick->drive, "\\pupldr");
 
     bootitem[0] = '\0';
     // print start of file, newline,
-    //   C:\lick\pupldr="Start Puppy Linux", rest of file
+    //   C:\pupldr="Start Puppy Linux", rest of file
     fprintf(f, "%s%s%s%s\r\n%s", boot, before, pupldr, BOOT_ITEM, after);
     fclose(f);
     attrib_save(boot_ini, attrib);
