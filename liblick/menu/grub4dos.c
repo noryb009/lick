@@ -9,9 +9,9 @@
 #include "../utils.h"
 
 #define GRUB4DOS_TITLE "title %s\n"
-#define GRUB4DOS_FIND "\tfind --set-root --ignore-floppies \"%s\"\n"
-#define GRUB4DOS_KERNEL "\tkernel \"%s\" %s\n"
-#define GRUB4DOS_INITRD "\tinitrd \"%s\"\n"
+#define GRUB4DOS_FIND "\tfind --set-root --ignore-floppies %s\n"
+#define GRUB4DOS_KERNEL "\tkernel %s %s\n"
+#define GRUB4DOS_INITRD "\tinitrd %s\n"
 #define GRUB4DOS_BOOT "\tboot\n"
 
 void write_entry(FILE *f, entry_t *e) {

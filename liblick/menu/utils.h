@@ -43,3 +43,9 @@ entry_t *get_entry(FILE *f);
  * @param e the entry to free
  */
 void free_entry(entry_t *e);
+/**
+ * @brief convert a path into a menu-friendly path
+ * @param path the path to convert
+ * @return a string that suitable be used in a menu. Free using free
+ */
+char *to_menu_path(char *path);

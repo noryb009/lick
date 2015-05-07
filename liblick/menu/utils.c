@@ -138,3 +138,17 @@ void free_entry(entry_t *e) {
         free(e->static_text);
     free(e);
 }
+
+char *to_menu_path(char *path) {
+    char *start = path;
+    char *colon = strchr(path, ':');
+    if(colon != NULL)
+        start = colon + 1;
+
+    char *ret = strdup(start);
+    for(char *i = ret; i[0] != '\0'; ++i)
+        if(i[0] == '\\')
+            i[0] = '/';
+
+    return ret;
+}
