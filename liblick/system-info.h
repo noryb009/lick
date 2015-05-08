@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Determine information about the type of Windows installed
+ * @brief Determine information about the system
  */
 
 #pragma once
@@ -91,10 +91,10 @@ typedef struct {
     char *bios_name;
     /// does the process have administrator privileges
     enum IS_ADMIN is_admin;
-} win_info_t;
+} sys_info_t;
 
 /**
  * @brief returns info about the system
- * @return info about the system
+ * @return info about the system. Must be freed using free
  */
-win_info_t get_windows_version_info();
+sys_info_t *get_system_info();

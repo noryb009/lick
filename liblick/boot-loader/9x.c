@@ -18,11 +18,11 @@ char *config_sys_path() {
     return loc;
 }
 
-int supported_loader_9x(win_info_t *info) {
+int supported_loader_9x(sys_info_t *info) {
     return info->family == F_WINDOWS_9X && info->version != V_WINDOWS_ME;
 }
 
-int check_loader_9x(win_info_t *info) {
+int check_loader_9x(sys_info_t *info) {
     if(!supported_loader_9x(info)) {
         return 0;
     }
@@ -47,7 +47,7 @@ int check_loader_9x(win_info_t *info) {
 // set [menu] menuitem="PUPPYLINUX, Start Puppy"
 // create [PUPPYLINUX] ~> add shell="/path/to/grub.exe"
 // save, with attributes
-int install_loader_9x(win_info_t *info, lickdir_t *lick) {
+int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_9x(info)) {
         return 0;
     }
@@ -129,7 +129,7 @@ int install_loader_9x(win_info_t *info, lickdir_t *lick) {
     return 1;
 }
 
-int uninstall_loader_9x(win_info_t *info, lickdir_t *lick) {
+int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_9x(info)) {
         return 0;
     }

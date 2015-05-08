@@ -15,7 +15,7 @@ loader_t *get_loaders() {
     return loaders;
 }
 
-loader_t *get_loader(win_info_t *info) {
+loader_t *get_loader(sys_info_t *info) {
     loader_t *loaders = get_loaders();
 
     loader_t *ret = NULL;
@@ -39,11 +39,11 @@ loader_t *get_loader(win_info_t *info) {
 }
 
 // consistency
-int check_loader(loader_t *l, win_info_t *info) {
+int check_loader(loader_t *l, sys_info_t *info) {
     return l->check(info);
 }
 
-int install_loader(loader_t *l, win_info_t *info,
+int install_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
     if(!l->check(info)) {
         if(!l->install(info, lick))
@@ -57,7 +57,7 @@ int install_loader(loader_t *l, win_info_t *info,
     return -1; // already installed
 }
 
-int uninstall_loader(loader_t *l, win_info_t *info,
+int uninstall_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
     if(l->check(info)) {
         if(!l->uninstall(info, lick))

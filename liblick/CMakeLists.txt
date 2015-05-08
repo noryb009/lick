@@ -15,9 +15,9 @@ set(sources
     "menu/grub4dos.c"
     "menu/utils.c"
     "scandir.c"
+    "system-info.c"
     "uniso.c"
-    "utils.c"
-    "windows-info.c")
+    "utils.c")
 
 set(inc_dirs
     ${inc_dirs}

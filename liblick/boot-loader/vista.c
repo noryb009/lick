@@ -63,7 +63,7 @@ int get_id_from_command(const char *c, char *out) {
     return get_id_from_command_range(c, out, NULL, NULL);
 }
 
-int supported_loader_vista(win_info_t *info) {
+int supported_loader_vista(sys_info_t *info) {
     if(info->family != F_WINDOWS_VISTA || info->is_bios != BIOS_BIOS) {
         return 0;
     }
@@ -78,7 +78,7 @@ int supported_loader_vista(win_info_t *info) {
     return 0;
 }
 
-int check_loader_vista(win_info_t *info) {
+int check_loader_vista(sys_info_t *info) {
     if(!supported_loader_vista(info)) {
         return 0;
     }
@@ -88,7 +88,7 @@ int check_loader_vista(win_info_t *info) {
     return get_id_from_command_range(COMMAND_ENUM, id, "----------", "pupldr.mbr");
 }
 
-int install_loader_vista(win_info_t *info, lickdir_t *lick) {
+int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_vista(info)) {
         return 0;
     }
@@ -127,7 +127,7 @@ int install_loader_vista(win_info_t *info, lickdir_t *lick) {
     return 1;
 }
 
-int uninstall_loader_vista(win_info_t *info, lickdir_t *lick) {
+int uninstall_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_vista(info)) {
         return 0;
     }

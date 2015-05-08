@@ -17,11 +17,11 @@ char *boot_ini_path() {
     return loc;
 }
 
-int supported_loader_nt(win_info_t *info) {
+int supported_loader_nt(sys_info_t *info) {
     return info->family == F_WINDOWS_NT;
 }
 
-int check_loader_nt(win_info_t *info) {
+int check_loader_nt(sys_info_t *info) {
     if(!supported_loader_nt(info)) {
         return 0;
     }
@@ -44,7 +44,7 @@ int check_loader_nt(win_info_t *info) {
 // load boot.ini
 // make sure good timeout
 // [operating systems] ~> /path/to/grldr="Puppy Linux"
-int install_loader_nt(win_info_t *info, lickdir_t *lick) {
+int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_nt(info)) {
         return 0;
     }
@@ -126,7 +126,7 @@ int install_loader_nt(win_info_t *info, lickdir_t *lick) {
     return 1;
 }
 
-int uninstall_loader_nt(win_info_t *info, lickdir_t *lick) {
+int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_nt(info)) {
         return 0;
     }

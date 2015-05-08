@@ -11,4 +11,5 @@
 #include "lickdir.h"
 #include "llist.h"
 #include "menu.h"
-#include "windows-info.h"
+#include "system-info.h"
+#include "utils.h"

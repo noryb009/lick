@@ -1,19 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "windows-info.h"
+#include "system-info.h"
 
 #ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-void version(win_info_t *v);
-void arch(win_info_t *v);
-void admin(win_info_t *v);
-void bios(win_info_t *v);
-
-void version(win_info_t *v) {
+void version(sys_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
     typedef int (WINAPI *getVersion)(LPOSVERSIONINFO lpVersionInfo);
     getVersion fn = GetProcAddress(k, "GetVersionEx");
@@ -54,7 +49,7 @@ void version(win_info_t *v) {
     FreeLibrary(k);
 }
 
-void arch(win_info_t *v) {
+void arch(sys_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
 
     typedef void (WINAPI *SysInfo)(LPSYSTEM_INFO lpSystemInfo);
@@ -76,7 +71,7 @@ void arch(win_info_t *v) {
     FreeLibrary(k);
 }
 
-void admin(win_info_t *v) {
+void admin(sys_info_t *v) {
     HMODULE s = LoadLibrary("Shell32.dll");
 
     typedef BOOL (WINAPI *IsAdmin)(void);
@@ -93,7 +88,7 @@ void admin(win_info_t *v) {
     FreeLibrary(s);
 }
 
-void bios(win_info_t *v) {
+void bios(sys_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
 
     typedef DWORD (WINAPI *GetVar)(LPCTSTR lpName, LPCTSTR lpGuid,
@@ -116,7 +111,7 @@ void bios(win_info_t *v) {
 }
 #endif
 
-void family(win_info_t *v) {
+void family(sys_info_t *v) {
     switch(v->version) {
         case V_WINDOWS_95:
         case V_WINDOWS_98:
@@ -200,24 +195,24 @@ char *bios_name(enum IS_BIOS b) {
     }
 }
 
-win_info_t get_windows_version_info() {
-    win_info_t v;
+sys_info_t *get_system_info() {
+    sys_info_t *v;
 #ifdef _WIN32
-    version(&v);
-    family(&v);
-    arch(&v);
-    admin(&v);
-    bios(&v);
+    version(v);
+    family(v);
+    arch(v);
+    admin(v);
+    bios(v);
 #else
-    v.version = V_WINDOWS_95;
-    family(&v);
-    v.arch = A_WINDOWS_X86;
-    v.is_admin = ADMIN_YES;
-    v.is_bios = BIOS_BIOS;
+    v->version = V_WINDOWS_95;
+    family(v);
+    v->arch = A_WINDOWS_X86;
+    v->is_admin = ADMIN_YES;
+    v->is_bios = BIOS_BIOS;
 #endif
-    v.version_name = version_name(v.version);
-    v.family_name = family_name(v.family);
-    v.arch_name = arch_name(v.arch);
-    v.bios_name = bios_name(v.is_bios);
+    v->version_name = version_name(v->version);
+    v->family_name = family_name(v->family);
+    v->arch_name = arch_name(v->arch);
+    v->bios_name = bios_name(v->is_bios);
     return v;
 }

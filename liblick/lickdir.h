@@ -33,7 +33,7 @@ typedef struct {
  * @param entry the entry subdirectory
  * @param menu the subdirectory for menu fragments
  * @param res the resource subdirectory
- * @return a new lickdir_t. Must be freed with free_lick_dir
+ * @return a new lickdir_t. Must be freed with #free_lick_dir
  */
 lickdir_t *new_lick_dir(char *lick, char *entry, char *menu,
         char *res);
