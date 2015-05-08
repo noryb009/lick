@@ -21,9 +21,17 @@ loader_t *get_loader(win_info_t *info) {
     loader_t *ret = NULL;
     for(int i = 0; i < NUM_LOADERS; ++i) {
         if(loaders[i].supported(info)) {
-            ret = malloc(sizeof(loader_t));
-            *ret = loaders[i];
-            break;
+            if(loaders[i].check(info)) {
+                // if installed, return this
+                if(ret == NULL)
+                    ret = malloc(sizeof(loader_t));
+                *ret = loaders[i];
+                break;
+            } else if(ret == NULL) {
+                // not installed, but supported
+                ret = malloc(sizeof(loader_t));
+                *ret = loaders[i];
+            }
         }
     }
     free(loaders);
