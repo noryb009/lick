@@ -64,3 +64,12 @@ drive_t *get_windows_drive();
  * @return a list of drive structures which have LICK installed
  */
 node_t *get_lick_drives();
+/**
+ * @brief return the drive which is likely the main LICK drive
+ *
+ * the drive that is most likely what the user would select, if given a choice
+ *   of LICK drives. First checks the Windows drive, then goes alphabetically.
+ *
+ * @return a drive which is most likely the LICK drive
+ */
+drive_t *get_likely_lick_drive();

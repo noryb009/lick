@@ -104,7 +104,7 @@ node_t *get_lick_drives() {
             drives, &lick_drives, &to_delete);
 
     free(to_delete);
-    return lick_drives;
+    return list_reverse(lick_drives);
 }
 
 node_t *get_non_lick_drives() {
@@ -116,5 +116,45 @@ node_t *get_non_lick_drives() {
             drives, &to_delete, &non_lick_drives);
 
     free(to_delete);
-    return non_lick_drives;
+    return list_reverse(non_lick_drives);
+}
+
+drive_t *get_likely_lick_drive() {
+    drive_t *drv = get_windows_drive();
+    if(is_lick_drive(drv)) {
+        return drv;
+    }
+    free(drv);
+
+    drv = NULL;
+    int priority = -1;
+    node_t *drvs = get_lick_drives();
+    for(node_t *n = drvs; n != NULL; n = n->next) {
+        switch(((drive_t*)n->val)->type) {
+            case DRV_HDD:
+                if(priority < 100) {
+                    drv = n->val;
+                    priority = 100;
+                }
+                break;
+            case DRV_UNKNOWN:
+                if(priority < 60) {
+                    drv = n->val;
+                    priority = 60;
+                }
+                break;
+            case DRV_REMOVABLE:
+                if(priority < 30) {
+                    drv = n->val;
+                    priority = 30;
+                }
+                break;
+        }
+    }
+    if(drv == NULL)
+        return NULL;
+    drive_t *ret = malloc(sizeof(drive_t));
+    *ret = *drv;
+    free_drive_list(drvs);
+    return ret;
 }

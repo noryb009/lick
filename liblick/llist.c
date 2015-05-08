@@ -18,6 +18,19 @@ int list_length(node_t *lst) {
     return len;
 }
 
+node_t *list_reverse(node_t *lst) {
+    node_t *next;
+    node_t *prev = NULL;
+    while(lst != NULL) {
+        next = lst->next;
+        lst->next = prev;
+        prev = lst;
+        lst = next;
+    }
+
+    return prev;
+}
+
 void double_filter_list(int (*check)(void *arg),
         node_t *in, node_t **out_true, node_t **out_false) {
     *out_true = NULL;

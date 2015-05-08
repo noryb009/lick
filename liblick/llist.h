@@ -31,6 +31,13 @@ node_t *new_node(void *val, node_t *next);
  */
 int list_length(node_t *lst);
 /**
+ * @brief reverse a list
+ * @param lst
+ *   the list to reverse. This pointer passed is not valid after the function
+ * @return the reversed list
+ */
+node_t *list_reverse(node_t *lst);
+/**
  * @brief filter a list into two separate lists using a predicate
  *
  * Given a predicate, filters the list into two separate lists: one of elements
