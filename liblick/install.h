@@ -51,8 +51,8 @@ void free_list_installed(node_t *n);
  * @param menu the menu plugin
  * @return 1 on success, 0 on error
  */
-int install(char *id, char *name, char *iso,
-        lickdir_t *lick, char *install_dir, menu_t *menu);
+int install(char *id, char *name, char *iso, char *install_dir,
+        lickdir_t *lick, menu_t *menu);
 
 /**
  * @brief install a distribution
@@ -61,4 +61,4 @@ int install(char *id, char *name, char *iso,
  * @param menu the menu plugin
  * @return 1 on success, 0 on error
  */
-int uninstall(lickdir_t *lick, char *id, menu_t *menu);
+int uninstall(char *id, lickdir_t *lick, menu_t *menu);

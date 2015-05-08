@@ -83,8 +83,8 @@ void free_list_installed(node_t *n) {
     free_list(n, (void (*)(void *))free_installed);
 }
 
-int install(char *id, char *name, char *iso,
-        lickdir_t *lick, char *install_dir, menu_t *menu) {
+int install(char *id, char *name, char *iso, char *install_dir,
+        lickdir_t *lick, menu_t *menu) {
     char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
     char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
 
@@ -174,7 +174,7 @@ int uninstall_delete_files(char *info, char *menu) {
     return 1;
 }
 
-int uninstall(lickdir_t *lick, char *id, menu_t *menu) {
+int uninstall(char *id, lickdir_t *lick, menu_t *menu) {
     char *info = concat_strs(4, lick->entry, "/", id, ".conf");
     char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
     int ret = uninstall_delete_files(info, menu_path);
