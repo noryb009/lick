@@ -10,14 +10,14 @@
 /**
  * the types of drives
  */
-enum DRIVE_TYPES {
+typedef enum {
     /// other
     DRV_UNKNOWN,
     /// an internal hard drive
     DRV_HDD,
     /// an external hard drive, CD, etc.
     DRV_REMOVABLE,
-};
+} drive_type_e;
 
 /**
  * @brief info about a drive
@@ -26,7 +26,7 @@ typedef struct {
     /// the path to the root of a drive
     char *path;
     /// the type of drive
-    enum DRIVE_TYPES type;
+    drive_type_e type;
 } drive_t;
 
 /**

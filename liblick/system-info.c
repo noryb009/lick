@@ -133,7 +133,7 @@ void family(sys_info_t *v) {
             v->family = F_UNKNOWN;
     }
 }
-char *version_name(enum WINDOWS_VERSION v) {
+char *version_name(version_e v) {
     switch(v) {
         case V_UNKNOWN:
             return "Unknown";
@@ -160,7 +160,7 @@ char *version_name(enum WINDOWS_VERSION v) {
     }
 }
 
-char *family_name(enum WINDOWS_FAMILY f) {
+char *family_name(family_e f) {
     switch(f) {
         case F_UNKNOWN:
             return "Unknown";
@@ -173,7 +173,7 @@ char *family_name(enum WINDOWS_FAMILY f) {
     }
 }
 
-char *arch_name(enum WINDOWS_ARCHITECTURE a) {
+char *arch_name(architecture_e a) {
     switch(a) {
         case A_UNKNOWN:
             return "Unknown";
@@ -184,7 +184,7 @@ char *arch_name(enum WINDOWS_ARCHITECTURE a) {
     }
 }
 
-char *bios_name(enum IS_BIOS b) {
+char *bios_name(bios_type_e b) {
     switch(b) {
         case BIOS_UNKNOWN:
             return "Unknown";

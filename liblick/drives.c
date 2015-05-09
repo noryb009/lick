@@ -3,7 +3,7 @@
 #include "drives.h"
 #include "utils.h"
 
-drive_t *new_drive(char *name, enum DRIVE_TYPES type) {
+drive_t *new_drive(char *name, drive_type_e type) {
     drive_t *d = malloc(sizeof(drive_t));
     d->path = strdup(name);
     d->type = type;
@@ -24,7 +24,7 @@ void free_drive_list(node_t *lst) {
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-enum DRIVE_TYPES drive_type(char *path) {
+drive_type_e drive_type(char *path) {
     switch(GetDriveType(path)) {
         case DRIVE_FIXED:
             return DRV_HDD;
