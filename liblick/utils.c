@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-int makeDir(const char *d) {
+int make_dir(const char *d) {
 #ifdef _WIN32
         if(mkdir(d) == 0)
 #else
@@ -19,7 +19,7 @@ int makeDir(const char *d) {
         return 0;
 }
 
-int makeDirR(const char *d) {
+int make_dir_parents(const char *d) {
     size_t len = strlen(d);
     char *buf = strdup(d);
 
@@ -32,20 +32,20 @@ int makeDirR(const char *d) {
     for(char *p = buf + 1; *p != '\0'; ++p) {
         if(*p == '/' || *p == '\\') {
             *p = '\0';
-            makeDir(buf);
+            make_dir(buf);
             *p = '/';
         }
     }
 
-    int ret = makeDir(buf);
+    int ret = make_dir(buf);
     free(buf);
     return ret;
 }
 
-int unlinkDir(const char *d) {
+int unlink_dir(const char *d) {
     return !rmdir(d);
 }
-int unlinkFile(const char *f) {
+int unlink_file(const char *f) {
     return !unlink(f);
 }
 
@@ -83,7 +83,7 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-int is_file(char *path) {
+file_type_e file_type(char *path) {
     struct stat s;
     if(stat(path, &s) != 0)
         return -1;
@@ -92,12 +92,9 @@ int is_file(char *path) {
     return 1;
 }
 
-int file_exists(char *path) {
-    FILE *f = fopen(path, "r");
-    if(!f)
-        return 0;
-    fclose(f);
-    return 1;
+int path_exists(char *path) {
+    struct stat s;
+    return (stat(path, &s) == 0);
 }
 
 #define LINE_SIZE_START 1024

@@ -61,7 +61,7 @@ node_t *list_installed(lickdir_t *lick) {
         return NULL;
 
     for(int i = 0; i < n; ++i) {
-        if(is_file(e[i]->d_name)) {
+        if(file_type(e[i]->d_name) == FILE_TYPE_FILE) {
             n2 = get_installed(lick, e[i]->d_name);
             if(n2)
                 lst = new_node(n2, lst);
@@ -88,7 +88,7 @@ int install(char *id, char *name, char *iso, char *install_dir,
     char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
     char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
 
-    if(file_exists(info_path) || file_exists(menu_path)) {
+    if(path_exists(info_path) || path_exists(menu_path)) {
         free(info_path);
         free(menu_path);
         if(lick->err == NULL)
@@ -160,17 +160,17 @@ int uninstall_delete_files(char *info, char *menu) {
             break;
         else if(strcmp(ln, "") != 0) {
             int l = strlen(ln);
-            if(is_file(ln) == 0)
-                unlinkDir(ln);
+            if(file_type(ln) == FILE_TYPE_DIR)
+                unlink_dir(ln);
             else
-                unlinkFile(ln);
+                unlink_file(ln);
         }
         free(ln);
     }
 
     fclose(f);
-    unlinkFile(info);
-    unlinkFile(menu);
+    unlink_file(info);
+    unlink_file(menu);
     return 1;
 }
 

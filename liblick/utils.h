@@ -9,30 +9,39 @@
 
 #include <stdio.h>
 
+typedef enum {
+    /// other
+    FILE_TYPE_OTHER,
+    /// a file
+    FILE_TYPE_FILE,
+    /// a directory
+    FILE_TYPE_DIR,
+} file_type_e;
+
 /**
  * @brief create a directory
  * @param d the directory to create
  * @return true on success
  */
-int makeDir(const char *d);
+int make_dir(const char *d);
 /**
  * @brief creating a directory and its parents as necessary
  * @param d the directory to create
  * @return true on success
  */
-int makeDirR(const char *d);
+int make_dir_parents(const char *d);
 /**
  * @brief delete a directory
  * @param d the directory to delete
  * @return true on success
  */
-int unlinkDir(const char *d);
+int unlink_dir(const char *d);
 /**
  * @brief delete a file
  * @param f the file to delete
  * @return true on success
  */
-int unlinkFile(const char *f);
+int unlink_file(const char *f);
 /**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy
@@ -48,17 +57,16 @@ char *strdup(const char *s);
 char *concat_strs(int n, ...);
 /**
  * @brief determine the type of a file
- * @param path the file to check
- * @return
- * 1 if it is a file, 0 if it is not a file, and -1 if the file does not exist
+ * @param path to the file or directory to check
+ * @return a #file_type_e corresponding to the type of file
  */
-int is_file(char *path);
+file_type_e file_type(char *path);
 /**
- * @brief determine if a file exists
+ * @brief determine if a file or directory exists
  * @param path the file to check
  * @return 1 if the file exists, otherwise 0
  */
-int file_exists(char *path);
+int path_exists(char *path);
 /**
  * @brief read a line of any size from a file
  * @param f the file to read from

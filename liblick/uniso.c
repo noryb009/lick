@@ -74,7 +74,7 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
 int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst) {
     struct archive_entry *e;
 
-    makeDirR(dst);
+    make_dir_parents(dst);
 
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
         const struct stat *stat = archive_entry_stat(e);

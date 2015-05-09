@@ -91,12 +91,12 @@ int install_grub4dos(lickdir_t *lick) {
 
 int uninstall_grub4dos(lickdir_t *lick) {
     char *header = concat_strs(2, lick->menu, "\\00-header.conf");
-    unlinkFile(header);
+    unlink_file(header);
     free(header);
 
     drive_t *win_drive = get_windows_drive();
     char *menu_lst = concat_strs(2, win_drive->path, "\\menu.lst");
-    unlinkFile(menu_lst);
+    unlink_file(menu_lst);
     free(menu_lst);
     free_drive(win_drive);
     return 1;

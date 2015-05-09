@@ -80,19 +80,19 @@ drive_t *get_windows_drive() {
 
 int is_lick_drive(drive_t *drive) {
     char *lick_file;
-    int exists;
+    file_type_e type;
 
     lick_file = concat_strs(2, drive->path, "/lick/grub.exe");
-    exists = file_exists(lick_file);
+    type = file_type(lick_file);
     free(lick_file);
 
-    if(exists)
+    if(type == FILE_TYPE_FILE)
         return 0;
 
     lick_file = concat_strs(2, drive->path, "/lick/");
-    exists = is_file(lick_file);
+    type = file_type(lick_file);
     free(lick_file);
-    return (exists == 0);
+    return (type == FILE_TYPE_DIR);
 }
 
 node_t *get_lick_drives() {
