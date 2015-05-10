@@ -10,8 +10,8 @@
 #include "system-info.h"
 
 /**
- * @brief functions relevant to a boot loader plugin. Do not use directly, use
- *   the wrappers instead
+ * @brief functions relevant to a boot loader plugin. Do not use items directly,
+ *   use the wrappers in boot-loader.h instead
  */
 typedef struct {
     /// determines if the plugin supports the system
