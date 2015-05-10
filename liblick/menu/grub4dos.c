@@ -5,6 +5,7 @@
 #include "grub4dos.h"
 #include "utils.h"
 #include "../drives.h"
+#include "../install.h"
 #include "../lickdir.h"
 #include "../utils.h"
 

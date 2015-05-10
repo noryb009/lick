@@ -60,13 +60,13 @@ char *concat_strs(int n, ...);
  * @param path to the file or directory to check
  * @return a #file_type_e corresponding to the type of file
  */
-file_type_e file_type(char *path);
+file_type_e file_type(const char *path);
 /**
  * @brief determine if a file or directory exists
  * @param path the file to check
  * @return 1 if the file exists, otherwise 0
  */
-int path_exists(char *path);
+int path_exists(const char *path);
 /**
  * @brief read a line of any size from a file
  * @param f the file to read from
@@ -78,7 +78,7 @@ char *read_line(FILE *f);
  * @param name the file name
  * @return 1 if a configuration file, otherwise 0
  */
-int is_conf_file(const char *name);
+int is_conf_path(const char *name);
 /**
  * @brief extract info from a line of a configuration file
  *

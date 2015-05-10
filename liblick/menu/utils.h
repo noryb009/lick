@@ -26,13 +26,6 @@ typedef struct {
 } entry_t;
 
 /**
- * @brief return a list of configuration files in a directory
- * @param dir the directory to search in
- * @return
- *   a list of configuration files in the directory, in alphabetical order
- */
-node_t *get_conf_files(char *dir);
-/**
  * @brief read a file to fill an entry
  * @param f the file to read from
  * @return an entry_t, filled with one entry; or NULL if there are no more entries

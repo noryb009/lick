@@ -9,8 +9,26 @@
 #include "uniso.h"
 #include "utils.h"
 
-int is_conf_ent(const struct dirent *e) {
-    return is_conf_file(e->d_name);
+int is_conf_file(const struct dirent *e) {
+    return (file_type(e->d_name) == FILE_TYPE_FILE
+            && is_conf_path(e->d_name));
+}
+
+node_t *get_conf_files(const char *path) {
+    node_t *lst = NULL;
+
+    struct dirent **e;
+    int n = scandir2(path, &e, is_conf_file, antialphasort2);
+    if(n < 0)
+        return NULL;
+
+    for(int i = 0; i < n; ++i) {
+        lst = new_node(concat_strs(3, path, "\\", e[i]->d_name), lst);
+        free(e[i]);
+    }
+
+    free(e);
+    return lst;
 }
 
 installed_t *get_installed(lickdir_t *lick, char *filename) {
@@ -51,26 +69,23 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
     return i;
 }
 
+int compare_install_name(const installed_t *a, const installed_t *b) {
+    return strcmp(a->name, b->name);
+}
+
 node_t *list_installed(lickdir_t *lick) {
-    node_t *lst = NULL;
-    installed_t *n2;
+    node_t *lst = get_conf_files(lick->entry);
+    installed_t *install;
 
-    struct dirent **e;
-    int n = scandir2(lick->entry, &e, is_conf_ent, alphasort2);
-    if(n < 0)
-        return NULL;
-
-    for(int i = 0; i < n; ++i) {
-        if(file_type(e[i]->d_name) == FILE_TYPE_FILE) {
-            n2 = get_installed(lick, e[i]->d_name);
-            if(n2)
-                lst = new_node(n2, lst);
-        }
-        free(e[i]);
+    for(node_t *n = lst; n != NULL; n = n->next) {
+        install = get_installed(lick, n->val);
+        if(install)
+            lst = new_node(install, lst);
     }
 
-    free(e);
-    return lst;
+    free_list(lst, free);
+    return list_sort(lst,
+            (int (*)(const void *, const void *))compare_install_name);
 }
 
 void free_installed(installed_t *i) {

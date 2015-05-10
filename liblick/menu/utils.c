@@ -3,30 +3,7 @@
 #include <string.h>
 
 #include "utils.h"
-#include "../scandir.h"
 #include "../utils.h"
-
-int is_conf(const struct dirent *e) {
-    return is_conf_file(e->d_name);
-}
-
-node_t *get_conf_files(char *dir) {
-    node_t *lst = NULL;
-
-    struct dirent **e;
-    int n = scandir2(dir, &e, is_conf, alphasort2);
-    if(n < 0)
-        return NULL;
-
-    for(int i = 0; i < n; ++i) {
-        if(file_type(e[i]->d_name) == FILE_TYPE_FILE)
-            lst = new_node(concat_strs(3, dir, "\\", e[i]->d_name), lst);
-        free(e[i]);
-    }
-
-    free(e);
-    return lst;
-}
 
 entry_t *new_entry() {
     entry_t *e = malloc(sizeof(entry_t));

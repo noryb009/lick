@@ -38,6 +38,14 @@ int list_length(node_t *lst);
  */
 node_t *list_reverse(node_t *lst);
 /**
+ * @brief sort a list
+ * @param lst
+ *   the list to sort. This pointer passed is not valid after the function
+ * @param compare the comparison function
+ * @return the sorted list
+ */
+node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
+/**
  * @brief filter a list into two separate lists using a predicate
  *
  * Given a predicate, filters the list into two separate lists: one of elements
@@ -55,6 +63,10 @@ node_t *list_reverse(node_t *lst);
  */
 void double_filter_list(int (*check)(void *arg),
         node_t *in, node_t **out_true, node_t **out_false);
+/**
+ * @brief does nothing. Useful with free_list
+ */
+void do_nothing(void *n);
 /**
  * @brief free a list, freeing all elements along the way
  * @param n the list to free

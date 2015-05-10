@@ -83,7 +83,7 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-file_type_e file_type(char *path) {
+file_type_e file_type(const char *path) {
     struct stat s;
     if(stat(path, &s) != 0)
         return -1;
@@ -92,7 +92,7 @@ file_type_e file_type(char *path) {
     return 1;
 }
 
-int path_exists(char *path) {
+int path_exists(const char *path) {
     struct stat s;
     return (stat(path, &s) == 0);
 }
@@ -122,7 +122,7 @@ char *read_line(FILE *f) {
     }
 }
 
-int is_conf_file(const char *name) {
+int is_conf_path(const char *name) {
     // if ends with .conf
     char *conf = strstr(name, ".conf");
     while(conf != NULL && strcmp(conf, ".conf") != 0) {

@@ -20,6 +20,12 @@ typedef struct {
 } installed_t;
 
 /**
+ * @brief returns a list of paths to conf files in a directory
+ * @param path the directory to look in
+ * @return a list of strings of absolute paths to conf files
+ */
+node_t *get_conf_files(const char *path);
+/**
  * @brief returns a list of installed distributions
  * @param lick the LICK directory
  * @return

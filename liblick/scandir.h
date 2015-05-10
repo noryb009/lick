@@ -8,6 +8,7 @@
 #include <dirent.h>
 
 int alphasort2(const struct dirent **a, const struct dirent **b);
+int antialphasort2(const struct dirent **a, const struct dirent **b);
 /**
  * @brief scan a directory, returning relevant files
  * @param path[in] the directory to search
