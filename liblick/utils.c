@@ -88,8 +88,8 @@ file_type_e file_type(const char *path) {
     if(stat(path, &s) != 0)
         return -1;
     if(S_ISDIR(s.st_mode))
-        return 0;
-    return 1;
+        return FILE_TYPE_DIR;
+    return FILE_TYPE_FILE;
 }
 
 int path_exists(const char *path) {

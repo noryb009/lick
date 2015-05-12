@@ -71,7 +71,8 @@ int uninstall_loader(loader_t *l, sys_info_t *info,
 }
 
 menu_t *get_menu(loader_t *l) {
-    menu_t *m = malloc(sizeof(menu_t));
-    *m = l->get_menu();
-    return m;
+    if(l == NULL)
+        return NULL;
+    else
+        return l->get_menu();
 }

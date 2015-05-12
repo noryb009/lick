@@ -79,18 +79,8 @@ drive_t *get_windows_drive() {
 #endif
 
 int is_lick_drive(drive_t *drive) {
-    char *lick_file;
-    file_type_e type;
-
-    lick_file = concat_strs(2, drive->path, "/lick/grub.exe");
-    type = file_type(lick_file);
-    free(lick_file);
-
-    if(type == FILE_TYPE_FILE)
-        return 0;
-
-    lick_file = concat_strs(2, drive->path, "/lick/");
-    type = file_type(lick_file);
+    char *lick_file = concat_strs(2, drive->path, "/lick/");
+    file_type_e type = file_type(lick_file);
     free(lick_file);
     return (type == FILE_TYPE_DIR);
 }

@@ -103,10 +103,10 @@ int uninstall_grub4dos(lickdir_t *lick) {
     return 1;
 }
 
-menu_t get_grub4dos() {
-    menu_t menu;
-    menu.regenerate = regenerate_grub4dos;
-    menu.install = install_grub4dos;
-    menu.uninstall = uninstall_grub4dos;
+menu_t *get_grub4dos() {
+    menu_t *menu = malloc(sizeof(menu_t));
+    menu->regenerate = regenerate_grub4dos;
+    menu->install = install_grub4dos;
+    menu->uninstall = uninstall_grub4dos;
     return menu;
 }

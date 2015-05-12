@@ -196,7 +196,7 @@ char *bios_name(bios_type_e b) {
 }
 
 sys_info_t *get_system_info() {
-    sys_info_t *v;
+    sys_info_t *v = malloc(sizeof(sys_info_t));
 #ifdef _WIN32
     version(v);
     family(v);

@@ -23,7 +23,7 @@ typedef struct {
     /// uninstall LICK, using the plugin
     int (*uninstall)(sys_info_t *info, lickdir_t *lick);
     /// get the relevant boot loader menu plugin
-    menu_t (*get_menu)();
+    menu_t *(*get_menu)();
 } loader_t;
 
 /**

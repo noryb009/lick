@@ -13,9 +13,13 @@ int antialphasort2(const struct dirent **a, const struct dirent **b) {
 
 #define original_size 2
 
-int scandir2(const char *path, struct dirent ***e,
-        int (*filter)(const struct dirent *),
-        int (*compare)(const struct dirent **, const struct dirent **)) {
+int scandir_main(const char *path, struct dirent ***e,
+        int (*filter)(const void *),
+        int (*compare)(const struct dirent **, const struct dirent **),
+        int full_path) {
+    int path_len;
+    if(full_path == 1)
+        path_len = strlen(path);
     DIR *d = opendir(path);
     if(d == NULL)
         return -1;
@@ -30,8 +34,16 @@ int scandir2(const char *path, struct dirent ***e,
         if(next == NULL)
             break;
 
-        if(filter != NULL && !filter(next))
-            continue;
+        if(filter != NULL)
+            if(full_path == 0 && !filter(next))
+                continue;
+            else if(full_path == 1) {
+                int len = path_len + 1 + strlen(next->d_name) + 1;
+                char buf[len];
+                strcat(strcat(strcpy(buf, path), "/"), next->d_name);
+                if(!filter(buf))
+                    continue;
+            }
 
         if(size == n) {
             size *= 2;
@@ -51,4 +63,16 @@ int scandir2(const char *path, struct dirent ***e,
     closedir(d);
     *e = ents;
     return n;
+}
+
+int scandir2(const char *path, struct dirent ***e,
+        int (*filter)(const struct dirent *),
+        int (*compare)(const struct dirent **, const struct dirent **)) {
+    scandir_main(path, e, (int (*)(const void *))filter, compare, 0);
+}
+
+int scandir_full_path(const char *path, struct dirent ***e,
+        int (*filter)(const char *),
+        int (*compare)(const struct dirent **, const struct dirent **)) {
+    scandir_main(path, e, (int (*)(const void *))filter, compare, 1);
 }

@@ -9,16 +9,16 @@
 #include "uniso.h"
 #include "utils.h"
 
-int is_conf_file(const struct dirent *e) {
-    return (file_type(e->d_name) == FILE_TYPE_FILE
-            && is_conf_path(e->d_name));
+int is_conf_file(const char *e) {
+    return (file_type(e) == FILE_TYPE_FILE
+            && is_conf_path(e));
 }
 
 node_t *get_conf_files(const char *path) {
     node_t *lst = NULL;
 
     struct dirent **e;
-    int n = scandir2(path, &e, is_conf_file, antialphasort2);
+    int n = scandir_full_path(path, &e, is_conf_file, antialphasort2);
     if(n < 0)
         return NULL;
 
