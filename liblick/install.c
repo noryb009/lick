@@ -32,9 +32,7 @@ node_t *get_conf_files(const char *path) {
 }
 
 installed_t *get_installed(lickdir_t *lick, char *filename) {
-    char *path = concat_strs(3, lick->entry, "/", filename);
-    FILE *f = fopen(path, "r");
-    free(path);
+    FILE *f = fopen(filename, "r");
     if(!f)
         return NULL;
     char *name;
@@ -76,15 +74,16 @@ int compare_install_name(const installed_t *a, const installed_t *b) {
 node_t *list_installed(lickdir_t *lick) {
     node_t *lst = get_conf_files(lick->entry);
     installed_t *install;
+    node_t *installed = NULL;
 
     for(node_t *n = lst; n != NULL; n = n->next) {
         install = get_installed(lick, n->val);
         if(install)
-            lst = new_node(install, lst);
+            installed = new_node(install, installed);
     }
 
     free_list(lst, free);
-    return list_sort(lst,
+    return list_sort(installed,
             (int (*)(const void *, const void *))compare_install_name);
 }
 
