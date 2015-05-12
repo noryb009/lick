@@ -56,9 +56,22 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
         free(ln);
     }
 
-    int id_len = strlen(filename) - 5; // length of file name, - .conf
+    char *base_name;
+    char *forward = strrchr(filename, '/');
+    char *backward = strrchr(filename, '\\');
+    if(forward == NULL && backward == NULL)
+        base_name = filename;
+    else if(forward == NULL)
+        base_name = backward + 1;
+    else if(backward == NULL)
+        base_name = forward + 1;
+    else if(forward > backward)
+        base_name = forward + 1;
+    else
+        base_name = backward + 1;
+    int id_len = strlen(base_name) - 5; // length of file name, - .conf
     char *id = malloc(id_len + 1);
-    strncpy(id, filename, id_len);
+    strncpy(id, base_name, id_len);
     id[id_len] = '\0';
 
     installed_t *i = malloc(sizeof(installed_t));
