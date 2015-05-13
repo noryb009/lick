@@ -9,6 +9,9 @@
 
 #include <stdio.h>
 
+/**
+ * The type of a file
+ */
 typedef enum {
     /// other
     FILE_TYPE_OTHER,
