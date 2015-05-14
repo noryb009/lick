@@ -42,6 +42,32 @@ int make_dir_parents(const char *d) {
     return ret;
 }
 
+int copy_file(const char *dst, const char *src) {
+    FILE *s = fopen(src, "rb");
+    if(!s)
+        return 0;
+    FILE *d = fopen(dst, "wb");
+    if(!d) {
+        fclose(s);
+        return 0;
+    }
+
+    while(1) {
+        int c = fgetc(s);
+        if(c == EOF)
+            break;
+        if(fputc(c, d) == EOF) {
+            fclose(d);
+            fclose(s);
+            unlink_file(dst);
+            return 0;
+        }
+    }
+    fclose(d);
+    fclose(s);
+    return 1;
+}
+
 int unlink_dir(const char *d) {
     return !rmdir(d);
 }
@@ -154,8 +180,9 @@ void conf_option(char *ln, char **keyword_start, char **item_start) {
         else if(*item_start == NULL && space) { // space between
             ln[i] = '\0';
             keyword_done = 1;
-        } else if(*item_start == NULL && keyword_done == 1) // item
+        } else if(*item_start == NULL && keyword_done == 1) { // item
             *item_start = ln + i;
+        }
     }
 
     if(*item_start != NULL) // has item

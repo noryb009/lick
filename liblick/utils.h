@@ -34,6 +34,13 @@ int make_dir(const char *d);
  */
 int make_dir_parents(const char *d);
 /**
+ * @brief copy a file
+ * @param dst the absolute path of a new file
+ * @param src the path of a file to make a copy of
+ * @return true on success
+ */
+int copy_file(const char *dst, const char *src);
+/**
  * @brief delete a directory
  * @param d the directory to delete
  * @return true on success

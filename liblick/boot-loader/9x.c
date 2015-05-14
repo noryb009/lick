@@ -95,8 +95,9 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     if(menuitem == NULL)
         menuitem = advance_to_newline(start);
 
-    // TODO: backup config.sys?
     // TODO: timeout?
+
+    backup_file(config_sys);
 
     attrib_t *attrib = attrib_open(config_sys);
     f = fopen(config_sys, "w");
@@ -182,8 +183,6 @@ int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
 
     menuitem[0] = '\0';
     lick_section[0] = '\0';
-
-    // TODO: backup config.sys?
 
     attrib_t *attrib = attrib_open(config_sys);
     f = fopen(config_sys, "w");

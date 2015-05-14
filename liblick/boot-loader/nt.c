@@ -93,7 +93,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     if(bootitem == NULL)
         bootitem = advance_to_newline(start);
 
-    // TODO: backup boot.ini?
+    backup_file(boot_ini);
 
     attrib_t *attrib = attrib_open(boot_ini);
     f = fopen(boot_ini, "w");
@@ -159,8 +159,6 @@ int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
         bootitem--;
 
     bootitem[0] = '\0';
-
-    // TODO: backup boot.ini?
 
     attrib_t *attrib = attrib_open(boot_ini);
     f = fopen(boot_ini, "w");

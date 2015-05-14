@@ -26,10 +26,16 @@ char *file_to_str(FILE *f);
  * @param file the file
  * @return the old attributes of the file
  */
-attrib_t *attrib_open(char *file);
+attrib_t *attrib_open(const char *file);
 /**
  * @brief restore the attributes of a file
  * @param file the file
  * @param attrib the old attributes
  */
-void attrib_save(char *file, attrib_t *attrib);
+void attrib_save(const char *file, attrib_t *attrib);
+/**
+ * @brief create a backup of a file
+ * @param f the file to backup
+ * @return 1 on success
+ */
+int backup_file(const char *f);
