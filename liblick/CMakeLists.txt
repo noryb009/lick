@@ -12,6 +12,7 @@ set(sources
     "lickdir.c"
     "llist.c"
     "menu.c"
+    "menu/grub2.c"
     "menu/grub4dos.c"
     "menu/utils.c"
     "scandir.c"

@@ -15,7 +15,7 @@
 #define GRUB4DOS_INITRD "\tinitrd %s\n"
 #define GRUB4DOS_BOOT "\tboot\n"
 
-void write_entry(FILE *f, entry_t *e) {
+void grub4dos_write_entry(FILE *f, entry_t *e) {
     if(e->static_text != NULL) {
         fprintf(f, "%s\n", e->static_text);
         return;
@@ -56,7 +56,7 @@ int regenerate_grub4dos(lickdir_t *lick) {
             entry_t *e = get_entry(f);
             if(e == NULL)
                 break;
-            write_entry(menu, e);
+            grub4dos_write_entry(menu, e);
             free_entry(e);
         }
         fclose(f);
