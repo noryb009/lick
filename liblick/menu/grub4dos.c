@@ -87,7 +87,7 @@ int install_grub4dos(lickdir_t *lick) {
     free(gfxmenu);
 
     fclose(f);
-    return 0;
+    return 1;
 }
 
 int uninstall_grub4dos(lickdir_t *lick) {
