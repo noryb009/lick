@@ -81,3 +81,42 @@ int backup_file(const char *f) {
 
     attrib_save(buf, attrib_get(f));
 }
+
+int get_id_from_command_range(const char *c, char *out, char *start, char *end) {
+    out[0] = '\0';
+    int ret = 0;
+
+    FILE *pipe = popen(c, "r");
+    if(!pipe) {return 0;}
+
+    char buf[512] = "";
+    while(!feof(pipe)) {
+        if(fgets(buf, 512, pipe) != NULL) {
+            if(start != NULL && strstr(buf, start) != NULL) {
+                ret = 0;
+            }
+            char *id = strstr(buf, "{");
+            if(id != NULL) {
+                char *id_end = strstr(buf, "}");
+                if(id_end != NULL) {
+                    id_end[0] = '\0';
+                    if(id_end-id-1 >= ID_LEN) {
+                        ret = 0;
+                    } else {
+                        strncpy(out, id+1, ID_LEN);
+                        ret = 1;
+                    }
+                }
+            } else if(end != NULL && strstr(buf, end) != NULL) {
+                break;
+            }
+        }
+    }
+
+    pclose(pipe);
+    return ret;
+}
+
+int get_id_from_command(const char *c, char *out) {
+    return get_id_from_command_range(c, out, NULL, NULL);
+}

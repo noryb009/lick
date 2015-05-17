@@ -13,6 +13,8 @@
 typedef enum {
     /// other
     DRV_UNKNOWN,
+    /// an unused drive letter
+    DRV_UNUSED,
     /// an internal hard drive
     DRV_HDD,
     /// an external hard drive, CD, etc.
@@ -34,6 +36,11 @@ typedef struct {
  * @return a linked list of all drives. Must be freed using #free_drive_list
  */
 node_t *all_drives();
+/**
+ * @brief return a list of all drive paths not currently used
+ * @return a linked list of all unused drives. Must be freed using #free_drive_list
+ */
+node_t *unused_drives();
 /**
  * @brief free a drive structure
  * @param drive the drive structure to free

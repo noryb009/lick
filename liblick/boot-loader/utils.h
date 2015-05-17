@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#define ID_LEN 37
+
 struct attrib_s;
 typedef struct attrib_s attrib_t;
 
@@ -39,3 +41,5 @@ void attrib_save(const char *file, attrib_t *attrib);
  * @return 1 on success
  */
 int backup_file(const char *f);
+int get_id_from_command_range(const char *c, char *out, char *start, char *end);
+int get_id_from_command(const char *c, char *out);

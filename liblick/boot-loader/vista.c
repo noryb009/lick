@@ -1,14 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
 #include "vista.h"
 #include "../drives.h"
 #include "../lickdir.h"
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-
-#define ID_LEN 37
 #define COMMAND_BUFFER_LEN 256
 
 // install
@@ -23,45 +22,6 @@
 // uninstall
 #define COMMAND_ENUM "bcdedit /enum all"
 #define COMMAND_DELETE "bcdedit /delete %s"
-
-int get_id_from_command_range(const char *c, char *out, char *start, char *end) {
-    out[0] = '\0';
-    int ret = 0;
-
-    FILE *pipe = popen(c, "r");
-    if(!pipe) {return 0;}
-
-    char buf[512] = "";
-    while(!feof(pipe)) {
-        if(fgets(buf, 512, pipe) != NULL) {
-            if(start != NULL && strstr(buf, start) != NULL) {
-                ret = 0;
-            }
-            char *id = strstr(buf, "{");
-            if(id != NULL) {
-                char *id_end = strstr(buf, "}");
-                if(id_end != NULL) {
-                    id_end[0] = '\0';
-                    if(id_end-id-1 >= ID_LEN) {
-                        ret = 0;
-                    } else {
-                        strncpy(out, id+1, ID_LEN);
-                        ret = 1;
-                    }
-                }
-            } else if(end != NULL && strstr(buf, end) != NULL) {
-                break;
-            }
-        }
-    }
-
-    pclose(pipe);
-    return ret;
-}
-
-int get_id_from_command(const char *c, char *out) {
-    return get_id_from_command_range(c, out, NULL, NULL);
-}
 
 int supported_loader_vista(sys_info_t *info) {
     if(info->family != F_WINDOWS_VISTA || info->is_bios != BIOS_BIOS) {
