@@ -81,6 +81,31 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_UMOUNT_UEFI, drive);
     system(c);
 
+    // add PreLoader.efi and HashTool.efi
+    char *efi_grub = strdup("?:/EFI/LICK/grubx64.efi");
+    char *efi_loader = strdup("?:/EFI/LICK/loader.efi");
+    char *efi_hashtool = strdup("?:/EFI/LICK/HashTool.efi");
+    char *res_preloader = concat_strs(2, lick->res, "/PreLoader.efi");
+    char *res_hashtool = concat_strs(2, lick->res, "/HashTool.efi");
+    efi_loader[0] = drive;
+    efi_grub[0] = drive;
+    efi_hashtool[0] = drive;
+
+    // copy "grub" -> "loader", "hashtool" -> "hashtool", then
+    //   "preloader" -> "grub". This can safely fail at any time.
+    if(!copy_file(efi_loader, efi_grub))
+        goto cleanup_preloader;
+    if(!copy_file(efi_hashtool, res_hashtool))
+        goto cleanup_preloader;
+    if(!copy_file(efi_grub, res_preloader))
+        goto cleanup_preloader;
+
+cleanup_preloader:
+    free(efi_loader);
+    free(efi_grub);
+    free(efi_hashtool);
+    free(res_preloader);
+    free(res_hashtool);
     return 1;
 }
 
