@@ -79,6 +79,7 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     switch(info->version) {
         case V_WINDOWS_8:
         case V_WINDOWS_8_1:
+        //case V_WINDOWS_10: // TODO: test
             snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, id);
             if(!system(c)) {return 0;}
             snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);

@@ -8,18 +8,13 @@
 #include "../menu/grub2.h"
 #include "../utils.h"
 
-#define COMMAND_BUFFER_LEN 256
+#define COMMAND_BUFFER_LEN 1024
 
 // install
 #define COMMAND_MOUNT_UEFI   "mountvol %c: /S"
-#define COMMAND_COPY         "bcdedit /copy {bootmgr} /d \"LICK Boot Manager\""
-#define COMMAND_DEVICE       "bcdedit /set %s device partition=%c:"
-#define COMMAND_PATH         "bcdedit /set %s path \\EFI\\LICK\\PreLoader.efi"
-#define COMMAND_ADD_LAST     "bcdedit /set {fwbootmgr} displayorder %s /addlast"
+#define COMMAND_GRUB_INSTALL "%s/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c: --recheck"
+#define COMMAND_DESCRIPTION  "bcdedit /set %s description \"LICK Boot Manager\":"
 #define COMMAND_UMOUNT_UEFI  "mountvol %c: /D"
-#define COMMAND_DELETE_VALUE "bcdedit /deletevalue %s %s"
-#define COMMAND_TIME_OUT     "bcdedit /timeout 5"
-#define COMMAND_BOOT_MENU    "bcdedit /set {default} bootmenupolicy legacy"
 #define COMMAND_FAST_BOOT    "powercfg -h off"
 
 // uninstall
@@ -69,37 +64,23 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_MOUNT_UEFI, drive);
     if(!system(c)) {return 0;}
 
-    get_id_from_command(COMMAND_COPY, id);
-
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive);
-    if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id);
-    if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, id);
-    if(!system(c)) {return 0;}
-
-    const char *to_delete[] = {
-        "locale", "inherit", "integrityservices", "default", "resumeobject",
-        "displayorder", "toolsdisplayorder", "timeout", NULL
-    };
-    for(int i = 0; to_delete[i] != NULL; i++) {
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE_VALUE, id, to_delete[i]);
-        system(c);
+    switch(info->version) {
+        case V_WINDOWS_8:
+        case V_WINDOWS_8_1:
+        //case V_WINDOWS_10: // TODO: test
+            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
+            if(!system(c)) {return 0;}
     }
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, id);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_GRUB_INSTALL, lick->res, drive, drive);
+    if(!system(c)) {return 0;}
+
+    return get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DESCRIPTION, id);
     system(c);
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_UMOUNT_UEFI, drive);
     system(c);
 
-    switch(info->version) {
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, id);
-            if(!system(c)) {return 0;}
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-            if(!system(c)) {return 0;}
-    }
     return 1;
 }
 
