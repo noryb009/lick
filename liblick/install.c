@@ -80,8 +80,8 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
     return i;
 }
 
-int compare_install_name(const installed_t *a, const installed_t *b) {
-    return strcmp(a->name, b->name);
+int compare_install_name(const installed_t **a, const installed_t **b) {
+    return strcmp((*a)->name, (*b)->name);
 }
 
 node_t *list_installed(lickdir_t *lick) {
