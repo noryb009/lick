@@ -74,6 +74,45 @@ int ask_int() {
     return ret;
 }
 
+int path_exists_free(char *path) {
+    int ret = path_exists(path);
+    free(path);
+    return ret;
+}
+
+int is_valid_id_char(char c) {
+    if((c >= '0' && c <= '9')
+            || (c >= 'A' && c <= 'Z')
+            || (c >= 'a' && c <= 'z'))
+        return 1;
+    switch(c) {
+        case '-':
+        case '.':
+        case '_':
+            return 1;
+    }
+    return 0;
+}
+
+int is_valid_id(program_status_t *p, char *id, char *install_drive) {
+    for(int i = 0; id[i] != '\0'; ++i)
+        if(!is_valid_id_char(id[i]))
+            return 0;
+
+    char *check = concat_strs(3, install_drive, "/", id);
+
+    if(path_exists_free(concat_strs(4, p->lick->entry, "/", id, ".conf")))
+        return 0;
+
+    if(path_exists_free(concat_strs(4, p->lick->entry, "/", id, ".conf")))
+        return 0;
+
+    if(path_exists_free(concat_strs(4, p->lick->menu, "/50-", id, ".conf")))
+        return 0;
+
+    return 1;
+}
+
 void ask_lick_dir(program_status_t *p) {
     if(p->volume > VOLUME_NO_QUESTIONS && 0) {
         // ask user
@@ -102,6 +141,76 @@ char *ask_iso(program_status_t *p) {
     return c;
 }
 
+char *ask_drive() {
+    while(1) {
+        node_t *drives = all_drives();
+        int i = 1;
+        for(node_t *n = drives; n != NULL; ++i, n = n->next) {
+            drive_t *drv = (drive_t *)n->val;
+            printf("%d) %s\n", i, drv->path);
+        }
+        if(i == 1)
+            return NULL;
+        int choice = ask_int();
+        if(choice < 1 || choice >= i) {
+            printf("Select a valid drive.\n\n");
+            free_drive_list(drives);
+            continue;
+        } else {
+            node_t *n = drives;
+            for(int j = 1; j < choice; ++j) {
+                n = n->next;
+            }
+            drive_t *drv = n->val;
+            char *ret = strdup(drv->path);
+            free_drive_list(drives);
+            return ret;
+        }
+    }
+}
+
+char *gen_id(program_status_t *p, char *iso, char *install_drive) {
+    // TODO: clean up code
+    // base name
+    char *id = strdup(iso);
+    char *id_to_free = id;
+
+    while(1) {
+        char *last_slash = strpbrk(id, "/\\");
+        if(last_slash)
+            id = last_slash + 1;
+        else
+            break;
+    }
+
+    char *iso_loc = strstr(id, ".iso");
+    iso_loc[0] = '\0';
+
+    // remove invalid chars
+    for(int i = 0; id[i] != '\0'; ++i)
+        if(is_valid_id_char(id[i]))
+            id[i] = '-';
+
+    char *base_id = malloc(strlen(id) + 4 + 1);
+    strcpy(base_id, id);
+
+    if(is_valid_id(p, base_id, install_drive)) {
+        free(id_to_free);
+        return base_id;
+    }
+
+    for(int i = 2; i < 100; ++i) {
+        sprintf(base_id, "%s-%d", id, i);
+        if(is_valid_id(p, base_id, install_drive)) {
+            free(id_to_free);
+            return base_id;
+        }
+    }
+
+    // TODO: what to do here?
+    exit(1);
+}
+
 int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
         iso = ask_iso(p);
@@ -115,24 +224,71 @@ int install_iso(program_status_t *p, char *iso) {
     if(!p->menu)
         p->menu = get_menu(p->loader);
 
-    // TODO: get install info
-    char *id = "MYID";
-    char *name = "MYNAME";
-    char *install_to = "C:\\CLI";
+    char *drive;
+    char *id;
+    char *name;
+    char *auto_name = iso; // TODO: better auto name
+
+    if(p->volume > VOLUME_NO_QUESTIONS) {
+        printf("Install to drive:\n");
+        drive = ask_drive();
+
+        // ID
+        char *auto_id = gen_id(p, iso, drive);
+        while(1) {
+            printf("Enter ID [%s]:\n", auto_id);
+            id = read_line(stdin);
+            if(id == NULL || id[0] == '\0') {
+                if(id)
+                    free(id);
+                id = auto_id;
+                break;
+            } else if(!is_valid_id(p, id, drive)) {
+                free(id);
+                printf("Invalid ID. IDs can only contain A-Z, a-z, 0-9, '.', '-' and '_'\n");
+            } else {
+                free(auto_id);
+                break;
+            }
+        }
+
+        printf("Enter Name [%s]:\n", auto_name);
+        name = read_line(stdin);
+        if(name == NULL || name[0] == '\0') {
+            if(name)
+                free(name);
+            name = strdup(auto_name);
+        }
+    } else {
+        drive_t *drv = get_likely_lick_drive();
+        drive = strdup(drv->path);
+        free_drive(drv);
+
+        id = gen_id(p, iso, drive);
+        name = strdup(auto_name);
+    }
+
+    char *install_to = concat_strs(3, drive, "/", id);
+    free(drive);
 
     // install
     if(!check_loader(p->loader, p->info))
-        if(!install_loader(p->loader, p->info, p->lick)) {
-            handle_error(p);
-            return 0;
-        }
+        if(!install_loader(p->loader, p->info, p->lick))
+            goto free_and_handle_error;
 
-    if(!install(id, name, iso, install_to, p->lick, p->menu)) {
-        handle_error(p);
-        return 0;
-    }
+    if(!install(id, name, iso, install_to, p->lick, p->menu))
+        goto free_and_handle_error;
 
+    free(id);
+    free(name);
+    free(install_to);
     return 1;
+free_and_handle_error:
+    free(id);
+    free(name);
+    free(install_to);
+    handle_error(p);
+    return 0;
 }
 
 int ask_uninstall_loader(program_status_t *p) {
@@ -221,7 +377,7 @@ int entry_submenu(program_status_t *p) {
         printf("\n\nEntry menu:\n");
         printf("Entries:\n");
         node_t *entries = list_installed(p->lick);
-        for(node_t *n = entries; entries != NULL; entries = entries->next)
+        for(node_t *n = entries; entries != NULL; n = n->next)
             printf("- %s (%s)\n", ((installed_t *)n->val)->name, ((installed_t *)n->val)->id);
 
         printf("1) Uninstall\n");
@@ -298,11 +454,13 @@ int main(int argc, char *argv[]) {
     if(argc > 1) {
         for(int i = 1; i < argc; ++i) {
             if(is_iso_file(argv[i])) {
+                enum VOLUME volume = p->volume;
                 printf("For auto-install, press enter. Otherwise, press n, then enter.\n");
                 if(ask_bool(1, "Invalid input. Press enter or n, then enter.\n")) {
                     p->volume = VOLUME_NO_QUESTIONS;
                 }
                 install_iso(p, argv[i]);
+                p->volume = volume;
                 break;
             }
         }
