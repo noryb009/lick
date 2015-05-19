@@ -297,7 +297,7 @@ int entry_submenu(program_status_t *p) {
         printf("\n\nEntry menu:\n");
         printf("Entries:\n");
         node_t *entries = list_installed(p->lick);
-        for(node_t *n = entries; entries != NULL; n = n->next)
+        for(node_t *n = entries; n != NULL; n = n->next)
             printf("- %s (%s)\n", ((installed_t *)n->val)->name, ((installed_t *)n->val)->id);
 
         printf("1) Uninstall\n");
