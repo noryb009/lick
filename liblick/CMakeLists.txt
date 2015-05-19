@@ -9,6 +9,7 @@ set(sources
     "boot-loader/utils.c"
     "boot-loader/vista.c"
     "drives.c"
+    "id-utils.c"
     "install.c"
     "lickdir.c"
     "llist.c"

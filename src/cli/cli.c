@@ -74,45 +74,6 @@ int ask_int() {
     return ret;
 }
 
-int path_exists_free(char *path) {
-    int ret = path_exists(path);
-    free(path);
-    return ret;
-}
-
-int is_valid_id_char(char c) {
-    if((c >= '0' && c <= '9')
-            || (c >= 'A' && c <= 'Z')
-            || (c >= 'a' && c <= 'z'))
-        return 1;
-    switch(c) {
-        case '-':
-        case '.':
-        case '_':
-            return 1;
-    }
-    return 0;
-}
-
-int is_valid_id(program_status_t *p, char *id, char *install_drive) {
-    for(int i = 0; id[i] != '\0'; ++i)
-        if(!is_valid_id_char(id[i]))
-            return 0;
-
-    char *check = concat_strs(3, install_drive, "/", id);
-
-    if(path_exists_free(concat_strs(4, p->lick->entry, "/", id, ".conf")))
-        return 0;
-
-    if(path_exists_free(concat_strs(4, p->lick->entry, "/", id, ".conf")))
-        return 0;
-
-    if(path_exists_free(concat_strs(4, p->lick->menu, "/50-", id, ".conf")))
-        return 0;
-
-    return 1;
-}
-
 void ask_lick_dir(program_status_t *p) {
     if(p->volume > VOLUME_NO_QUESTIONS && 0) {
         // ask user
@@ -169,48 +130,6 @@ char *ask_drive() {
     }
 }
 
-char *gen_id(program_status_t *p, char *iso, char *install_drive) {
-    // TODO: clean up code
-    // base name
-    char *id = strdup(iso);
-    char *id_to_free = id;
-
-    while(1) {
-        char *last_slash = strpbrk(id, "/\\");
-        if(last_slash)
-            id = last_slash + 1;
-        else
-            break;
-    }
-
-    char *iso_loc = strstr(id, ".iso");
-    iso_loc[0] = '\0';
-
-    // remove invalid chars
-    for(int i = 0; id[i] != '\0'; ++i)
-        if(is_valid_id_char(id[i]))
-            id[i] = '-';
-
-    char *base_id = malloc(strlen(id) + 4 + 1);
-    strcpy(base_id, id);
-
-    if(is_valid_id(p, base_id, install_drive)) {
-        free(id_to_free);
-        return base_id;
-    }
-
-    for(int i = 2; i < 100; ++i) {
-        sprintf(base_id, "%s-%d", id, i);
-        if(is_valid_id(p, base_id, install_drive)) {
-            free(id_to_free);
-            return base_id;
-        }
-    }
-
-    // TODO: what to do here?
-    exit(1);
-}
-
 int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
         iso = ask_iso(p);
@@ -227,14 +146,14 @@ int install_iso(program_status_t *p, char *iso) {
     char *drive;
     char *id;
     char *name;
-    char *auto_name = iso; // TODO: better auto name
+    char *auto_name = gen_name(iso);
 
     if(p->volume > VOLUME_NO_QUESTIONS) {
         printf("Install to drive:\n");
         drive = ask_drive();
 
         // ID
-        char *auto_id = gen_id(p, iso, drive);
+        char *auto_id = gen_id(iso, p->lick, drive);
         while(1) {
             printf("Enter ID [%s]:\n", auto_id);
             id = read_line(stdin);
@@ -243,7 +162,7 @@ int install_iso(program_status_t *p, char *iso) {
                     free(id);
                 id = auto_id;
                 break;
-            } else if(!is_valid_id(p, id, drive)) {
+            } else if(!is_valid_id(id, p->lick, drive)) {
                 free(id);
                 printf("Invalid ID. IDs can only contain A-Z, a-z, 0-9, '.', '-' and '_'\n");
             } else {
@@ -257,15 +176,16 @@ int install_iso(program_status_t *p, char *iso) {
         if(name == NULL || name[0] == '\0') {
             if(name)
                 free(name);
-            name = strdup(auto_name);
-        }
+            name = auto_name;
+        } else
+            free(auto_name);
     } else {
         drive_t *drv = get_likely_lick_drive();
         drive = strdup(drv->path);
         free_drive(drv);
 
-        id = gen_id(p, iso, drive);
-        name = strdup(auto_name);
+        id = gen_id(iso, p->lick, drive);
+        name = auto_name;
     }
 
     char *install_to = concat_strs(3, drive, "/", id);
