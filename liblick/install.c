@@ -151,10 +151,10 @@ int install(char *id, char *name, char *iso, char *install_dir,
     fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {
         char *s = concat_strs(3, install_dir, "/", n->val);
-        fprintf(info_f, "%s\n", s);
+        fprintf(info_f, "%s\n", unix_path(s));
         free(s);
     }
-    fprintf(info_f, "%s\n", install_dir);
+    fprintf(info_f, "%s\n", unix_path(install_dir));
     fclose(info_f);
 
     uniso_status_free(status);

@@ -109,6 +109,33 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
+char *normalize_path(char *str, char slash) {
+    int last_was_slash = 0;
+    for(int i = 0, j = 0;; ++i) {
+        if(str[i] == '\0') {
+            str[j] = '\0';
+            break;
+        } else if(is_slash(str[i])) {
+            if(!last_was_slash) {
+                last_was_slash = 1;
+                str[j++] = slash;
+            }
+        } else {
+            last_was_slash = 0;
+            str[j++] = str[i];
+        }
+    }
+    return str;
+}
+
+char *win_path(char *str) {
+    return normalize_path(str, '\\');
+}
+
+char *unix_path(char *str) {
+    return normalize_path(str, '/');
+}
+
 file_type_e file_type(const char *path) {
     struct stat s;
     if(stat(path, &s) != 0)

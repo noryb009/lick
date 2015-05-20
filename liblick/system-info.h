@@ -98,3 +98,7 @@ typedef struct {
  * @return info about the system. Must be freed using free
  */
 sys_info_t *get_system_info();
+/**
+ * @brief frees memory used by a sys_info_t
+ */
+void free_sys_info(sys_info_t *info);

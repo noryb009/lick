@@ -122,10 +122,5 @@ char *to_menu_path(char *path) {
     if(colon != NULL)
         start = colon + 1;
 
-    char *ret = strdup(start);
-    for(char *i = ret; i[0] != '\0'; ++i)
-        if(i[0] == '\\')
-            i[0] = '/';
-
-    return ret;
+    return unix_path(strdup(start));
 }

@@ -66,6 +66,18 @@ char *strdup(const char *s);
  */
 char *concat_strs(int n, ...);
 /**
+ * @brief normalizes the path str to a Windows path
+ * @param path the path to normalize
+ * @return a reference to path
+ */
+char *win_path(char *path);
+/**
+ * @brief normalizes the path str to a Unix path
+ * @param path the path to normalize
+ * @return a reference to path
+ */
+char *unix_path(char *path);
+/**
  * @brief determine the type of a file
  * @param path to the file or directory to check
  * @return a #file_type_e corresponding to the type of file

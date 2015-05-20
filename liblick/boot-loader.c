@@ -38,6 +38,10 @@ loader_t *get_loader(sys_info_t *info) {
     return ret;
 }
 
+void free_loader(loader_t *loader) {
+    free(loader);
+}
+
 // consistency
 int check_loader(loader_t *l, sys_info_t *info) {
     return l->check(info);
@@ -75,4 +79,8 @@ menu_t *get_menu(loader_t *l) {
         return NULL;
     else
         return l->get_menu();
+}
+
+void free_menu(menu_t *menu) {
+    free(menu);
 }

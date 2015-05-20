@@ -216,3 +216,7 @@ sys_info_t *get_system_info() {
     v->bios_name = bios_name(v->is_bios);
     return v;
 }
+
+void free_sys_info(sys_info_t *info) {
+    free(info);
+}

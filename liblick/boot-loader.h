@@ -33,6 +33,10 @@ typedef struct {
  */
 loader_t *get_loader(sys_info_t *info);
 /**
+ * @brief frees memory used by a loader_t
+ */
+void free_loader(loader_t *loader);
+/**
  * @brief determine if the boot loader is already installed
  * @param l a supported plugin
  * @param info a sys_info_t, filled with info from the current system
@@ -63,3 +67,7 @@ int uninstall_loader(loader_t *l, sys_info_t *info,
  * @return the corresponding menu plugin
  */
 menu_t *get_menu(loader_t *l);
+/**
+ * @brief frees memory used by a menu_t
+ */
+void free_menu(menu_t *menu);

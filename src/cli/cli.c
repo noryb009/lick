@@ -11,7 +11,21 @@ program_status_t *new_program_status() {
     p->loader = NULL;
     p->menu = NULL;
     p->info = NULL;
+    p->volume = VOLUME_NORMAL;
     return p;
+}
+
+void free_program_status(program_status_t *p) {
+    if(p->lick_drive)
+        free_drive(p->lick_drive);
+    if(p->lick)
+        free_lick_dir(p->lick);
+    if(p->loader)
+        free_loader(p->loader);
+    if(p->menu)
+        free_menu(p->menu);
+    if(p->info)
+        free_sys_info(p->info);
 }
 
 int is_iso_file(char *f) {
@@ -74,15 +88,59 @@ int ask_int() {
     return ret;
 }
 
+char *ask_drive(node_t *drives) {
+    while(1) {
+        int i = 1;
+        for(node_t *n = drives; n != NULL; ++i, n = n->next) {
+            drive_t *drv = (drive_t *)n->val;
+            printf("%d) %s\n", i, drv->path);
+        }
+        if(i == 1)
+            return NULL;
+        int choice = ask_int();
+        if(choice < 1 || choice >= i) {
+            printf("Select a valid drive.\n\n");
+            continue;
+        } else {
+            node_t *n = drives;
+            for(int j = 1; j < choice; ++j) {
+                n = n->next;
+            }
+            drive_t *drv = n->val;
+            char *ret = strdup(drv->path);
+            free_drive_list(drives);
+            return ret;
+        }
+    }
+}
+
 void ask_lick_dir(program_status_t *p) {
-    if(p->volume > VOLUME_NO_QUESTIONS && 0) {
+    if(p->volume > VOLUME_NO_QUESTIONS) {
         // ask user
-        // TODO
+        node_t *lick_drives = get_lick_drives();
+        if(lick_drives == NULL) {
+            printf("TODO: create LICK directory");
+            exit(1); // TODO: create LICK directories
+        }
+        char *drive_path;
+        if(list_length(lick_drives) > 1) {
+            printf("Select drive where LICK is installed.\n");
+            drive_path = ask_drive(lick_drives);
+        } else {
+            drive_t *drv = (drive_t *)lick_drives->val;
+            drive_path = strdup(drv->path);
+            free_drive_list(lick_drives);
+        }
+
+        char *path = concat_strs(2, drive_path, "/lick");
+        p->lick = expand_lick_dir(path);
+        free(path);
+        free(drive_path);
     } else {
         // default drive
         p->lick_drive = get_likely_lick_drive();
         if(p->lick_drive == NULL) {
-            p->lick_drive = get_windows_drive();
+            //p->lick_drive = get_windows_drive();
             printf("TODO: create LICK directory");
             exit(1); // TODO: create LICK directories
         }
@@ -100,34 +158,6 @@ char *ask_iso(program_status_t *p) {
         return NULL;
     }
     return c;
-}
-
-char *ask_drive() {
-    while(1) {
-        node_t *drives = all_drives();
-        int i = 1;
-        for(node_t *n = drives; n != NULL; ++i, n = n->next) {
-            drive_t *drv = (drive_t *)n->val;
-            printf("%d) %s\n", i, drv->path);
-        }
-        if(i == 1)
-            return NULL;
-        int choice = ask_int();
-        if(choice < 1 || choice >= i) {
-            printf("Select a valid drive.\n\n");
-            free_drive_list(drives);
-            continue;
-        } else {
-            node_t *n = drives;
-            for(int j = 1; j < choice; ++j) {
-                n = n->next;
-            }
-            drive_t *drv = n->val;
-            char *ret = strdup(drv->path);
-            free_drive_list(drives);
-            return ret;
-        }
-    }
 }
 
 int install_iso(program_status_t *p, char *iso) {
@@ -150,7 +180,7 @@ int install_iso(program_status_t *p, char *iso) {
 
     if(p->volume > VOLUME_NO_QUESTIONS) {
         printf("Install to drive:\n");
-        drive = ask_drive();
+        drive = ask_drive(all_drives());
 
         // ID
         char *auto_id = gen_id(iso, p->lick, drive);
@@ -180,10 +210,7 @@ int install_iso(program_status_t *p, char *iso) {
         } else
             free(auto_name);
     } else {
-        drive_t *drv = get_likely_lick_drive();
-        drive = strdup(drv->path);
-        free_drive(drv);
-
+        drive = strdup(p->lick_drive->path);
         id = gen_id(iso, p->lick, drive);
         name = auto_name;
     }
@@ -351,6 +378,7 @@ int main_menu(program_status_t *p) {
                     handle_error(p);
                 break;
             case 4:
+                free_program_status(p);
                 exit(0);
                 break;
             default:
@@ -359,11 +387,44 @@ int main_menu(program_status_t *p) {
     }
 }
 
+void auto_install(program_status_t *p_parent, char *iso) {
+    program_status_t *p = new_program_status();
+    p->volume = VOLUME_NO_QUESTIONS;
+    p->info = p_parent->info;
+    p->loader = p_parent->loader;
+    p->menu = p_parent->menu;
+    if(!p->lick_drive)
+        ask_lick_dir(p);
+
+    char *id = gen_id(iso, p->lick, p->lick_drive->path);
+    char *name = gen_name(iso);
+    char *path = unix_path(concat_strs(3, p->lick_drive->path, "/", id));
+
+    printf("Auto install:\n");
+    printf("\tInstall to: %s\n", path);
+    printf("\tID: %s\n", id);
+    printf("\tName: %s\n", name);
+
+    free(id);
+    free(name);
+    free(path);
+
+    printf("For auto-install, press enter. Otherwise, press n, then enter.\n");
+    if(ask_bool(1, "Invalid input. Press enter or n, then enter.\n")) {
+        install_iso(p, iso);
+    }
+
+    // don't free shared items
+    p->info = NULL;
+    p->loader = NULL;
+    p->menu = NULL;
+    free_program_status(p);
+}
+
 int main(int argc, char *argv[]) {
     program_status_t *p = new_program_status();
 
     p->info = get_system_info();
-    p->volume = VOLUME_NORMAL;
 
     if(!p->loader)
         p->loader = get_loader(p->info);
@@ -374,13 +435,7 @@ int main(int argc, char *argv[]) {
     if(argc > 1) {
         for(int i = 1; i < argc; ++i) {
             if(is_iso_file(argv[i])) {
-                enum VOLUME volume = p->volume;
-                printf("For auto-install, press enter. Otherwise, press n, then enter.\n");
-                if(ask_bool(1, "Invalid input. Press enter or n, then enter.\n")) {
-                    p->volume = VOLUME_NO_QUESTIONS;
-                }
-                install_iso(p, argv[i]);
-                p->volume = volume;
+                auto_install(p, argv[i]);
                 break;
             }
         }
