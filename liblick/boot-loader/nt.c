@@ -111,7 +111,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
         after = bootitem;
     }
 
-    char *pupldr = concat_strs(2, lick->drive, "\\pupldr");
+    char *pupldr = win_path(concat_strs(2, lick->drive, "\\pupldr"));
 
     bootitem[0] = '\0';
     // print start of file, newline,

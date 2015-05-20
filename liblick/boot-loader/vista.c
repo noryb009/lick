@@ -13,7 +13,7 @@
 // install
 #define COMMAND_CREATE "bcdedit /create /d \"Puppy Linux\" /application bootsector"
 #define COMMAND_DEVICE "bcdedit /set {%s} device \"partition=%s\""
-#define COMMAND_PATH "bcdedit /set {%s} path %s%s"
+#define COMMAND_PATH "bcdedit /set {%s} path %s"
 #define COMMAND_ADD_LAST "bcdedit /displayorder {%s} /addlast"
 #define COMMAND_TIME_OUT "bcdedit /timeout 5"
 #define COMMAND_BOOT_MENU "bcdedit /set {default} bootmenupolicy legacy"
@@ -61,15 +61,15 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
 
     char *drive = "C:";
     drive[0] = lick->res[0];
-    char lick_res_dir_path[strlen(lick->res)+1];
-    strcpy(lick_res_dir_path, lick->res + 2);
+    char lick_res_dir_path[strlen(lick->res)+strlen("\\pupldr.mbr")+1];
+    win_path(strcat(strcpy(lick_res_dir_path, lick->res + 2), "\\pupldr.mbr"));
 
     get_id_from_command(COMMAND_CREATE, id);
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive);
     if(!system(c)) {return 0;}
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id,
-            lick_res_dir_path, "\\pupldr.mbr");
+            lick_res_dir_path);
     if(!system(c)) {return 0;}
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, id);
     if(!system(c)) {return 0;}

@@ -115,7 +115,7 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
         after = menuitem;
     }
 
-    char *grub_exe = concat_strs(2, lick->res, "\\grub.exe");
+    char *grub_exe = win_path(concat_strs(2, lick->res, "\\grub.exe"));
 
     menuitem[0] = '\0';
     fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);
