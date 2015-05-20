@@ -120,6 +120,10 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     fclose(f);
     attrib_save(boot_ini, attrib);
 
+    char *res_pupldr = concat_strs(2, lick->res, "\\pupldr");
+    copy_file(pupldr, res_pupldr);
+
+    free(res_pupldr);
     free(pupldr);
     free(boot);
     free(boot_ini);
@@ -173,6 +177,10 @@ int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
     fclose(f);
     attrib_save(boot_ini, attrib);
 
+    char *pupldr = concat_strs(2, lick->drive, "\\pupldr");
+    unlink_file(pupldr);
+
+    free(pupldr);
     free(boot);
     free(boot_ini);
     return 1;

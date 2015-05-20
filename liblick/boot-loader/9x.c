@@ -115,7 +115,7 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
         after = menuitem;
     }
 
-    char *grub_exe = win_path(concat_strs(2, lick->res, "\\grub.exe"));
+    char *grub_exe = win_path(concat_strs(2, lick->drive, "\\pupl.exe"));
 
     menuitem[0] = '\0';
     fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);
@@ -124,6 +124,10 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     fclose(f);
     attrib_save(config_sys, attrib);
 
+    char *res_grub_exe = concat_strs(2, lick->res, "\\pupl.exe");
+    copy_file(grub_exe, res_grub_exe);
+
+    free(res_grub_exe);
     free(grub_exe);
     free(config);
     free(config_sys);
@@ -200,6 +204,10 @@ int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
         fprintf(f, "%s%s", lick_section_end, menuitem_end);
     fclose(f);
     attrib_save(config_sys, attrib);
+
+    char *grub_exe = concat_strs(2, lick->drive, "\\pupl.exe");
+    unlink_file(grub_exe);
+    free(grub_exe);
 
     free(config);
     free(config_sys);
