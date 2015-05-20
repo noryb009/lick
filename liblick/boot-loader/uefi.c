@@ -11,10 +11,8 @@
 #define COMMAND_BUFFER_LEN 1024
 
 // install
-#define COMMAND_MOUNT_UEFI   "mountvol %c: /S"
 #define COMMAND_GRUB_INSTALL "%s/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c: --recheck"
 #define COMMAND_DESCRIPTION  "bcdedit /set %s description \"LICK Boot Manager\":"
-#define COMMAND_UMOUNT_UEFI  "mountvol %c: /D"
 #define COMMAND_FAST_BOOT    "powercfg -h off"
 
 // uninstall
@@ -50,19 +48,8 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     if(!supported_loader_uefi(info))
         return 0;
 
-    node_t *unused = unused_drives();
-    if(unused == NULL)
-        return 0;
-    node_t *drv;
-    for(drv = unused; drv->next != NULL; drv = drv->next) {}
-    char drive = ((drive_t*)drv->val)->path[0];
-    free_drive_list(unused);
-
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
-
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_MOUNT_UEFI, drive);
-    if(!system(c)) {return 0;}
 
     switch(info->version) {
         case V_WINDOWS_8:
@@ -72,14 +59,20 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
             if(!system(c)) {return 0;}
     }
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_GRUB_INSTALL, lick->res, drive, drive);
-    if(!system(c)) {return 0;}
+    char drive = mount_uefi_partition();
+    if(drive == '\0')
+        return 0;
 
-    return get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_GRUB_INSTALL, lick->res, drive, drive);
+    if(!system(c)) {
+        unmount_uefi_partition(drive);
+        return 0;
+    }
+
+    get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DESCRIPTION, id);
     system(c);
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_UMOUNT_UEFI, drive);
-    system(c);
+    unmount_uefi_partition(drive);
 
     // add PreLoader.efi and HashTool.efi
     char *efi_grub = strdup("?:/EFI/LICK/grubx64.efi");

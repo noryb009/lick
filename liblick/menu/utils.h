@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "../llist.h"
+#include "../lickdir.h"
 
 /**
  * @brief An entry in a LICK menu file
@@ -42,3 +43,11 @@ void free_entry(entry_t *e);
  * @return a string that suitable be used in a menu. Free using free
  */
 char *to_menu_path(char *path);
+/**
+ * @brief write entries to a file
+ * @param lick the lick directory
+ * @param menu the file to write to
+ * @param write a function that writes a given entry
+ */
+void write_menu(lickdir_t *lick, FILE *menu,
+        void (*write)(FILE *, entry_t *));
