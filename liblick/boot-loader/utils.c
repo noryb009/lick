@@ -6,6 +6,7 @@
 #endif
 
 #include "utils.h"
+#include "../drives.h"
 #include "../utils.h"
 
 /**
@@ -43,6 +44,23 @@ char *file_to_str(FILE *f) {
     return buf;
 }
 
+char *file_to_str_no_rewind(FILE *f) {
+    int len = 512;
+    int cur = 0;
+    char *buf = malloc(len);
+
+    while(1) {
+        int read = fread(buf + cur, 1, len - cur, f);
+        if(read < len - cur) {
+            buf[cur + read] = '\0';
+            return buf;
+        }
+        cur += read;
+        len *= 2;
+        buf = realloc(buf, len);
+    }
+}
+
 #ifdef _WIN32
 attrib_t *attrib_get(const char *file) {
     attrib_t *attrib = malloc(sizeof(attrib_t));
@@ -70,7 +88,6 @@ void attrib_save(const char *file, attrib_t *attrib) {
     return;
 }
 #endif
-
 int backup_file(const char *f) {
     int len = strlen(f) + strlen(".bak") + 1;
     char buf[len];
@@ -84,39 +101,63 @@ int backup_file(const char *f) {
 
 int get_id_from_command_range(const char *c, char *out, char *start, char *end) {
     out[0] = '\0';
-    int ret = 0;
 
+    //printf("Running command: %s\n", c);
     FILE *pipe = popen(c, "r");
     if(!pipe) {return 0;}
 
-    char buf[512] = "";
-    while(!feof(pipe)) {
-        if(fgets(buf, 512, pipe) != NULL) {
-            if(start != NULL && strstr(buf, start) != NULL) {
-                ret = 0;
-            }
-            char *id = strstr(buf, "{");
-            if(id != NULL) {
-                char *id_end = strstr(buf, "}");
-                if(id_end != NULL) {
-                    id_end[0] = '\0';
-                    if(id_end-id-1 >= ID_LEN) {
-                        ret = 0;
-                    } else {
-                        strncpy(out, id+1, ID_LEN);
-                        ret = 1;
-                    }
-                }
-            } else if(end != NULL && strstr(buf, end) != NULL) {
-                break;
-            }
+    char *buf = file_to_str_no_rewind(pipe);
+    pclose(pipe);
+
+    char *start_loc = buf;
+    if(start != NULL) {
+        char *end_loc = strstr(buf, end);
+        if(end_loc == NULL) {
+            free(buf);
+            return 0;
+        }
+        end_loc[0] = '\0';
+        start_loc = strstrr(buf, start);
+        if(start_loc == NULL) {
+            free(buf);
+            return 0;
         }
     }
-
-    pclose(pipe);
-    return ret;
+    char *id = strchr(start_loc, '{');
+    if(!id) {
+        free(buf);
+        return 0;
+    }
+    char *id_end = strchr(id, '}');
+    if(!id_end) {
+        free(buf);
+        return 0;
+    }
+    id_end[0] = '\0';
+    if(strlen(id + 1) > ID_LEN - 1) {
+        free(buf);
+        return 0;
+    }
+    strcpy(out, id + 1);
+    free(buf);
+    return 1;
 }
 
 int get_id_from_command(const char *c, char *out) {
     return get_id_from_command_range(c, out, NULL, NULL);
+}
+
+char *get_bcdedit() {
+    char *path = get_windows_path();
+    char *edit[] = {"/System32/bcdedit.exe", "/Sysnative/bcdedit.exe", NULL};
+    char *c = malloc(COMMAND_BUFFER_LEN);
+
+    for(int i = 0; edit[i] != NULL; ++i) {
+        snprintf(c, COMMAND_BUFFER_LEN, "%s%s", path, edit[i]);
+        if(path_exists(c))
+            return c;
+    }
+
+    free(c);
+    return NULL;
 }

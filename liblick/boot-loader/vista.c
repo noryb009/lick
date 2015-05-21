@@ -8,20 +8,18 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define COMMAND_BUFFER_LEN 256
-
 // install
-#define COMMAND_CREATE "bcdedit /create /d \"Puppy Linux\" /application bootsector"
-#define COMMAND_DEVICE "bcdedit /set {%s} device \"partition=%s\""
-#define COMMAND_PATH "bcdedit /set {%s} path %s"
-#define COMMAND_ADD_LAST "bcdedit /displayorder {%s} /addlast"
-#define COMMAND_TIME_OUT "bcdedit /timeout 5"
-#define COMMAND_BOOT_MENU "bcdedit /set {default} bootmenupolicy legacy"
+#define COMMAND_CREATE "%s /create /d \"Puppy Linux\" /application bootsector"
+#define COMMAND_DEVICE "%s /set {%s} device partition=%c:"
+#define COMMAND_PATH "%s /set {%s} path %s"
+#define COMMAND_ADD_LAST "%s /displayorder {%s} /addlast"
+#define COMMAND_TIME_OUT "%s /timeout 5"
+#define COMMAND_BOOT_MENU "%s /set {default} bootmenupolicy legacy"
 #define COMMAND_FAST_BOOT "powercfg -h off"
 
 // uninstall
-#define COMMAND_ENUM "bcdedit /enum all"
-#define COMMAND_DELETE "bcdedit /delete %s"
+#define COMMAND_ENUM "%s /enum all"
+#define COMMAND_DELETE "%s /delete {%s}"
 
 int supported_loader_vista(sys_info_t *info) {
     if(info->family != F_WINDOWS_VISTA || info->is_bios != BIOS_BIOS) {
@@ -43,9 +41,15 @@ int check_loader_vista(sys_info_t *info) {
         return 0;
     }
 
+    char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
+    char *bcdedit = get_bcdedit();
+    if(!bcdedit)
+        return 0;
 
-    return get_id_from_command_range(COMMAND_ENUM, id, "----------", "pupldr.mbr");
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
+    free(bcdedit);
+    return get_id_from_command_range(c, id, "----------", "pupldr.mbr");
 }
 
 int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
@@ -58,33 +62,43 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
+    char *bcdedit = get_bcdedit();
+    if(!bcdedit)
+        return 0;
 
-    char *drive = "C:";
-    drive[0] = lick->res[0];
     char lick_res_dir_path[strlen(lick->res)+strlen("\\pupldr.mbr")+1];
     win_path(strcat(strcpy(lick_res_dir_path, lick->res + 2), "\\pupldr.mbr"));
 
-    get_id_from_command(COMMAND_CREATE, id);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_CREATE, bcdedit);
+    get_id_from_command(c, id);
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, id, drive);
-    if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, id,
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, bcdedit, id, lick->drive[0]);
+    if(!run_system(c)) {free(bcdedit);return 0;}
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id,
             lick_res_dir_path);
-    if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, id);
-    if(!system(c)) {return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, id);
-    if(!system(c)) {return 0;}
+    if(!run_system(c)) {free(bcdedit);return 0;}
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, bcdedit, id);
+    if(!run_system(c)) {free(bcdedit);return 0;}
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, bcdedit, id);
+    if(!run_system(c)) {free(bcdedit);return 0;}
 
     switch(info->version) {
         case V_WINDOWS_8:
         case V_WINDOWS_8_1:
         //case V_WINDOWS_10: // TODO: test
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, id);
-            if(!system(c)) {return 0;}
+            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit, id);
+            if(!run_system(c)) {free(bcdedit);return 0;}
             snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-            if(!system(c)) {return 0;}
+            if(!run_system(c)) {free(bcdedit);return 0;}
     }
+    free(bcdedit);
+
+    // copy pupldr
+    char *pupldr_src = concat_strs(2, lick->res, "/pupldr");
+    char *pupldr_dst = concat_strs(2, lick->drive, "/pupldr");
+    copy_file(pupldr_dst, pupldr_src);
+    free(pupldr_src);
+    free(pupldr_dst);
     return 1;
 }
 
@@ -95,11 +109,20 @@ int uninstall_loader_vista(sys_info_t *info, lickdir_t *lick) {
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
+    char *bcdedit = get_bcdedit();
+    if(!bcdedit)
+        return 0;
 
-    get_id_from_command_range(COMMAND_ENUM, id, "----------", "pupldr.mbr");
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
+    get_id_from_command_range(c, id, "----------", "pupldr.mbr");
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, id);
-    if(!system(c)) {return 0;}
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
+    free(bcdedit);
+    if(!run_system(c)) {return 0;}
+
+    char *pupldr = concat_strs(2, lick->drive, "/pupldr");
+    unlink_file(pupldr);
+    free(pupldr);
     return 1;
 }
 

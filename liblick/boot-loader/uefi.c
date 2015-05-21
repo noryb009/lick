@@ -8,16 +8,14 @@
 #include "../menu/grub2.h"
 #include "../utils.h"
 
-#define COMMAND_BUFFER_LEN 1024
-
 // install
 #define COMMAND_GRUB_INSTALL "%s/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c: --recheck"
-#define COMMAND_DESCRIPTION  "bcdedit /set %s description \"LICK Boot Manager\":"
+#define COMMAND_DESCRIPTION  "%s /set %s description \"LICK Boot Manager\":"
 #define COMMAND_FAST_BOOT    "powercfg -h off"
 
 // uninstall
-#define COMMAND_ENUM "bcdedit /enum all"
-#define COMMAND_DELETE "bcdedit /delete %s"
+#define COMMAND_ENUM "%s /enum all"
+#define COMMAND_DELETE "%s /delete {%s}"
 
 int supported_loader_uefi(sys_info_t *info) {
     if(info->family != F_WINDOWS_VISTA || info->is_bios != BIOS_UEFI) {
@@ -39,9 +37,16 @@ int check_loader_uefi(sys_info_t *info) {
         return 0;
     }
 
+    char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
+    char *bcdedit = get_bcdedit();
+    if(!bcdedit)
+        return 0;
 
-    return get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
+
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
+    free(bcdedit);
+    return get_id_from_command_range(c, id, "----------", "EFI\\LICK\\");
 }
 
 int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
@@ -56,7 +61,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
         case V_WINDOWS_8_1:
         //case V_WINDOWS_10: // TODO: test
             snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-            if(!system(c)) {return 0;}
+            if(!run_system(c)) {return 0;}
     }
 
     char drive = mount_uefi_partition();
@@ -64,14 +69,19 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
         return 0;
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_GRUB_INSTALL, lick->res, drive, drive);
-    if(!system(c)) {
+    if(!run_system(c)) {
         unmount_uefi_partition(drive);
         return 0;
     }
 
-    get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DESCRIPTION, id);
-    system(c);
+    char *bcdedit = get_bcdedit();
+    if(bcdedit) {
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
+        get_id_from_command_range(c, id, "----------", "EFI\\LICK\\");
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DESCRIPTION, bcdedit, id);
+        run_system(c);
+        free(bcdedit);
+    }
     unmount_uefi_partition(drive);
 
     // add PreLoader.efi and HashTool.efi
@@ -109,11 +119,16 @@ int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
+    char *bcdedit = get_bcdedit();
+    if(!bcdedit)
+        return 0;
 
-    get_id_from_command_range(COMMAND_ENUM, id, "----------", "EFI\\LICK\\");
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
+    get_id_from_command_range(c, id, "----------", "EFI\\LICK\\");
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, id);
-    if(!system(c)) {return 0;}
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
+    free(bcdedit);
+    if(!run_system(c)) {return 0;}
     return 1;
 }
 

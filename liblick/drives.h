@@ -17,13 +17,18 @@ typedef enum {
     DRV_UNUSED,
     /// an internal hard drive
     DRV_HDD,
-    /// an external hard drive, CD, etc.
+    /// an external hard drive, USB, etc.
     DRV_REMOVABLE,
+    /// a network drive
+    DRV_REMOTE,
+    /// a CD drive
+    DRV_CDROM,
 } drive_type_e;
 
 /**
  * @brief info about a drive
  */
+// TODO: compression
 typedef struct {
     /// the path to the root of a drive
     char *path;
@@ -60,6 +65,12 @@ void free_drive_list(node_t *lst);
  * @return 1 if the drive has LICK installed, otherwise 0
  */
 int is_lick_drive(drive_t *drive);
+/**
+ * @brief get the path of the Windows folder
+ * @return
+ *   the path to the Windows folder. Must be freed using free
+ */
+char *get_windows_path();
 /**
  * @brief get the drive Windows is installed on
  * @return

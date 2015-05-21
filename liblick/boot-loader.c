@@ -51,12 +51,12 @@ int install_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
     if(!l->check(info)) {
         if(!l->install(info, lick))
-            return 1;
+            return 0;
         menu_t *m = get_menu(l);
         m->install(lick);
         m->regenerate(lick);
         free(m);
-        return 0;
+        return 1;
     }
     return -1; // already installed
 }
@@ -65,11 +65,11 @@ int uninstall_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
     if(l->check(info)) {
         if(!l->uninstall(info, lick))
-            return 1;
+            return 0;
         menu_t *m = get_menu(l);
         m->uninstall(lick);
         free(m);
-        return 0;
+        return 1;
     }
     return -1; // already uninstalled
 }

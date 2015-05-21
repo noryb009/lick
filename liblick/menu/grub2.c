@@ -28,7 +28,7 @@ char mount_uefi_partition() {
 
     char c[strlen(COMMAND_MOUNT_UEFI) + 1];
     sprintf(c, COMMAND_MOUNT_UEFI, drive);
-    if(!system(c))
+    if(!run_system(c))
         return '\0';
 
     return drive;
@@ -37,7 +37,7 @@ char mount_uefi_partition() {
 void unmount_uefi_partition(char drive) {
     char c[strlen(COMMAND_UMOUNT_UEFI) + 1];
     sprintf(c, COMMAND_UMOUNT_UEFI, drive);
-    system(c);
+    run_system(c);
 }
 
 void grub2_write_entry(FILE *f, entry_t *e) {

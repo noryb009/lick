@@ -75,12 +75,33 @@ int unlink_file(const char *f) {
     return !unlink(f);
 }
 
+int run_system(const char *c) {
+    //printf("Running command: %s\n", c);
+    // TODO: silence
+    return (system(c) == 0);
+}
+
 char *strdup(const char *s) {
     char *n = malloc(strlen(s) + 1);
     if(n) {
         strcpy(n, s);
     }
     return n;
+}
+
+char *strstrr(const char *haystack, const char *needle) {
+    const char *last = haystack - 1;
+    while(1) {
+        const char *new_last = strstr(last + 1, needle);
+        if(new_last)
+            last = new_last;
+        else
+            break;
+    }
+    if(last == haystack - 1)
+        return NULL;
+    else
+        return (char *)last;
 }
 
 int is_slash(char c) {

@@ -28,8 +28,12 @@ drive_type_e drive_type(char *path) {
     switch(GetDriveType(path)) {
         case DRIVE_FIXED:
             return DRV_HDD;
-        case DRIVE_REMOTE:
+        case DRIVE_REMOVABLE:
             return DRV_REMOVABLE;
+        case DRIVE_REMOTE:
+            return DRV_REMOTE;
+        case DRIVE_CDROM:
+            return DRV_CDROM;
         default:
             return DRV_UNKNOWN;
     }
@@ -48,7 +52,11 @@ node_t *all_drives() {
     for(int i = 31; i >= 0; --i, n = n >> 1) {
         if(n == (n & drive_flags)) {
             path[0] = 'A' + i;
-            drives = new_node(new_drive(path, drive_type(path)), drives);
+            drive_type_e type = drive_type(path);
+            // TODO: better floppy detection
+            if(type != DRV_UNKNOWN
+                    && (path[0] != 'A' || type != DRV_REMOVABLE))
+                drives = new_node(new_drive(path, type), drives);
         }
     }
 
@@ -75,17 +83,40 @@ node_t *unused_drives() {
     return drives;
 }
 
-drive_t *get_windows_drive() {
-    TCHAR buf[30];
-    if(GetSystemWindowsDirectory(buf, 30) == 0)
+char *TCHAR_to_char(TCHAR *s, int len) {
+    char *to = malloc(len + 1);
+    for(int i = 0; i < len; ++i)
+        to[i] = (char)s[i];
+    to[len] = '\0';
+    return to;
+}
+
+char *get_windows_path() {
+    TCHAR buf[256];
+    int len = GetSystemWindowsDirectory(buf, 255);
+    if(len == 0)
         return NULL;
+    if(len <= 255)
+        return TCHAR_to_char(buf, len);
+
+    // not big enough
+    TCHAR buf2[len + 1];
+    len = GetSystemWindowsDirectory(buf2, len + 1);
+    if(len == 0)
+        return NULL;
+    return TCHAR_to_char(buf2, len);
+}
+
+drive_t *get_windows_drive() {
+    char *path = get_windows_path();
 
     char letters[4];
-    letters[0] = (char)buf[0];
-    letters[1] = (char)buf[1];
+    letters[0] = path[0];
+    letters[1] = path[1];
     letters[2] = '\\';
     letters[3] = '\0';
 
+    free(path);
     return new_drive(letters, DRV_HDD);
 }
 #else
@@ -97,6 +128,9 @@ node_t *unused_drives() {
     return new_node(new_drive("/", DRV_UNUSED), NULL);
 }
 
+char *get_windows_path() {
+    return strdup("/");
+}
 drive_t *get_windows_drive() {
     return new_drive("/", DRV_HDD);
 }
@@ -151,16 +185,16 @@ drive_t *get_likely_lick_drive() {
                     priority = 100;
                 }
                 break;
-            case DRV_UNKNOWN:
-                if(priority < 60) {
-                    drv = n->val;
-                    priority = 60;
-                }
-                break;
             case DRV_REMOVABLE:
                 if(priority < 30) {
                     drv = n->val;
                     priority = 30;
+                }
+                break;
+            case DRV_REMOTE:
+                if(priority < 10) {
+                    drv = n->val;
+                    priority = 10;
                 }
                 break;
         }

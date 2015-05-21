@@ -53,11 +53,24 @@ int unlink_dir(const char *d);
  */
 int unlink_file(const char *f);
 /**
+ * @brief run a command, using system()
+ * @param c the command to run
+ * @return 1 if the program finished correctly
+ */
+int run_system(const char *c);
+/**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy
  * @return a copy of s. Free using free()
  */
 char *strdup(const char *s);
+/**
+ * @brief returns a pointer to the last occurrence of a substring
+ * @param haystack the string to look through
+ * @param needle the string to look for
+ * @return a pointer to the last occurrence of needle, or NULL
+ */
+char *strstrr(const char *haystack, const char *needle);
 /**
  * @brief concatenate strings together
  * @param n the number of strings
