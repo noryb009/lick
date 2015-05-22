@@ -44,12 +44,12 @@ node_t *all_drives() {
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 
-    DWORD n = 1 << 31;
+    DWORD n = 1 << 25;
     char path[4];
     strcpy(path, "a:\\");
 
     // go backwards, pushing to front of list, so returns in order
-    for(int i = 31; i >= 0; --i, n = n >> 1) {
+    for(int i = 25; i >= 0; --i, n = n >> 1) {
         if(n == (n & drive_flags)) {
             path[0] = 'A' + i;
             drive_type_e type = drive_type(path);
@@ -68,7 +68,7 @@ node_t *unused_drives() {
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 
-    DWORD n = 1 << 31;
+    DWORD n = 1 << 25;
     char path[4];
     strcpy(path, "a:\\");
 
@@ -137,7 +137,7 @@ drive_t *get_windows_drive() {
 #endif
 
 int is_lick_drive(drive_t *drive) {
-    char *lick_file = concat_strs(2, drive->path, "/lick/");
+    char *lick_file = concat_strs(2, drive->path, "/lick");
     file_type_e type = file_type(lick_file);
     free(lick_file);
     return (type == FILE_TYPE_DIR);

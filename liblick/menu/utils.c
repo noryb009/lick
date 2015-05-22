@@ -33,7 +33,8 @@ entry_t *get_entry(FILE *f) {
         if(keyword_start == NULL) { // nothing found
             free(ln);
             continue;
-        }
+        } else if(item_start == NULL)
+			item_start = "";
 
         enum type_e {
             TITLE,

@@ -91,7 +91,7 @@ int install_grub2(lickdir_t *lick) {
         return 0;
     }
 
-    char *grub_cfg_header = concat_strs(2, lick->res, "\\grub2.cfg.header");
+    char *grub_cfg_header = concat_strs(2, lick->res, "\\grub.cfg");
     FILE *src = fopen(header, "r");
     if(!src) {
         if(lick->err == NULL)
@@ -117,10 +117,13 @@ int uninstall_grub2(lickdir_t *lick) {
     free(header);
 
     char drive = mount_uefi_partition();
-    char *grub_cfg = strdup("?:\\grub\\grub.cfg");
-    grub_cfg[0] = drive;
-    unlink_file(grub_cfg);
-    free(grub_cfg);
+    char lick_dir[] = "?:/EFI/LICK";
+    char grub_dir[] =  "?:/grub";
+    lick_dir[0] = drive;
+    grub_dir[0] = drive;
+    unlink_recursive(lick_dir);
+    unlink_recursive(grub_dir);
+
     unmount_uefi_partition(drive);
     return 1;
 }

@@ -10,7 +10,7 @@
 
 // install
 #define COMMAND_GRUB_INSTALL "%s/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c: --recheck"
-#define COMMAND_DESCRIPTION  "%s /set %s description \"LICK Boot Manager\":"
+#define COMMAND_DESCRIPTION  "%s /set {%s} description \"LICK Boot Manager\":"
 #define COMMAND_FAST_BOOT    "powercfg -h off"
 
 // uninstall
@@ -42,7 +42,6 @@ int check_loader_uefi(sys_info_t *info) {
     char *bcdedit = get_bcdedit();
     if(!bcdedit)
         return 0;
-
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
     free(bcdedit);
@@ -129,6 +128,7 @@ int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
     free(bcdedit);
     if(!run_system(c)) {return 0;}
+
     return 1;
 }
 

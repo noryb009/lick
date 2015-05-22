@@ -53,6 +53,12 @@ int unlink_dir(const char *d);
  */
 int unlink_file(const char *f);
 /**
+ * @brief delete a directory and its contents
+ * @param d the directory to delete
+ * @return true on success
+ */
+int unlink_recursive(const char *d);
+/**
  * @brief run a command, using system()
  * @param c the command to run
  * @return 1 if the program finished correctly

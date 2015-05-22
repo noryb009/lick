@@ -1,11 +1,12 @@
-#include "utils.h"
-
 #include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "scandir.h"
+#include "utils.h"
 
 int make_dir(const char *d) {
 #ifdef _WIN32
@@ -73,6 +74,24 @@ int unlink_dir(const char *d) {
 }
 int unlink_file(const char *f) {
     return !unlink(f);
+}
+int unlink_recursive(const char *d) {
+    struct dirent **e;
+    int len = scandir2(d, &e, NULL, NULL);
+    if(len < 0)
+        return 0;
+    for(int i = 0; i < len; ++i) {
+        char *path = unix_path(concat_strs(3, d, "/", e[i]->d_name));
+        if(file_type(path) == FILE_TYPE_DIR)
+            unlink_recursive(path);
+        else
+            unlink_file(path);
+        free(path);
+        free(e[i]);
+    }
+    free(e);
+    unlink_dir(d);
+    return 1;
 }
 
 int run_system(const char *c) {
