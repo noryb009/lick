@@ -46,7 +46,7 @@ node_t *all_drives() {
 
     DWORD n = 1 << 25;
     char path[4];
-    strcpy(path, "a:\\");
+    strcpy(path, "a:/");
 
     // go backwards, pushing to front of list, so returns in order
     for(int i = 25; i >= 0; --i, n = n >> 1) {
@@ -70,7 +70,7 @@ node_t *unused_drives() {
 
     DWORD n = 1 << 25;
     char path[4];
-    strcpy(path, "a:\\");
+    strcpy(path, "a:/");
 
     // go backwards, pushing to front of list, so returns in order
     for(int i = 25; i >= 0; --i, n = n >> 1) {
@@ -113,7 +113,7 @@ drive_t *get_windows_drive() {
     char letters[4];
     letters[0] = path[0];
     letters[1] = path[1];
-    letters[2] = '\\';
+    letters[2] = '/';
     letters[3] = '\0';
 
     free(path);

@@ -23,7 +23,7 @@ node_t *get_conf_files(const char *path) {
         return NULL;
 
     for(int i = 0; i < n; ++i) {
-        lst = new_node(concat_strs(3, path, "\\", e[i]->d_name), lst);
+        lst = new_node(concat_strs(3, path, "/", e[i]->d_name), lst);
         free(e[i]);
     }
 
@@ -56,19 +56,13 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
         free(ln);
     }
 
+    char *last_slash = strpbrk(filename, "/\\");
     char *base_name;
-    char *forward = strrchr(filename, '/');
-    char *backward = strrchr(filename, '\\');
-    if(forward == NULL && backward == NULL)
+    if(last_slash == NULL)
         base_name = filename;
-    else if(forward == NULL)
-        base_name = backward + 1;
-    else if(backward == NULL)
-        base_name = forward + 1;
-    else if(forward > backward)
-        base_name = forward + 1;
     else
-        base_name = backward + 1;
+        base_name = last_slash + 1;
+
     int id_len = strlen(base_name) - 5; // length of file name, - .conf
     char *id = malloc(id_len + 1);
     strncpy(id, base_name, id_len);

@@ -12,7 +12,7 @@
 
 char *boot_ini_path() {
     drive_t *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive->path, "\\boot.ini");
+    char *loc = concat_strs(2, drive->path, "/boot.ini");
     free_drive(drive);
     return loc;
 }
@@ -111,7 +111,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
         after = bootitem;
     }
 
-    char *pupldr = win_path(concat_strs(2, lick->drive, "\\pupldr"));
+    char *pupldr = win_path(concat_strs(2, lick->drive, "/pupldr"));
 
     bootitem[0] = '\0';
     // print start of file, newline,
@@ -120,7 +120,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     fclose(f);
     attrib_save(boot_ini, attrib);
 
-    char *res_pupldr = concat_strs(2, lick->res, "\\pupldr");
+    char *res_pupldr = concat_strs(2, lick->res, "/pupldr");
     copy_file(pupldr, res_pupldr);
 
     free(res_pupldr);
@@ -177,7 +177,7 @@ int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
     fclose(f);
     attrib_save(boot_ini, attrib);
 
-    char *pupldr = concat_strs(2, lick->drive, "\\pupldr");
+    char *pupldr = concat_strs(2, lick->drive, "/pupldr");
     unlink_file(pupldr);
 
     free(pupldr);

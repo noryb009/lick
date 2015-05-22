@@ -8,6 +8,10 @@
 #include "scandir.h"
 #include "utils.h"
 
+int is_slash(char c) {
+    return (c == '/' || c == '\\');
+}
+
 int make_dir(const char *d) {
 #ifdef _WIN32
         if(mkdir(d) == 0)
@@ -25,13 +29,13 @@ int make_dir_parents(const char *d) {
     char *buf = strdup(d);
 
     // strip trailing '/' and '\'
-    while(len > 0 && (buf[len-1] == '/' || buf[len-1] == '\\')) {
+    while(len > 0 && is_slash(buf[len-1])) {
         --len;
         buf[len] = '\0';
     }
 
     for(char *p = buf + 1; *p != '\0'; ++p) {
-        if(*p == '/' || *p == '\\') {
+        if(is_slash(*p)) {
             *p = '\0';
             make_dir(buf);
             *p = '/';
@@ -121,10 +125,6 @@ char *strstrr(const char *haystack, const char *needle) {
         return NULL;
     else
         return (char *)last;
-}
-
-int is_slash(char c) {
-    return (c == '/' || c == '\\');
 }
 
 char *concat_strs(int n, ...) {

@@ -61,7 +61,7 @@ int regenerate_grub2(lickdir_t *lick) {
     char drive = mount_uefi_partition();
     if(drive == '\0')
         return 0;
-    char *grub_cfg = strdup("?:\\grub\\grub.cfg");
+    char *grub_cfg = strdup("?:/grub/grub.cfg");
     grub_cfg[0] = drive;
 
     FILE *menu = fopen(grub_cfg, "w");
@@ -81,7 +81,7 @@ int regenerate_grub2(lickdir_t *lick) {
 }
 
 int install_grub2(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "\\00-header.conf");
+    char *header = concat_strs(2, lick->menu, "/00-header.conf");
     FILE *f = fopen(header, "w");
     free(header);
 
@@ -91,7 +91,7 @@ int install_grub2(lickdir_t *lick) {
         return 0;
     }
 
-    char *grub_cfg_header = concat_strs(2, lick->res, "\\grub.cfg");
+    char *grub_cfg_header = concat_strs(2, lick->res, "/grub.cfg");
     FILE *src = fopen(header, "r");
     if(!src) {
         if(lick->err == NULL)
@@ -112,7 +112,7 @@ int install_grub2(lickdir_t *lick) {
 }
 
 int uninstall_grub2(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "\\00-header.conf");
+    char *header = concat_strs(2, lick->menu, "/00-header.conf");
     unlink_file(header);
     free(header);
 

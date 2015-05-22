@@ -66,8 +66,8 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!bcdedit)
         return 0;
 
-    char lick_res_dir_path[strlen(lick->res)+strlen("\\pupldr.mbr")+1];
-    win_path(strcat(strcpy(lick_res_dir_path, lick->res + 2), "\\pupldr.mbr"));
+    char lick_res_dir_path[strlen(lick->res)+strlen("/pupldr.mbr")+1];
+    win_path(strcat(strcpy(lick_res_dir_path, lick->res + 2), "/pupldr.mbr"));
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_CREATE, bcdedit);
     get_id_from_command(c, id);
