@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 set(proj_name "LICK")
+set(VERSION_MAJOR "0")
+set(VERSION_MINOR "1")
+set(VERSION_PATCH "0")
 
 project(${proj_name})
 
@@ -34,6 +37,34 @@ add_subdirectory(src)
 install(DIRECTORY res
     DESTINATION /)
 install(DIRECTORY
-    DESTINATION /menu)
+    DESTINATION menu)
 install(DIRECTORY
-    DESTINATION /entries)
+    DESTINATION entries)
+install(FILES LICENSE
+    DESTINATION /
+    RENAME LICENSE.txt)
+
+# CPack
+set(CPACK_GENERATOR "${CPACK_GENERATOR};ZIP")
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${proj_name}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+set(CPACK_PACKAGE_VENDOR "Luke Lorimer (noryb009)")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "lick")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+if(WIN32 AND NOT UNIX)
+    set(CPACK_GENERATOR "${CPACK_GENERATOR};NSIS")
+    #set(CPACK_PACKAGE_ICON "")
+    set(CPACK_NSIS_INSTALLED_ICON_NAME "lick-cli.exe")
+    set(CPACK_NSIS_DISPLAY_NAME "LICK")
+    set(CPACK_NSIS_HELP_LINK "https://github.com/noryb009/lick")
+    set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_NSIS_HELP_LINK}")
+    set(CPACK_NSIS_CONTACT "noryb009@gmail.com")
+    # TODO: uninstall all
+    #set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
+endif()
+
+include(CPack)
