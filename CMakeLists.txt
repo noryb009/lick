@@ -30,3 +30,10 @@ ExternalProject_Add(
 add_subdirectory(liblick)
 add_subdirectory(test)
 add_subdirectory(src)
+
+install(DIRECTORY res
+    DESTINATION /)
+install(DIRECTORY
+    DESTINATION /menu)
+install(DIRECTORY
+    DESTINATION /entries)
