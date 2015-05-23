@@ -34,6 +34,8 @@ int scandir_main(const char *path, struct dirent ***e,
         if(next == NULL)
             break;
 
+        if(strcmp(next->d_name, ".") == 0 || strcmp(next->d_name, "..") == 0)
+            continue;
         if(filter != NULL)
             if(full_path == 0 && !filter(next))
                 continue;

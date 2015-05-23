@@ -25,7 +25,8 @@ int filter_file(uniso_status_t *s, const char *f, const char *dst) {
             || strcmp(f, "isolinux.bin") == 0
             || strcmp(f, "isolinux.cfg") == 0
             || strcmp(f, "logo.16") == 0
-            || strcmp(f, "README.HTM") == 0) {
+            || strcmp(f, "README.HTM") == 0
+            || strstr(f, "/") != NULL) {
         return 0;
     }
 

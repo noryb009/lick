@@ -56,7 +56,17 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
         free(ln);
     }
 
-    char *last_slash = strpbrk(filename, "/\\");
+    // get last slash
+    char *last_slash = filename - 1;
+    while(1) {
+        char *new_last_slash = strpbrk(last_slash + 1, "/\\");
+        if(new_last_slash == NULL)
+            break;
+        last_slash = new_last_slash;
+    }
+    if(last_slash == filename - 1)
+        last_slash = NULL;
+
     char *base_name;
     if(last_slash == NULL)
         base_name = filename;
