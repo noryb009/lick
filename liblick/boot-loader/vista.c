@@ -11,7 +11,7 @@
 // install
 #define COMMAND_CREATE "%s /create /d \"Puppy Linux\" /application bootsector"
 #define COMMAND_DEVICE "%s /set {%s} device partition=%c:"
-#define COMMAND_PATH "%s /set {%s} path %s"
+#define COMMAND_PATH "%s /set {%s} path \\pupldr.mbr"
 #define COMMAND_ADD_LAST "%s /displayorder {%s} /addlast"
 #define COMMAND_TIME_OUT "%s /timeout 5"
 #define COMMAND_BOOT_MENU "%s /set {default} bootmenupolicy legacy"
@@ -66,16 +66,12 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!bcdedit)
         return 0;
 
-    char lick_res_dir_path[strlen(lick->res)+strlen("/pupldr.mbr")+1];
-    win_path(strcat(strcpy(lick_res_dir_path, lick->res + 2), "/pupldr.mbr"));
-
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_CREATE, bcdedit);
     get_id_from_command(c, id);
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, bcdedit, id, lick->drive[0]);
     if(!run_system(c)) {free(bcdedit);return 0;}
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id,
-            lick_res_dir_path);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id);
     if(!run_system(c)) {free(bcdedit);return 0;}
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, bcdedit, id);
     if(!run_system(c)) {free(bcdedit);return 0;}
@@ -93,12 +89,19 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     }
     free(bcdedit);
 
-    // copy pupldr
+    // copy pupldr and pupldr.mbr
     char *pupldr_src = concat_strs(2, lick->res, "/pupldr");
     char *pupldr_dst = concat_strs(2, lick->drive, "/pupldr");
     copy_file(pupldr_dst, pupldr_src);
     free(pupldr_src);
     free(pupldr_dst);
+
+    pupldr_src = concat_strs(2, lick->res, "/pupldr.mbr");
+    pupldr_dst = concat_strs(2, lick->drive, "/pupldr.mbr");
+    copy_file(pupldr_dst, pupldr_src);
+    free(pupldr_src);
+    free(pupldr_dst);
+
     return 1;
 }
 
@@ -121,8 +124,11 @@ int uninstall_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!run_system(c)) {return 0;}
 
     char *pupldr = concat_strs(2, lick->drive, "/pupldr");
+    char *pupldr_mbr = concat_strs(2, lick->drive, "/pupldr.mbr");
     unlink_file(pupldr);
+    unlink_file(pupldr_mbr);
     free(pupldr);
+    free(pupldr_mbr);
     return 1;
 }
 
