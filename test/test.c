@@ -94,18 +94,8 @@ void test_list() {
     node_t *even_lst, *odd_lst;
 
     assert(list_length(lst) == 5);
-    double_filter_list((int (*)(void *))even, lst, &even_lst, &odd_lst);
 
-    assert(list_length(even_lst) == 2);
-    for(node_t *n = even_lst; n != NULL; n = n->next)
-        assert(even(n->val));
-
-    assert(list_length(odd_lst) == 3);
-    for(node_t *n = odd_lst; n != NULL; n = n->next)
-        assert(!even(n->val));
-
-    free(even_lst);
-    free(odd_lst);
+    free(lst);
 }
 
 int main(int argc, char* argv[]) {

@@ -10,7 +10,6 @@ enum VOLUME {
 
 typedef struct {
     enum VOLUME volume;
-    drive_t *lick_drive;
     lickdir_t *lick;
     loader_t *loader;
     menu_t *menu;

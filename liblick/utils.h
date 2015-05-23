@@ -85,6 +85,14 @@ char *strstrr(const char *haystack, const char *needle);
  */
 char *concat_strs(int n, ...);
 /**
+ * @brief convert a TCHAR string to a string
+ * @param s the TCHAR string
+ * @param len the length of the string
+ * @param size the size of a TCHAR
+ * @return a string. Must be freed using free
+ */
+char *TCHAR_to_char(void *s, int len, int size);
+/**
  * @brief normalizes the path str to a Windows path
  * @param path the path to normalize
  * @return a reference to path

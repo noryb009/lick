@@ -83,28 +83,20 @@ node_t *unused_drives() {
     return drives;
 }
 
-char *TCHAR_to_char(TCHAR *s, int len) {
-    char *to = malloc(len + 1);
-    for(int i = 0; i < len; ++i)
-        to[i] = (char)s[i];
-    to[len] = '\0';
-    return to;
-}
-
 char *get_windows_path() {
     TCHAR buf[256];
     int len = GetSystemWindowsDirectory(buf, 255);
     if(len == 0)
         return NULL;
     if(len <= 255)
-        return TCHAR_to_char(buf, len);
+        return TCHAR_to_char(buf, len, sizeof(TCHAR));
 
     // not big enough
     TCHAR buf2[len + 1];
     len = GetSystemWindowsDirectory(buf2, len + 1);
     if(len == 0)
         return NULL;
-    return TCHAR_to_char(buf2, len);
+    return TCHAR_to_char(buf2, len, sizeof(TCHAR));
 }
 
 drive_t *get_windows_drive() {
@@ -135,74 +127,3 @@ drive_t *get_windows_drive() {
     return new_drive("/", DRV_HDD);
 }
 #endif
-
-int is_lick_drive(drive_t *drive) {
-    char *lick_file = concat_strs(2, drive->path, "/lick");
-    file_type_e type = file_type(lick_file);
-    free(lick_file);
-    return (type == FILE_TYPE_DIR);
-}
-
-node_t *get_lick_drives() {
-    node_t *drives = all_drives();
-    node_t *lick_drives;
-    node_t *to_delete;
-
-    double_filter_list((int (*)(void *))is_lick_drive,
-            drives, &lick_drives, &to_delete);
-
-    free(to_delete);
-    return list_reverse(lick_drives);
-}
-
-node_t *get_non_lick_drives() {
-    node_t *drives = all_drives();
-    node_t *non_lick_drives;
-    node_t *to_delete;
-
-    double_filter_list((int (*)(void *))is_lick_drive,
-            drives, &to_delete, &non_lick_drives);
-
-    free(to_delete);
-    return list_reverse(non_lick_drives);
-}
-
-drive_t *get_likely_lick_drive() {
-    drive_t *drv = get_windows_drive();
-    if(is_lick_drive(drv)) {
-        return drv;
-    }
-    free(drv);
-
-    drv = NULL;
-    int priority = -1;
-    node_t *drvs = get_lick_drives();
-    for(node_t *n = drvs; n != NULL; n = n->next) {
-        switch(((drive_t*)n->val)->type) {
-            case DRV_HDD:
-                if(priority < 100) {
-                    drv = n->val;
-                    priority = 100;
-                }
-                break;
-            case DRV_REMOVABLE:
-                if(priority < 30) {
-                    drv = n->val;
-                    priority = 30;
-                }
-                break;
-            case DRV_REMOTE:
-                if(priority < 10) {
-                    drv = n->val;
-                    priority = 10;
-                }
-                break;
-        }
-    }
-    if(drv == NULL)
-        return NULL;
-    drive_t *ret = malloc(sizeof(drive_t));
-    *ret = *drv;
-    free_drive_list(drvs);
-    return ret;
-}

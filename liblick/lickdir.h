@@ -50,3 +50,9 @@ void free_lick_dir(lickdir_t *l);
  * @return a lickdir_t with default subdirectory names
  */
 lickdir_t *expand_lick_dir(char *d);
+/**
+ * @brief returns the LICK directory, if the program running is in
+ *   the root of the directory
+ * @return a lickdir_t filled with needed info
+ */
+lickdir_t *get_lickdir();

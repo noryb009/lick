@@ -6,7 +6,6 @@
 
 program_status_t *new_program_status() {
     program_status_t *p = malloc(sizeof(program_status_t));
-    p->lick_drive = NULL;
     p->lick = NULL;
     p->loader = NULL;
     p->menu = NULL;
@@ -16,8 +15,6 @@ program_status_t *new_program_status() {
 }
 
 void free_program_status(program_status_t *p) {
-    if(p->lick_drive)
-        free_drive(p->lick_drive);
     if(p->lick)
         free_lick_dir(p->lick);
     if(p->loader)
@@ -114,42 +111,6 @@ char *ask_drive(node_t *drives) {
     }
 }
 
-void ask_lick_dir(program_status_t *p) {
-    if(p->volume > VOLUME_NO_QUESTIONS) {
-        // ask user
-        node_t *lick_drives = get_lick_drives();
-        if(lick_drives == NULL) {
-            printf("TODO: create LICK directory");
-            exit(1); // TODO: create LICK directories
-        }
-        char *drive_path;
-        if(list_length(lick_drives) > 1) {
-            printf("Select drive where LICK is installed.\n");
-            drive_path = ask_drive(lick_drives);
-        } else {
-            drive_t *drv = (drive_t *)lick_drives->val;
-            drive_path = strdup(drv->path);
-            free_drive_list(lick_drives);
-        }
-
-        char *path = concat_strs(2, drive_path, "/lick");
-        p->lick = expand_lick_dir(path);
-        free(path);
-        free(drive_path);
-    } else {
-        // default drive
-        p->lick_drive = get_likely_lick_drive();
-        if(p->lick_drive == NULL) {
-            //p->lick_drive = get_windows_drive();
-            printf("TODO: create LICK directory");
-            exit(1); // TODO: create LICK directories
-        }
-        char *lick_path = concat_strs(2, p->lick_drive->path, "/lick");
-        p->lick = expand_lick_dir(lick_path);
-        free(lick_path);
-    }
-}
-
 char *ask_iso(program_status_t *p) {
     printf("ISO file: ");
     char *c = read_line(stdin);
@@ -166,8 +127,6 @@ int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
         return 0;
 
-    if(!p->lick_drive)
-        ask_lick_dir(p);
     if(!p->loader)
         p->loader = get_loader(p->info);
     if(!p->menu)
@@ -210,7 +169,7 @@ int install_iso(program_status_t *p, char *iso) {
         } else
             free(auto_name);
     } else {
-        drive = strdup(p->lick_drive->path);
+        drive = strdup(p->lick->drive);
         id = gen_id(iso, p->lick, drive);
         name = auto_name;
     }
@@ -247,8 +206,6 @@ int ask_uninstall_loader(program_status_t *p) {
 }
 
 int uninstall_id(program_status_t *p, char *id) {
-    if(!p->lick_drive)
-        ask_lick_dir(p);
     if(!p->loader)
         p->loader = get_loader(p->info);
     if(!p->menu)
@@ -348,9 +305,6 @@ int main_menu(program_status_t *p) {
     if(p->volume <= VOLUME_NO_QUESTIONS)
         return 0;
 
-    if(!p->lick_drive)
-        ask_lick_dir(p);
-
     while(1) {
         printf("\n\nMain menu:\n");
         printf("1) Install ISO\n");
@@ -393,12 +347,12 @@ void auto_install(program_status_t *p_parent, char *iso) {
     p->info = p_parent->info;
     p->loader = p_parent->loader;
     p->menu = p_parent->menu;
-    if(!p->lick_drive)
-        ask_lick_dir(p);
+    if(!p->lick)
+        p->lick = get_lickdir();
 
-    char *id = gen_id(iso, p->lick, p->lick_drive->path);
+    char *id = gen_id(iso, p->lick, p->lick->drive);
     char *name = gen_name(iso);
-    char *path = unix_path(concat_strs(3, p->lick_drive->path, "/", id));
+    char *path = unix_path(concat_strs(3, p->lick->drive, "/", id));
 
     printf("Auto install:\n");
     printf("\tInstall to: %s\n", path);

@@ -67,6 +67,7 @@ installed_t *get_installed(lickdir_t *lick, char *filename) {
     if(last_slash == filename - 1)
         last_slash = NULL;
 
+    // TODO: basename
     char *base_name;
     if(last_slash == NULL)
         base_name = filename;

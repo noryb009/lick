@@ -62,24 +62,6 @@ node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b)) {
     return lst;
 }
 
-void double_filter_list(int (*check)(void *arg),
-        node_t *in, node_t **out_true, node_t **out_false) {
-    *out_true = NULL;
-    *out_false = NULL;
-
-    while(in != NULL) {
-        node_t *next = in->next;
-        if(check(in->val)) {
-            in->next = (*out_true);
-            (*out_true) = in;
-        } else {
-            in->next = (*out_false);
-            (*out_false) = in;
-        }
-        in = next;
-    }
-}
-
 void do_nothing(void *n) {}
 
 void free_list(node_t *n, void (*free_fn)(void *n)) {

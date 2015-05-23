@@ -149,6 +149,19 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
+char *TCHAR_to_char(void *s, int len, int size) {
+#ifdef _WIN32
+    char *str = s;
+    char *to = malloc(len + 1);
+    for(int i = 0; i < len; ++i)
+        to[i] = str[i*size];
+    to[len] = '\0';
+    return to;
+#else
+    return strdup((char *)s);
+#endif
+}
+
 char *normalize_path(char *str, char slash) {
     int last_was_slash = 0;
     for(int i = 0, j = 0;; ++i) {

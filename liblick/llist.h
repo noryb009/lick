@@ -46,24 +46,6 @@ node_t *list_reverse(node_t *lst);
  */
 node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
 /**
- * @brief filter a list into two separate lists using a predicate
- *
- * Given a predicate, filters the list into two separate lists: one of elements
- * which satisfy the given predicate, and one of elements which do not.
- *
- * @param check
- *   the predicate to determine which list a given node should be added to
- * @param in[in] the list to filter. The given pointer is no longer valid
- * @param out_true[out]
- *   the list of elements in the list which satisfy the predicate,
- *   in reverse order
- * @param out_true[out]
- *   the list of elements in the list which do not satisfy the predicate,
- *   in reverse order
- */
-void double_filter_list(int (*check)(void *arg),
-        node_t *in, node_t **out_true, node_t **out_false);
-/**
  * @brief does nothing. Useful with free_list
  */
 void do_nothing(void *n);
