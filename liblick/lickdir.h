@@ -29,6 +29,10 @@ typedef struct {
 
 /**
  * @brief create a new lickdir_t, with the given attributes
+ *
+ * Each parameter must be allocated on the heap. The parameters are no longer
+ * valid after the call, and must not be freed
+ *
  * @param lick the root lick directory
  * @param entry the entry subdirectory
  * @param menu the subdirectory for menu fragments
@@ -53,6 +57,14 @@ lickdir_t *expand_lick_dir(char *d);
 /**
  * @brief returns the LICK directory, if the program running is in
  *   the root of the directory
- * @return a lickdir_t filled with needed info
+ *
+ * Looks at the path to the binary currently being run, and determines if a
+ * res directory exists. If so, returns a lickdir_t corresponding to the
+ * directory. If not, returns NULL. This is to prevent later errors while
+ * installing the loader, and to prevent users from running an interface
+ * alone, for example directly from a zip file
+ *
+ * @return a lickdir_t filled with needed info. If the current directory is
+ *   an invalid LICK directory, returns NULL.
  */
 lickdir_t *get_lickdir();

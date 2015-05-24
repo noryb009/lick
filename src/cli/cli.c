@@ -349,6 +349,10 @@ void auto_install(program_status_t *p_parent, char *iso) {
     p->menu = p_parent->menu;
     if(!p->lick)
         p->lick = get_lickdir();
+    if(!p->lick) {
+        printf("%s is not in a valid location. Please make sure you have extracted or installed LICK completely.\n");
+        exit(1);
+    }
 
     char *id = gen_id(iso, p->lick, p->lick->drive);
     char *name = gen_name(iso);
@@ -378,7 +382,13 @@ void auto_install(program_status_t *p_parent, char *iso) {
 int main(int argc, char *argv[]) {
     program_status_t *p = new_program_status();
 
+    // TODO: allow certain functions
     p->info = get_system_info();
+    p->lick = get_lickdir();
+    if(p->info->is_admin != ADMIN_YES) {
+        printf("Must be admin.\n");
+        return 1;
+    }
 
     if(!p->loader)
         p->loader = get_loader(p->info);

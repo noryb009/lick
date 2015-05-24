@@ -9,8 +9,7 @@
 #endif
 
 // TODO: clean up unused functions
-lickdir_t *new_lick_dir_no_dup(char *lick, char *entry, char *menu,
-        char *res) {
+lickdir_t *new_lick_dir(char *lick, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->lick = lick;
     l->drive = strdup("?:/");
@@ -19,13 +18,11 @@ lickdir_t *new_lick_dir_no_dup(char *lick, char *entry, char *menu,
     l->menu = menu;
     l->res = res;
     l->err = NULL;
-    return l;
-}
 
-lickdir_t *new_lick_dir(char *lick, char *entry, char *menu,
-        char *res) {
-    return new_lick_dir_no_dup(strdup(lick), strdup(entry),
-            strdup(menu), strdup(res));
+    // cmake doesn't include empty directories in zip files
+    make_dir_parents(l->entry);
+    make_dir_parents(l->menu);
+    return l;
 }
 
 void free_lick_dir(lickdir_t *l) {
@@ -39,7 +36,10 @@ void free_lick_dir(lickdir_t *l) {
 }
 
 lickdir_t *expand_lick_dir(char *d) {
-    return new_lick_dir_no_dup(strdup(d), concat_strs(2, d, "/entries"),
+    char *res = concat_strs(2, d, "/res");
+    if(!path_exists(res))
+        return NULL;
+    return new_lick_dir(strdup(d), concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
 }
 
