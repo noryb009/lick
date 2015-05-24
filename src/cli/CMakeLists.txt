@@ -31,4 +31,4 @@ add_executable(${exe_name} ${sources})
 target_link_libraries(${exe_name} ${libs})
 
 install(TARGETS ${exe_name}
-    DESTINATION /)
+    DESTINATION .)

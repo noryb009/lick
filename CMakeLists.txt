@@ -35,17 +35,18 @@ add_subdirectory(test)
 add_subdirectory(src)
 
 install(DIRECTORY res
-    DESTINATION /)
+    DESTINATION .)
 install(DIRECTORY
     DESTINATION menu)
 install(DIRECTORY
     DESTINATION entries)
 install(FILES LICENSE
-    DESTINATION /
+    DESTINATION .
     RENAME LICENSE.txt)
 
 # CPack
 set(CPACK_GENERATOR "${CPACK_GENERATOR};ZIP")
+set(CPACK_PACKAGING_INSTALL_PREFIX "")
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${proj_name}")
 set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
@@ -58,7 +59,8 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 if(WIN32 AND NOT UNIX)
     set(CPACK_GENERATOR "${CPACK_GENERATOR};NSIS")
     #set(CPACK_PACKAGE_ICON "")
-    set(CPACK_NSIS_INSTALLED_ICON_NAME "lick-cli.exe")
+    set(CPACK_NSIS_MENU_LINKS
+        "lick-cli.exe" "LICK Command Line Interface")
     set(CPACK_NSIS_DISPLAY_NAME "LICK")
     set(CPACK_NSIS_HELP_LINK "https://github.com/noryb009/lick")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_NSIS_HELP_LINK}")
