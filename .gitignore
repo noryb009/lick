@@ -1,3 +1,5 @@
 build*
-doc
+doc/*
 !doc/Doxyfile
+res/*
+!res/grub.cfg

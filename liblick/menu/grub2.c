@@ -9,9 +9,9 @@
 #include "../utils.h"
 
 #define GRUB2_TITLE "menuentry \'%s\' {\n"
-#define GRUB2_SEARCH "\tsearch --set=root --file %s\n"
-#define GRUB2_KERNEL "\tlinux %s %s\n"
-#define GRUB2_INITRD "\tinitrd %s\n"
+#define GRUB2_SEARCH INDENT "search --set=root --file %s\n"
+#define GRUB2_KERNEL INDENT "linux %s %s\n"
+#define GRUB2_INITRD INDENT "initrd %s\n"
 #define GRUB2_END "}\n"
 
 #define COMMAND_MOUNT_UEFI   "mountvol %c: /S"

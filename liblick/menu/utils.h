@@ -10,6 +10,8 @@
 #include "../llist.h"
 #include "../lickdir.h"
 
+#define INDENT "    "
+
 /**
  * @brief An entry in a LICK menu file
  */

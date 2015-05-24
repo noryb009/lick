@@ -9,10 +9,10 @@
 #include "../utils.h"
 
 #define GRUB4DOS_TITLE "title %s\n"
-#define GRUB4DOS_FIND "\tfind --set-root --ignore-floppies %s\n"
-#define GRUB4DOS_KERNEL "\tkernel %s %s\n"
-#define GRUB4DOS_INITRD "\tinitrd %s\n"
-#define GRUB4DOS_BOOT "\tboot\n"
+#define GRUB4DOS_FIND INDENT "find --set-root --ignore-floppies %s\n"
+#define GRUB4DOS_KERNEL INDENT "kernel %s %s\n"
+#define GRUB4DOS_INITRD INDENT "initrd %s\n"
+#define GRUB4DOS_BOOT INDENT "boot\n"
 
 void grub4dos_write_entry(FILE *f, entry_t *e) {
     if(e->static_text != NULL) {
