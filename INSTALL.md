@@ -42,3 +42,9 @@ At the time of writing, the former link does not have builds for Windows.
 Copy locale/, themes/, x86_64-efi/, COPYING, grub-install.exe, and unicode.pf2
 to res/grub2/. To fulfill the requirements of the GPL3 license, you may want
 to include a file to point users to the source code of grub2.
+
+## PreLoader
+Including PreLoader is optional, it allows grub2 to boot without having to
+disable secure boot. Download PreLoader.efi and HashTool.efi from
+http://blog.hansenpartnership.com/linux-foundation-secure-boot-system-released/
+and copy them to res/.
