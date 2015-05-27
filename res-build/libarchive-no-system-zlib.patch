@@ -1,0 +1,11 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -315,7 +315,7 @@ SET(ADDITIONAL_LIBS "")
+ #
+ # Find ZLIB
+ #
+-FIND_PACKAGE(ZLIB)
++#FIND_PACKAGE(ZLIB)
+ IF(ZLIB_FOUND)
+   SET(HAVE_LIBZ 1)
+   SET(HAVE_ZLIB_H 1)
