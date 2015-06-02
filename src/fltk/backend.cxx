@@ -158,7 +158,7 @@ void Backend::on_uninstall() {
         return;
 
     node_t *e = entries;
-    for(int i = 0; i < val && e != NULL; ++i)
+    for(int i = 1; i < val && e != NULL; ++i)
         e = e->next;
     if(e == NULL) {
         refresh_window();
