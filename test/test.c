@@ -90,8 +90,8 @@ int even(int *i) {
 void test_list() {
     int a=1, b=2, c=3, d=4, e=5;
     node_t *lst =
-        new_node(&a, new_node(&b, new_node(&c, new_node(&d, new_node(&e, NULL)))));
-    node_t *even_lst, *odd_lst;
+        new_node(
+            &a, new_node(&b, new_node(&c, new_node(&d, new_node(&e, NULL)))));
 
     assert(list_length(lst) == 5);
 

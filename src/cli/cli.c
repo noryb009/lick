@@ -45,7 +45,6 @@ void handle_error(program_status_t *p) {
 // 1 = yes, 0 = no
 int ask_bool(int default_val, char *try_again) {
     char *buf = NULL;
-    size_t n;
 
     while(1) {
         buf = read_line(stdin);
@@ -350,7 +349,7 @@ void auto_install(program_status_t *p_parent, char *iso) {
     if(!p->lick)
         p->lick = get_lickdir();
     if(!p->lick) {
-        printf("%s is not in a valid location. Please make sure you have extracted or installed LICK completely.\n");
+        printf("LICK is not in a valid location. Please make sure you have extracted or installed LICK completely.\n");
         exit(1);
     }
 
