@@ -118,9 +118,9 @@ void free_entry(entry_t *e) {
     free(e);
 }
 
-char *to_menu_path(char *path) {
-    char *start = path;
-    char *colon = strchr(path, ':');
+char *to_menu_path(const char *path) {
+    const char *start = path;
+    const char *colon = strchr(path, ':');
     if(colon != NULL)
         start = colon + 1;
 

@@ -44,7 +44,7 @@ void free_entry(entry_t *e);
  * @param path the path to convert
  * @return a string that suitable be used in a menu. Free using free
  */
-char *to_menu_path(char *path);
+char *to_menu_path(const char *path);
 /**
  * @brief write entries to a file
  * @param lick the lick directory

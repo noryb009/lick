@@ -28,5 +28,5 @@ typedef struct {
  * @param subdir the installation directory
  * @return 1 on success, 0 on error
  */
-int write_menu_frag(char *dst, char *name, uniso_status_t *info,
-        char *subdir);
+int write_menu_frag(const char *dst, const char *name, uniso_status_t *info,
+        const char *subdir);

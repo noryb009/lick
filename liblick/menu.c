@@ -10,8 +10,8 @@
 #define MENU_INITRD  "\tinitrd\t%s\n"
 #define MENU_OPTIONS "\toptions\t%s\n"
 
-void print_frag(FILE *f, char *name, char *suffix,
-        uniso_status_t *info, char *ops) {
+void print_frag(FILE *f, const char *name, const char *suffix,
+        uniso_status_t *info, const char *ops) {
     fprintf(f, MENU_TITLE, name, suffix);
     if(info->kernel) {
         char *kernel = to_menu_path(info->kernel);
@@ -26,7 +26,8 @@ void print_frag(FILE *f, char *name, char *suffix,
     fprintf(f, MENU_OPTIONS, ops);
 }
 
-int write_menu_frag(char *dst, char *name, uniso_status_t *info, char *subdir) {
+int write_menu_frag(const char *dst, const char *name, uniso_status_t *info,
+        const char *subdir) {
     FILE *f = fopen(dst, "w");
     if(!f)
         return 0;
