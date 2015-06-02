@@ -92,7 +92,8 @@ int install_grub2(lickdir_t *lick) {
     }
 
     char *grub_cfg_header = concat_strs(2, lick->res, "/grub.cfg");
-    FILE *src = fopen(header, "r");
+    FILE *src = fopen(grub_cfg_header, "r");
+    free(grub_cfg_header);
     if(!src) {
         if(lick->err == NULL)
             lick->err = strdup("Could not read from resource directory");
