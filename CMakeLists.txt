@@ -13,6 +13,11 @@ if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
 endif()
 
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+endif()
+
 # TODO: only build needed targets
 include(ExternalProject)
 ExternalProject_Add(
@@ -28,6 +33,7 @@ ExternalProject_Add(
         -DENABLE_EXPAT=OFF -DENABLE_PCREPOSIX=OFF
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_C_FLAGS=-static-libgcc)
 
 add_subdirectory(liblick)

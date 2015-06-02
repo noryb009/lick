@@ -13,7 +13,7 @@ Dependencies:
     1. Download a release zip of LICK, and copy the res directory.
     2. Build the resources. See the building resources section.
 
-Build with `cmake .`, then `make`. To create the installer and zip package, run
+Build with `cmake -DCMAKE_BUILD_TYPE=Release .`, then `make`. To create the installer and zip package, run
 `make package`. Note on Windows, `make` may be named `mingw32-make`.
 
 # Building Resources
