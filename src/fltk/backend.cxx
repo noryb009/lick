@@ -146,6 +146,7 @@ void Backend::on_install() {
         return;
     }
     free(install_to);
+    refresh_window();
     fl_message("Installed successfully!");
 }
 
@@ -173,13 +174,14 @@ void Backend::on_uninstall() {
 
     refresh_window();
     if(entries == NULL) {
-        if(fl_choice("Do you wish to uninstall the boot loader?", "Yes", "No", NULL) == 0) {
+        if(fl_choice("Uninstalled successfully!\nDo you wish to uninstall the boot loader?", "Yes", "No", NULL) == 0) {
             if(!uninstall_loader(loader, info, lick)) {
                 handle_error("There was an error uninstalling the loader.");
                 return;
             }
         }
-    }
+    } else
+        fl_message("Uninstalled successfully!");
 }
 
 int Backend::check_id(int ok) {
@@ -212,6 +214,15 @@ char *until_first_slash(char *path) {
 }
 
 void Backend::refresh_window() {
+    // ISO
+    if(iso)
+        free(iso);
+    iso = NULL;
+
+    // text boxes
+    w->text_id->value("");
+    w->text_name->value("");
+
     // drive list
     Fl_Choice *menu = w->choice_install_drive;
     menu->clear();
