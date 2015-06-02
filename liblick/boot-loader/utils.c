@@ -97,6 +97,7 @@ int backup_file(const char *f) {
     }
 
     attrib_save(buf, attrib_get(f));
+    return 1;
 }
 
 int get_id_from_command_range(const char *c, char *out, char *start, char *end) {

@@ -40,7 +40,6 @@ drive_type_e drive_type(char *path) {
 }
 
 node_t *all_drives() {
-    char paths[MAX_PATH];
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 
@@ -64,7 +63,6 @@ node_t *all_drives() {
 }
 
 node_t *unused_drives() {
-    char paths[MAX_PATH];
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
 

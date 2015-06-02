@@ -17,7 +17,7 @@ int scandir_main(const char *path, struct dirent ***e,
         int (*filter)(const void *),
         int (*compare)(const struct dirent **, const struct dirent **),
         int full_path) {
-    int path_len;
+    int path_len = 0;
     if(full_path == 1)
         path_len = strlen(path);
     DIR *d = opendir(path);
@@ -36,7 +36,7 @@ int scandir_main(const char *path, struct dirent ***e,
 
         if(strcmp(next->d_name, ".") == 0 || strcmp(next->d_name, "..") == 0)
             continue;
-        if(filter != NULL)
+        if(filter != NULL) {
             if(full_path == 0 && !filter(next))
                 continue;
             else if(full_path == 1) {
@@ -46,6 +46,7 @@ int scandir_main(const char *path, struct dirent ***e,
                 if(!filter(buf))
                     continue;
             }
+        }
 
         if(size == n) {
             size *= 2;
@@ -70,11 +71,11 @@ int scandir_main(const char *path, struct dirent ***e,
 int scandir2(const char *path, struct dirent ***e,
         int (*filter)(const struct dirent *),
         int (*compare)(const struct dirent **, const struct dirent **)) {
-    scandir_main(path, e, (int (*)(const void *))filter, compare, 0);
+    return scandir_main(path, e, (int (*)(const void *))filter, compare, 0);
 }
 
 int scandir_full_path(const char *path, struct dirent ***e,
         int (*filter)(const char *),
         int (*compare)(const struct dirent **, const struct dirent **)) {
-    scandir_main(path, e, (int (*)(const void *))filter, compare, 1);
+    return scandir_main(path, e, (int (*)(const void *))filter, compare, 1);
 }

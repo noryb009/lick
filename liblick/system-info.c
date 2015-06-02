@@ -135,8 +135,6 @@ void family(sys_info_t *v) {
 }
 char *version_name(version_e v) {
     switch(v) {
-        case V_UNKNOWN:
-            return "Unknown";
         case V_WINDOWS_95:
             return "Windows 95";
         case V_WINDOWS_98:
@@ -157,41 +155,43 @@ char *version_name(version_e v) {
             return "Windows 8.1";
         case V_WINDOWS_10:
             return "Windows 10";
+        default:
+            return "Unknown";
     }
 }
 
 char *family_name(family_e f) {
     switch(f) {
-        case F_UNKNOWN:
-            return "Unknown";
         case F_WINDOWS_9X:
             return "Windows 9X";
         case F_WINDOWS_NT:
             return "Windows NT Family (Pre-Vista)";
         case F_WINDOWS_VISTA:
             return "Windows NT Family (Post-XP)";
+        default:
+            return "Unknown";
     }
 }
 
 char *arch_name(architecture_e a) {
     switch(a) {
-        case A_UNKNOWN:
-            return "Unknown";
         case A_WINDOWS_X86:
             return "32-bit";
         case A_WINDOWS_X86_64:
             return "64-bit";
+        default:
+            return "Unknown";
     }
 }
 
 char *bios_name(bios_type_e b) {
     switch(b) {
-        case BIOS_UNKNOWN:
-            return "Unknown";
         case BIOS_BIOS:
             return "BIOS";
         case BIOS_UEFI:
             return "UEFI";
+        default:
+            return "Unknown";
     }
 }
 
