@@ -4,7 +4,7 @@
 #include "id-utils.h"
 #include "utils.h"
 
-char *gen_name_base(char *iso) {
+char *gen_name_base(const char *iso) {
     char id_arr[strlen(iso) + 1];
     char *id = id_arr;
     strcpy(id, iso);
@@ -18,12 +18,13 @@ char *gen_name_base(char *iso) {
     }
 
     char *iso_loc = strstr(id, ".iso");
-    iso_loc[0] = '\0';
+    if(iso_loc)
+        iso_loc[0] = '\0';
 
     return strdup(id);
 }
 
-int is_valid_id_char(char c) {
+int is_valid_id_char(const char c) {
     if((c >= '0' && c <= '9')
             || (c >= 'A' && c <= 'Z')
             || (c >= 'a' && c <= 'z'))
@@ -43,12 +44,13 @@ int path_exists_free(char *path) {
     return ret;
 }
 
-int is_valid_id(char *id, lickdir_t *lick, char *install_path) {
+int is_valid_id(const char *id, lickdir_t *lick, const char *install_path) {
     for(int i = 0; id[i] != '\0'; ++i)
         if(!is_valid_id_char(id[i]))
             return 0;
 
-    char *check = concat_strs(3, install_path, "/", id);
+    if(path_exists_free(concat_strs(3, install_path, "/", id)))
+        return 0;
 
     if(path_exists_free(concat_strs(4, lick->entry, "/", id, ".conf")))
         return 0;
@@ -62,7 +64,7 @@ int is_valid_id(char *id, lickdir_t *lick, char *install_path) {
     return 1;
 }
 
-char *gen_id(char *iso, lickdir_t *lick, char *install_path) {
+char *gen_id(const char *iso, lickdir_t *lick, const char *install_path) {
     char *id = gen_name_base(iso);
 
     // remove invalid chars
@@ -91,10 +93,9 @@ char *gen_id(char *iso, lickdir_t *lick, char *install_path) {
     return NULL;
 }
 
-char *gen_name(char *iso) {
+char *gen_name(const char *iso) {
     char *name = gen_name_base(iso);
 
-    int j = 0;
     for(int i = 0; name[i] != '\0'; ++i) {
         char c = name[i];
         switch(c) {
