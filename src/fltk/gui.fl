@@ -1,0 +1,74 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0303 
+header_name {.h} 
+code_name {.cxx}
+decl {class Backend;} {public global
+} 
+
+class lick_fltk {open
+} {
+  Function {make_window(Backend *backend)} {open
+  } {
+    Fl_Window {} {open
+      xywh {406 256 270 240} type Double
+      code0 {\#include "backend.hpp"} visible
+    } {
+      Fl_Tabs {} {open
+        xywh {5 3 260 232}
+      } {
+        Fl_Group {} {
+          label Install open
+          xywh {5 30 260 205}
+        } {
+          Fl_Box drop_area_iso {
+            label {Click or drop ISO here}
+            callback {backend->on_drop();}
+            xywh {10 36 250 75} box ENGRAVED_BOX
+            code0 {\#include "drop-area.hpp"}
+            class drop_area
+          }
+          Fl_Tile {} {open
+            xywh {10 115 250 120}
+          } {
+            Fl_Input text_id {
+              label ID
+              callback {backend->check_id();}
+              xywh {125 115 135 25} when 1
+            }
+            Fl_Input text_name {
+              label Name
+              xywh {125 145 135 25}
+            }
+            Fl_Choice choice_install_drive {
+              label {Install Location}
+              callback {backend->check_id();} open
+              xywh {125 175 135 25} down_box BORDER_BOX
+            } {}
+            Fl_Button {} {
+              label Install
+              callback {backend->on_install();}
+              xywh {125 205 135 25}
+            }
+          }
+        }
+        Fl_Group {} {
+          label Uninstall open
+          xywh {5 25 260 210} hide
+        } {
+          Fl_Browser lst_uninstall {
+            callback {backend->on_uninstall();}
+            xywh {10 31 250 198} type Select
+          }
+        }
+      }
+    }
+    code {this->backend = backend;} {}
+  }
+  decl {Backend *backend;} {private local
+  }
+} 
+
+Function {} {} {
+  code {Backend backend;
+return backend.main(argc, argv);} {}
+} 

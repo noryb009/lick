@@ -6,6 +6,7 @@ Dependencies:
 - MinGW (gcc, make)
 - CMake
 - NSIS
+- FLTK library
 
 1. Obtain the source code from https://github.com/noryb009/lick
 2. Populate the res directory. There are two ways to do this:
