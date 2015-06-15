@@ -35,6 +35,9 @@ make
 
 Copy stage2/pupl.exe, stage2/pupldr, and stage2/pupldr.mbr to res/.
 
+You may want to include a GUI, which should be named grub4dos-gui.gz and
+placed in res/.
+
 ## grub2
 Download the latest version of grub2 for Windows from
 ftp://ftp.gnu.org/gnu/grub/ or http://alpha.gnu.org/gnu/grub/

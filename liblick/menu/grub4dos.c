@@ -64,11 +64,15 @@ int install_grub4dos(lickdir_t *lick) {
 
     fprintf(f, "static timeout=5\n");
     fprintf(f, "static default=0\n");
-    char *gfxmenu = unix_path(concat_strs(2, lick->res, "/grub4dos-gui.gz"));
-    fprintf(f, "static gfxmenu=%s\n", gfxmenu);
-    free(gfxmenu);
+    fprintf(f, "static gfxmenu=/grub4dos-gui.gz\n");
 
     fclose(f);
+
+    char *res_gfxmenu = concat_strs(2, lick->res, "/grub4dos-gui.gz");
+    char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");
+    copy_file(res_gfxmenu, gfxmenu);
+    free(res_gfxmenu);
+    free(gfxmenu);
     return 1;
 }
 
