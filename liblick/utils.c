@@ -4,6 +4,10 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 #include "scandir.h"
 #include "utils.h"
@@ -100,8 +104,27 @@ int unlink_recursive(const char *d) {
 
 int run_system(const char *c) {
     //printf("Running command: %s\n", c);
-    // TODO: silence
+#ifdef _WIN32
+    STARTUPINFO s = {sizeof(s)};
+    PROCESS_INFORMATION p;
+    char *command = strdup(c);
+    if(!CreateProcess(NULL, command, 0, 0, FALSE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p)) {
+        free(command);
+        return 0;
+    }
+    WaitForSingleObject(p.hProcess, INFINITE);
+    DWORD process_ret;
+    DWORD ret = GetExitCodeProcess(p.hProcess, &process_ret);
+    CloseHandle(p.hProcess);
+    CloseHandle(p.hThread);
+    free(command);
+    if(!ret)
+        return 0;
+    else
+        return process_ret == 0;
+#else
     return (system(c) == 0);
+#endif
 }
 
 char *strdup(const char *s) {
