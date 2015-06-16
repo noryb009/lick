@@ -59,11 +59,19 @@ int unlink_file(const char *f);
  */
 int unlink_recursive(const char *d);
 /**
- * @brief run a command, using system()
+ * @brief run a command, similar to system()
  * @param c the command to run
  * @return 1 if the program finished correctly
  */
 int run_system(const char *c);
+/**
+ * @brief run a command, similar to system(), collecting the program output
+ * @param[in] c the command to run
+ * @param[out] out the standard output and standard error output of the
+ *   program, if it finished correctly. Must be freed using free()
+ * @return 1 if the program finished correctly
+ */
+int run_system_output(const char *c, char **out);
 /**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy

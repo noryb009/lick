@@ -102,15 +102,104 @@ int unlink_recursive(const char *d) {
     return 1;
 }
 
-int run_system(const char *c) {
-    //printf("Running command: %s\n", c);
 #ifdef _WIN32
-    STARTUPINFO s = {sizeof(s)};
-    PROCESS_INFORMATION p;
-    char *command = strdup(c);
-    if(!CreateProcess(NULL, command, 0, 0, FALSE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p)) {
-        free(command);
+#define PIPE_BUF_SIZE 256
+void read_from_pipe(HANDLE pipe, char **out) {
+    int size = PIPE_BUF_SIZE * 4;
+    int used = 0;
+    *out = malloc(size + 1);
+    (*out)[0] = '\0';
+
+    DWORD c_read;
+    char buf[PIPE_BUF_SIZE];
+    BOOL success = FALSE;
+    for(;;) {
+        success = ReadFile(pipe, buf, PIPE_BUF_SIZE, &c_read, NULL);
+        if(!success || c_read == 0)
+            break;
+        while(used + c_read > size) {
+            size *= 2;
+            *out = realloc(*out, size + 1);
+        }
+        strncat(*out, buf, c_read);
+        used += c_read;
+        (*out)[used] = '\0';
+    }
+}
+
+int create_pipes(STARTUPINFO *s, HANDLE *p_output_read) {
+    HANDLE p_input_read, p_input_write;
+    HANDLE p_output_write;
+    HANDLE p_error_write;
+    HANDLE p_output_read_tmp, p_input_write_tmp;
+
+    SECURITY_ATTRIBUTES sec;
+    memset(&sec, 0, sizeof(sec));
+    sec.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sec.bInheritHandle = TRUE;
+    sec.lpSecurityDescriptor = NULL;
+
+    if(!CreatePipe(&p_output_read_tmp, &p_output_write, &sec, 0))
         return 0;
+    if(!CreatePipe(&p_input_read, &p_input_write_tmp, &sec, 0)) {
+        CloseHandle(p_output_read_tmp);
+        return 0;
+    }
+    if(!DuplicateHandle(GetCurrentProcess(), p_output_write,
+                GetCurrentProcess(), &p_error_write, 0, TRUE,
+                DUPLICATE_SAME_ACCESS)
+            || !DuplicateHandle(GetCurrentProcess(), p_output_read_tmp,
+                GetCurrentProcess(), p_output_read, 0, FALSE,
+                DUPLICATE_SAME_ACCESS)
+            || !DuplicateHandle(GetCurrentProcess(), p_input_write_tmp,
+                GetCurrentProcess(), &p_input_write, 0, FALSE,
+                DUPLICATE_SAME_ACCESS)) {
+        CloseHandle(p_output_read_tmp);
+        CloseHandle(p_input_write_tmp);
+        return 0;
+    }
+    CloseHandle(p_output_read_tmp);
+    CloseHandle(p_input_write_tmp);
+
+    s->hStdInput = p_input_read;
+    s->hStdOutput = p_output_write;
+    s->hStdError = p_error_write;
+    s->dwFlags |= STARTF_USESTDHANDLES;
+    return 1;
+}
+
+int run_system_output(const char *c, char **out) {
+    //printf("Running command: %s\n", c);
+    STARTUPINFO s;
+    PROCESS_INFORMATION p;
+    HANDLE p_output;
+
+    memset(&s, 0, sizeof(s));
+    s.cb = sizeof(s);
+
+    if(out != NULL) {
+        if(!create_pipes(&s, &p_output))
+            return 0;
+    }
+
+    char *command = strdup(c);
+    if(!CreateProcess(NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p)) {
+        free(command);
+        if(out != NULL) {
+            CloseHandle(s.hStdInput);
+            CloseHandle(s.hStdOutput);
+            CloseHandle(s.hStdError);
+        }
+        return 0;
+    }
+
+    if(out != NULL) {
+        CloseHandle(s.hStdInput);
+        CloseHandle(s.hStdOutput);
+        CloseHandle(s.hStdError);
+
+        read_from_pipe(p_output, out);
+        CloseHandle(p_output);
     }
     WaitForSingleObject(p.hProcess, INFINITE);
     DWORD process_ret;
@@ -118,13 +207,22 @@ int run_system(const char *c) {
     CloseHandle(p.hProcess);
     CloseHandle(p.hThread);
     free(command);
+
     if(!ret)
         return 0;
     else
         return process_ret == 0;
+}
 #else
+int run_system_output(const char *c, char **out) {
+    if(out != NULL)
+        *out = NULL;
     return (system(c) == 0);
+}
 #endif
+
+int run_system(const char *c) {
+    return run_system_output(c, NULL);
 }
 
 char *strdup(const char *s) {

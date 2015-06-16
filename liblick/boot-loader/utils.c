@@ -103,12 +103,10 @@ int backup_file(const char *f) {
 int get_id_from_command_range(const char *c, char *out, char *start, char *end) {
     out[0] = '\0';
 
-    //printf("Running command: %s\n", c);
-    FILE *pipe = popen(c, "r");
-    if(!pipe) {return 0;}
-
-    char *buf = file_to_str_no_rewind(pipe);
-    pclose(pipe);
+    char *buf;
+    if(!run_system_output(c, &buf)) {
+        return 0;
+    }
 
     char *start_loc = buf;
     if(start != NULL) {
