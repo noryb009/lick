@@ -22,12 +22,12 @@ int supported_loader_uefi(sys_info_t *info) {
         return 0;
     }
     switch(info->version) {
-        case V_WINDOWS_VISTA:
-        case V_WINDOWS_7:
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-        //case V_WINDOWS_10: // TODO: test
-            return 1;
+    case V_WINDOWS_VISTA:
+    case V_WINDOWS_7:
+    case V_WINDOWS_8:
+    case V_WINDOWS_8_1:
+    //case V_WINDOWS_10: // TODO: test
+        return 1;
     }
     return 0;
 }
@@ -56,11 +56,11 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     char id[ID_LEN];
 
     switch(info->version) {
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-        //case V_WINDOWS_10: // TODO: test
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-            if(!run_system(c)) {return 0;}
+    case V_WINDOWS_8:
+    case V_WINDOWS_8_1:
+    //case V_WINDOWS_10: // TODO: test
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
+        if(!run_system(c)) {return 0;}
     }
 
     char drive = mount_uefi_partition();

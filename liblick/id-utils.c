@@ -30,10 +30,10 @@ int is_valid_id_char(const char c) {
             || (c >= 'a' && c <= 'z'))
         return 1;
     switch(c) {
-        case '-':
-        case '.':
-        case '_':
-            return 1;
+    case '-':
+    case '.':
+    case '_':
+        return 1;
     }
     return 0;
 }
@@ -99,9 +99,9 @@ char *gen_name(const char *iso) {
     for(int i = 0; name[i] != '\0'; ++i) {
         char c = name[i];
         switch(c) {
-            case '-':
-            case '_':
-                name[i] = ' ';
+        case '-':
+        case '_':
+            name[i] = ' ';
         }
     }
 

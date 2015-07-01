@@ -26,14 +26,20 @@ int supported_loader_vista(sys_info_t *info) {
         return 0;
     }
     switch(info->version) {
-        case V_WINDOWS_VISTA:
-        case V_WINDOWS_7:
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-        //case V_WINDOWS_10: // TODO: test
-            return 1;
+    case V_WINDOWS_VISTA:
+    case V_WINDOWS_7:
+    case V_WINDOWS_8:
+    case V_WINDOWS_8_1:
+    //case V_WINDOWS_10: // TODO: test
+        return 1;
+    case V_UNKNOWN:
+    case V_WINDOWS_95:
+    case V_WINDOWS_98:
+    case V_WINDOWS_ME:
+    case V_WINDOWS_2000:
+    case V_WINDOWS_XP:
+        return 0;
     }
-    return 0;
 }
 
 int check_loader_vista(sys_info_t *info) {
@@ -79,13 +85,21 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     if(!run_system(c)) {free(bcdedit);return 0;}
 
     switch(info->version) {
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-        //case V_WINDOWS_10: // TODO: test
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit, id);
-            if(!run_system(c)) {free(bcdedit);return 0;}
-            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-            if(!run_system(c)) {free(bcdedit);return 0;}
+    case V_WINDOWS_8:
+    case V_WINDOWS_8_1:
+    //case V_WINDOWS_10: // TODO: test
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit, id);
+        if(!run_system(c)) {free(bcdedit);return 0;}
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
+        if(!run_system(c)) {free(bcdedit);return 0;}
+    case V_UNKNOWN:
+    case V_WINDOWS_95:
+    case V_WINDOWS_98:
+    case V_WINDOWS_ME:
+    case V_WINDOWS_2000:
+    case V_WINDOWS_XP:
+    case V_WINDOWS_7:
+        break;
     }
     free(bcdedit);
 

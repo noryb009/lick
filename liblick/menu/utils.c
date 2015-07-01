@@ -64,21 +64,21 @@ entry_t *get_entry(FILE *f) {
 
         char **target;
         switch(type) {
-            case TITLE:
-                target = &(e->title);
-                break;
-            case KERNEL:
-                target = &(e->kernel);
-                break;
-            case INITRD:
-                target = &(e->initrd);
-                break;
-            case OPTIONS:
-                target = &(e->options);
-                break;
-            case STATIC:
-                target = &(e->static_text);
-                break;
+        case TITLE:
+            target = &(e->title);
+            break;
+        case KERNEL:
+            target = &(e->kernel);
+            break;
+        case INITRD:
+            target = &(e->initrd);
+            break;
+        case OPTIONS:
+            target = &(e->options);
+            break;
+        case STATIC:
+            target = &(e->static_text);
+            break;
         }
 
         // if item already found, current entry complete; unread line

@@ -50,18 +50,18 @@ int ask_bool(int default_val, char *try_again) {
         buf = read_line(stdin);
         if(strlen(buf) > 0) {
             switch(buf[0]) {
-                case 'y':
-                case 'Y':
-                case 't':
-                case 'T':
-                    free(buf);
-                    return 1;
-                case 'n':
-                case 'N':
-                case 'f':
-                case 'F':
-                    free(buf);
-                    return 0;
+            case 'y':
+            case 'Y':
+            case 't':
+            case 'T':
+                free(buf);
+                return 1;
+            case 'n':
+            case 'N':
+            case 'f':
+            case 'F':
+                free(buf);
+                return 0;
             }
         } else if(default_val == 0 || default_val == 1) {
             free(buf);
@@ -289,13 +289,13 @@ int entry_submenu(program_status_t *p) {
         printf("Choice: ");
 
         switch(ask_int()) {
-            case 1:
-                ask_uninstall(p);
-                break;
-            case 2:
-                return 0;
-            default:
-                printf("Invalid number\n");
+        case 1:
+            ask_uninstall(p);
+            break;
+        case 2:
+            return 0;
+        default:
+            printf("Invalid number\n");
         }
     }
 }
@@ -314,28 +314,28 @@ int main_menu(program_status_t *p) {
         printf("Choice: ");
 
         switch(ask_int()) {
-            case 1:
-                install_iso(p, NULL);
-                break;
-            case 2:
-                entry_submenu(p);
-                break;
-            case 3:
-                if(p->loader == NULL)
-                    p->loader = get_loader(p->info);
-                if(p->menu == NULL)
-                    p->menu = get_menu(p->loader);
-                if(p->menu->regenerate(p->lick))
-                    printf("Done.\n");
-                else
-                    handle_error(p);
-                break;
-            case 4:
-                free_program_status(p);
-                exit(0);
-                break;
-            default:
-                printf("Invalid number\n");
+        case 1:
+            install_iso(p, NULL);
+            break;
+        case 2:
+            entry_submenu(p);
+            break;
+        case 3:
+            if(p->loader == NULL)
+                p->loader = get_loader(p->info);
+            if(p->menu == NULL)
+                p->menu = get_menu(p->loader);
+            if(p->menu->regenerate(p->lick))
+                printf("Done.\n");
+            else
+                handle_error(p);
+            break;
+        case 4:
+            free_program_status(p);
+            exit(0);
+            break;
+        default:
+            printf("Invalid number\n");
         }
     }
 }

@@ -26,16 +26,16 @@ void free_drive_list(node_t *lst) {
 
 drive_type_e drive_type(char *path) {
     switch(GetDriveType(path)) {
-        case DRIVE_FIXED:
-            return DRV_HDD;
-        case DRIVE_REMOVABLE:
-            return DRV_REMOVABLE;
-        case DRIVE_REMOTE:
-            return DRV_REMOTE;
-        case DRIVE_CDROM:
-            return DRV_CDROM;
-        default:
-            return DRV_UNKNOWN;
+    case DRIVE_FIXED:
+        return DRV_HDD;
+    case DRIVE_REMOVABLE:
+        return DRV_REMOVABLE;
+    case DRIVE_REMOTE:
+        return DRV_REMOTE;
+    case DRIVE_CDROM:
+        return DRV_CDROM;
+    default:
+        return DRV_UNKNOWN;
     }
 }
 

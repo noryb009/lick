@@ -59,14 +59,14 @@ void arch(sys_info_t *v) {
     SYSTEM_INFO sys_info;
     fn(&sys_info);
     switch(sys_info.wProcessorArchitecture) {
-        case PROCESSOR_ARCHITECTURE_INTEL:
-            v->arch = A_WINDOWS_X86;
-            break;
-        case PROCESSOR_ARCHITECTURE_AMD64:
-            v->arch = A_WINDOWS_X86_64;
-            break;
-        default:
-            v->arch = A_UNKNOWN;
+    case PROCESSOR_ARCHITECTURE_INTEL:
+        v->arch = A_WINDOWS_X86;
+        break;
+    case PROCESSOR_ARCHITECTURE_AMD64:
+        v->arch = A_WINDOWS_X86_64;
+        break;
+    default:
+        v->arch = A_UNKNOWN;
     }
     FreeLibrary(k);
 }
@@ -113,85 +113,85 @@ void bios(sys_info_t *v) {
 
 void family(sys_info_t *v) {
     switch(v->version) {
-        case V_WINDOWS_95:
-        case V_WINDOWS_98:
-        case V_WINDOWS_ME:
-            v->family = F_WINDOWS_9X;
-            break;
-        case V_WINDOWS_2000:
-        case V_WINDOWS_XP:
-            v->family = F_WINDOWS_NT;
-            break;
-        case V_WINDOWS_VISTA:
-        case V_WINDOWS_7:
-        case V_WINDOWS_8:
-        case V_WINDOWS_8_1:
-        case V_WINDOWS_10:
-            v->family = F_WINDOWS_VISTA;
-            break;
-        default:
-            v->family = F_UNKNOWN;
+    case V_WINDOWS_95:
+    case V_WINDOWS_98:
+    case V_WINDOWS_ME:
+        v->family = F_WINDOWS_9X;
+        break;
+    case V_WINDOWS_2000:
+    case V_WINDOWS_XP:
+        v->family = F_WINDOWS_NT;
+        break;
+    case V_WINDOWS_VISTA:
+    case V_WINDOWS_7:
+    case V_WINDOWS_8:
+    case V_WINDOWS_8_1:
+    case V_WINDOWS_10:
+        v->family = F_WINDOWS_VISTA;
+        break;
+    default:
+        v->family = F_UNKNOWN;
     }
 }
 char *version_name(version_e v) {
     switch(v) {
-        case V_WINDOWS_95:
-            return "Windows 95";
-        case V_WINDOWS_98:
-            return "Windows 98";
-        case V_WINDOWS_ME:
-            return "Windows ME";
-        case V_WINDOWS_2000:
-            return "Windows 2000";
-        case V_WINDOWS_XP:
-            return "Windows XP";
-        case V_WINDOWS_VISTA:
-            return "Windows Vista";
-        case V_WINDOWS_7:
-            return "Windows 7";
-        case V_WINDOWS_8:
-            return "Windows 8";
-        case V_WINDOWS_8_1:
-            return "Windows 8.1";
-        case V_WINDOWS_10:
-            return "Windows 10";
-        default:
-            return "Unknown";
+    case V_WINDOWS_95:
+        return "Windows 95";
+    case V_WINDOWS_98:
+        return "Windows 98";
+    case V_WINDOWS_ME:
+        return "Windows ME";
+    case V_WINDOWS_2000:
+        return "Windows 2000";
+    case V_WINDOWS_XP:
+        return "Windows XP";
+    case V_WINDOWS_VISTA:
+        return "Windows Vista";
+    case V_WINDOWS_7:
+        return "Windows 7";
+    case V_WINDOWS_8:
+        return "Windows 8";
+    case V_WINDOWS_8_1:
+        return "Windows 8.1";
+    case V_WINDOWS_10:
+        return "Windows 10";
+    default:
+        return "Unknown";
     }
 }
 
 char *family_name(family_e f) {
     switch(f) {
-        case F_WINDOWS_9X:
-            return "Windows 9X";
-        case F_WINDOWS_NT:
-            return "Windows NT Family (Pre-Vista)";
-        case F_WINDOWS_VISTA:
-            return "Windows NT Family (Post-XP)";
-        default:
-            return "Unknown";
+    case F_WINDOWS_9X:
+        return "Windows 9X";
+    case F_WINDOWS_NT:
+        return "Windows NT Family (Pre-Vista)";
+    case F_WINDOWS_VISTA:
+        return "Windows NT Family (Post-XP)";
+    default:
+        return "Unknown";
     }
 }
 
 char *arch_name(architecture_e a) {
     switch(a) {
-        case A_WINDOWS_X86:
-            return "32-bit";
-        case A_WINDOWS_X86_64:
-            return "64-bit";
-        default:
-            return "Unknown";
+    case A_WINDOWS_X86:
+        return "32-bit";
+    case A_WINDOWS_X86_64:
+        return "64-bit";
+    default:
+        return "Unknown";
     }
 }
 
 char *bios_name(bios_type_e b) {
     switch(b) {
-        case BIOS_BIOS:
-            return "BIOS";
-        case BIOS_UEFI:
-            return "UEFI";
-        default:
-            return "Unknown";
+    case BIOS_BIOS:
+        return "BIOS";
+    case BIOS_UEFI:
+        return "UEFI";
+    default:
+        return "Unknown";
     }
 }
 
