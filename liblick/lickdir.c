@@ -45,25 +45,9 @@ lickdir_t *expand_lick_dir(char *d) {
 
 lickdir_t *get_lickdir() {
 #ifdef _WIN32
-    int size = 128;
-    int first = 1;
-    int ret_size;
-
-    TCHAR *buf = malloc(sizeof(TCHAR) * size);
-
-    while(first || ret_size == size) {
-        if(first)
-            first = 0;
-        else {
-            size *= 2;
-            buf = realloc(buf, sizeof(TCHAR) * size);
-        }
-        ret_size = GetModuleFileName(NULL, buf, size);
-    }
-    char *name = TCHAR_to_char(buf, ret_size, sizeof(TCHAR));
+    char *name = get_program_path();
     lickdir_t *lick = expand_lick_dir(dirname(name));
     free(name);
-    free(buf);
     return lick;
 #else
     return expand_lick_dir("/lick");

@@ -7,6 +7,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <sddl.h>
 #endif
 
 #include "scandir.h"
@@ -61,11 +62,13 @@ int copy_file(const char *dst, const char *src) {
         return 0;
     }
 
+#define BUFFER_SIZE 512
+    char buf[BUFFER_SIZE];
     while(1) {
-        int c = fgetc(s);
-        if(c == EOF)
+        int c = fread(buf, 1, BUFFER_SIZE, s);
+        if(c <= 0)
             break;
-        if(fputc(c, d) == EOF) {
+        if(fwrite(buf, 1, c, d) != c) {
             fclose(d);
             fclose(s);
             unlink_file(dst);
@@ -127,8 +130,8 @@ void read_from_pipe(HANDLE pipe, char **out) {
     }
 }
 
-int create_pipes(STARTUPINFO *s, HANDLE *p_output_read) {
-    HANDLE p_input_read, p_input_write;
+int create_pipes(STARTUPINFO *s, HANDLE *p_output_read, HANDLE *p_input_write) {
+    HANDLE p_input_read;
     HANDLE p_output_write;
     HANDLE p_error_write;
     HANDLE p_output_read_tmp, p_input_write_tmp;
@@ -152,7 +155,7 @@ int create_pipes(STARTUPINFO *s, HANDLE *p_output_read) {
                 GetCurrentProcess(), p_output_read, 0, FALSE,
                 DUPLICATE_SAME_ACCESS)
             || !DuplicateHandle(GetCurrentProcess(), p_input_write_tmp,
-                GetCurrentProcess(), &p_input_write, 0, FALSE,
+                GetCurrentProcess(), p_input_write, 0, FALSE,
                 DUPLICATE_SAME_ACCESS)) {
         CloseHandle(p_output_read_tmp);
         CloseHandle(p_input_write_tmp);
@@ -168,17 +171,68 @@ int create_pipes(STARTUPINFO *s, HANDLE *p_output_read) {
     return 1;
 }
 
+int unprivileged_token(HANDLE *token, PSID *sid) {
+    char *med_integrity = "S-1-16-8192";
+    HANDLE t;
+    TOKEN_MANDATORY_LABEL TIL = {0};
+
+    if(!OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE | TOKEN_ADJUST_DEFAULT | TOKEN_QUERY | TOKEN_ASSIGN_PRIMARY, &t)
+            || !DuplicateTokenEx(t, 0, NULL, SecurityImpersonation, TokenPrimary, token)
+            || !ConvertStringSidToSidA(med_integrity, sid)) {
+        return 0;
+    }
+    TIL.Label.Attributes = SE_GROUP_INTEGRITY;
+    TIL.Label.Sid = *sid;
+    SetTokenInformation(*token, TokenIntegrityLevel, &TIL, sizeof(TOKEN_MANDATORY_LABEL) + GetLengthSid(med_integrity));
+    return 1;
+}
+
+int run_unprivileged(const char *c, void *input, void *output) {
+    STARTUPINFO s;
+    PROCESS_INFORMATION p;
+    HANDLE *in = (HANDLE*)input;
+    HANDLE *out = (HANDLE*)output;
+    PSID sid;
+    HANDLE token;
+
+    memset(&s, 0, sizeof(s));
+    s.cb = sizeof(s);
+
+    if(!unprivileged_token(&token, &sid))
+        return 0;
+
+    if(!create_pipes(&s, out, in)) {
+        LocalFree(sid);
+        CloseHandle(token);
+        return 0;
+    }
+
+    char *command = strdup2(c);
+    DWORD ret = CreateProcessAsUserA(token, NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p);
+    free(command);
+    CloseHandle(s.hStdInput);
+    CloseHandle(s.hStdOutput);
+    CloseHandle(s.hStdError);
+    LocalFree(sid);
+    CloseHandle(token);
+    if(!ret)
+        return 0;
+    CloseHandle(p.hProcess);
+    CloseHandle(p.hThread);
+    return 1;
+}
+
 int run_system_output(const char *c, char **out) {
     //printf("Running command: %s\n", c);
     STARTUPINFO s;
     PROCESS_INFORMATION p;
-    HANDLE p_output;
+    HANDLE p_output, p_input;
 
     memset(&s, 0, sizeof(s));
     s.cb = sizeof(s);
 
     if(out != NULL) {
-        if(!create_pipes(&s, &p_output))
+        if(!create_pipes(&s, &p_output, &p_input))
             return 0;
     }
 
@@ -200,6 +254,7 @@ int run_system_output(const char *c, char **out) {
 
         read_from_pipe(p_output, out);
         CloseHandle(p_output);
+        CloseHandle(p_input);
     }
     WaitForSingleObject(p.hProcess, INFINITE);
     DWORD process_ret;
@@ -218,6 +273,9 @@ int run_system_output(const char *c, char **out) {
     if(out != NULL)
         *out = NULL;
     return (system(c) == 0);
+}
+int run_unprivileged(const char *c, void *input, void *output) {
+    return run_system_output(c, NULL);
 }
 #endif
 
@@ -282,6 +340,31 @@ char *TCHAR_to_char(void *s, int len, int size) {
     return to;
 #else
     return strdup2((char *)s);
+#endif
+}
+
+char *get_program_path() {
+#ifdef _WIN32
+    int size = 128;
+    int first = 1;
+    int ret_size;
+
+    TCHAR *buf = malloc(sizeof(TCHAR) * size);
+
+    while(first || ret_size == size) {
+        if(first)
+            first = 0;
+        else {
+            size *= 2;
+            buf = realloc(buf, sizeof(TCHAR) * size);
+        }
+        ret_size = GetModuleFileName(NULL, buf, size);
+    }
+    char *name = TCHAR_to_char(buf, ret_size, sizeof(TCHAR));
+    free(buf);
+    return name;
+#else
+    return strdup2("./lick-fltk");
 #endif
 }
 

@@ -73,6 +73,15 @@ int run_system(const char *c);
  */
 int run_system_output(const char *c, char **out);
 /**
+ * @brief run a command, similar to system(), returning pipes to the standard
+ * input and output of the process
+ * @param[in] c the command to run
+ * @param[out] input a pointer to a handle to hold the input pipe
+ * @param[out] output a pointer to a handle to hold the output pipe
+ * @return 1 if the program starts correctly
+ */
+int run_unprivileged(const char *c, void *input, void *output);
+/**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy
  * @return a copy of s. Free using free()
@@ -100,6 +109,11 @@ char *concat_strs(int n, ...);
  * @return a string. Must be freed using free
  */
 char *TCHAR_to_char(void *s, int len, int size);
+/**
+ * @brief find the path of this program
+ * @return a string. Must be freed using free
+ */
+char *get_program_path();
 /**
  * @brief normalizes the path str to a Windows path
  * @param path the path to normalize
