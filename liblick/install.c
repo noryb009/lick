@@ -49,7 +49,7 @@ installed_t *get_installed(lickdir_t *lick, const char *filename) {
 
         if(strcmp(keyword_start, "name") == 0 && item_start != NULL) {
             fclose(f);
-            name = strdup(item_start);
+            name = strdup2(item_start);
             free(ln);
             break;
         }
@@ -124,14 +124,14 @@ int install(const char *id, const char *name, const char *iso,
         free(info_path);
         free(menu_path);
         if(lick->err == NULL)
-            lick->err = strdup("ID conflict.");
+            lick->err = strdup2("ID conflict.");
         return 0;
     }
 
     uniso_status_t *status = uniso(iso, install_dir);
     if(status->finished == 0) {
         if(lick->err == NULL)
-            lick->err = strdup(status->error);
+            lick->err = strdup2(status->error);
         uniso_status_free(status);
         free(info_path);
         free(menu_path);
@@ -146,7 +146,7 @@ int install(const char *id, const char *name, const char *iso,
     if(!info_f) {
         // TODO: clean up extracted files
         if(lick->err == NULL)
-            lick->err = strdup("Could not write to info file.");
+            lick->err = strdup2("Could not write to info file.");
         uniso_status_free(status);
         free(info_path);
         free(menu_path);

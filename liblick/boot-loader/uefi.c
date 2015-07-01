@@ -83,9 +83,9 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     }
 
     // add PreLoader.efi and HashTool.efi
-    char *efi_grub = strdup("?:/EFI/LICK/grubx64.efi");
-    char *efi_loader = strdup("?:/EFI/LICK/loader.efi");
-    char *efi_hashtool = strdup("?:/EFI/LICK/HashTool.efi");
+    char *efi_grub = strdup2("?:/EFI/LICK/grubx64.efi");
+    char *efi_loader = strdup2("?:/EFI/LICK/loader.efi");
+    char *efi_hashtool = strdup2("?:/EFI/LICK/HashTool.efi");
     char *res_preloader = concat_strs(2, lick->res, "/PreLoader.efi");
     char *res_hashtool = concat_strs(2, lick->res, "/HashTool.efi");
     efi_loader[0] = drive;

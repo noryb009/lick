@@ -5,7 +5,7 @@
 
 drive_t *new_drive(char *name, drive_type_e type) {
     drive_t *d = malloc(sizeof(drive_t));
-    d->path = strdup(name);
+    d->path = strdup2(name);
     d->type = type;
     return d;
 }
@@ -119,7 +119,7 @@ node_t *unused_drives() {
 }
 
 char *get_windows_path() {
-    return strdup("/");
+    return strdup2("/");
 }
 drive_t *get_windows_drive() {
     return new_drive("/", DRV_HDD);

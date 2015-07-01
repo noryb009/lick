@@ -21,7 +21,7 @@ char *gen_name_base(const char *iso) {
     if(iso_loc)
         iso_loc[0] = '\0';
 
-    return strdup(id);
+    return strdup2(id);
 }
 
 int is_valid_id_char(const char c) {

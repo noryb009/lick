@@ -61,13 +61,13 @@ int regenerate_grub2(lickdir_t *lick) {
     char drive = mount_uefi_partition();
     if(drive == '\0')
         return 0;
-    char *grub_cfg = strdup("?:/grub/grub.cfg");
+    char *grub_cfg = strdup2("?:/grub/grub.cfg");
     grub_cfg[0] = drive;
 
     FILE *menu = fopen(grub_cfg, "w");
     if(!menu) {
         if(lick->err == NULL)
-            lick->err = strdup("Could not write to grub.cfg");
+            lick->err = strdup2("Could not write to grub.cfg");
         free(grub_cfg);
         unmount_uefi_partition(drive);
         return 0;
@@ -87,7 +87,7 @@ int install_grub2(lickdir_t *lick) {
 
     if(!f) {
         if(lick->err == NULL)
-            lick->err = strdup("Could not write to menu folder");
+            lick->err = strdup2("Could not write to menu folder");
         return 0;
     }
 
@@ -96,7 +96,7 @@ int install_grub2(lickdir_t *lick) {
     free(grub_cfg_header);
     if(!src) {
         if(lick->err == NULL)
-            lick->err = strdup("Could not read from resource directory");
+            lick->err = strdup2("Could not read from resource directory");
         fclose(f);
         return 0;
     }

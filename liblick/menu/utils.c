@@ -92,7 +92,7 @@ entry_t *get_entry(FILE *f) {
             return e;
         }
 
-        *target = strdup(item_start);
+        *target = strdup2(item_start);
         free(ln);
 
         if((e->title && e->kernel && e->initrd && e->options) || e->static_text)
@@ -124,7 +124,7 @@ char *to_menu_path(const char *path) {
     if(colon != NULL)
         start = colon + 1;
 
-    return unix_path(strdup(start));
+    return unix_path(strdup2(start));
 }
 
 void write_menu(lickdir_t *lick, FILE *menu,

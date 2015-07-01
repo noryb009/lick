@@ -30,7 +30,7 @@ int make_dir(const char *d) {
 
 int make_dir_parents(const char *d) {
     size_t len = strlen(d);
-    char *buf = strdup(d);
+    char *buf = strdup2(d);
 
     // strip trailing '/' and '\'
     while(len > 0 && is_slash(buf[len-1])) {
@@ -182,7 +182,7 @@ int run_system_output(const char *c, char **out) {
             return 0;
     }
 
-    char *command = strdup(c);
+    char *command = strdup2(c);
     if(!CreateProcess(NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p)) {
         free(command);
         if(out != NULL) {
@@ -225,7 +225,9 @@ int run_system(const char *c) {
     return run_system_output(c, NULL);
 }
 
-char *strdup(const char *s) {
+char *strdup2(const char *s) {
+    if(!s)
+        return NULL;
     char *n = malloc(strlen(s) + 1);
     if(n) {
         strcpy(n, s);
@@ -279,7 +281,7 @@ char *TCHAR_to_char(void *s, int len, int size) {
     to[len] = '\0';
     return to;
 #else
-    return strdup((char *)s);
+    return strdup2((char *)s);
 #endif
 }
 

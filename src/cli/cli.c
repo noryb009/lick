@@ -103,7 +103,7 @@ char *ask_drive(node_t *drives) {
                 n = n->next;
             }
             drive_t *drv = n->val;
-            char *ret = strdup(drv->path);
+            char *ret = strdup2(drv->path);
             free_drive_list(drives);
             return ret;
         }
@@ -168,7 +168,7 @@ int install_iso(program_status_t *p, char *iso) {
         } else
             free(auto_name);
     } else {
-        drive = strdup(p->lick->drive);
+        drive = strdup2(p->lick->drive);
         id = gen_id(iso, p->lick, drive);
         name = auto_name;
     }

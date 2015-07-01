@@ -38,7 +38,7 @@ int regenerate_grub4dos(lickdir_t *lick) {
     FILE *menu = fopen(menu_lst, "w");
     if(!menu) {
         if(lick->err == NULL)
-            lick->err = strdup("Could not write to menu.lst");
+            lick->err = strdup2("Could not write to menu.lst");
         free(menu_lst);
         free_drive(win_drive);
         return 0;
@@ -58,7 +58,7 @@ int install_grub4dos(lickdir_t *lick) {
 
     if(!f) {
         if(lick->err == NULL)
-            lick->err = strdup("Could not write to menu folder");
+            lick->err = strdup2("Could not write to menu folder");
         return 0;
     }
 

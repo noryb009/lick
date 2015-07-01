@@ -77,7 +77,7 @@ int run_system_output(const char *c, char **out);
  * @param s the string to copy
  * @return a copy of s. Free using free()
  */
-char *strdup(const char *s);
+char *strdup2(const char *s);
 /**
  * @brief returns a pointer to the last occurrence of a substring
  * @param haystack the string to look through

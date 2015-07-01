@@ -50,7 +50,7 @@ char *create_dest(const char *dst, const char *path, const char *f) {
 int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     FILE *out = fopen(dst, "wb");
     if(!out) {
-        s->error = strdup("Error opening output file.");
+        s->error = strdup2("Error opening output file.");
         return 0;
     }
 
@@ -79,7 +79,7 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst) {
 
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
         const struct stat *stat = archive_entry_stat(e);
-        char *name = strdup(archive_entry_pathname(e));
+        char *name = strdup2(archive_entry_pathname(e));
         if(S_ISDIR(stat->st_mode) || !filter_file(s, name, dst)) {
             free(name);
             continue;
@@ -103,7 +103,7 @@ uniso_status_t *uniso(const char *src, const char *dst) {
     struct archive *iso = archive_read_new();
     archive_read_support_format_iso9660(iso);
     if(archive_read_open_filename(iso, src, 10240) != ARCHIVE_OK) {
-        s->error = strdup("Could not open ISO file.");
+        s->error = strdup2("Could not open ISO file.");
         return s;
     }
 

@@ -12,7 +12,7 @@
 lickdir_t *new_lick_dir(char *lick, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->lick = lick;
-    l->drive = strdup("?:/");
+    l->drive = strdup2("?:/");
     l->drive[0] = lick[0];
     l->entry = entry;
     l->menu = menu;
@@ -39,7 +39,7 @@ lickdir_t *expand_lick_dir(char *d) {
     char *res = concat_strs(2, d, "/res");
     if(!path_exists(res))
         return NULL;
-    return new_lick_dir(strdup(d), concat_strs(2, d, "/entries"),
+    return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
 }
 
