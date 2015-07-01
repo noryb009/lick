@@ -17,6 +17,7 @@ class ipc;
 
 class ipc_command {
     public:
+        virtual ~ipc_command() {};
         virtual void exchange(ipc *p) = 0;
 };
 
@@ -26,6 +27,7 @@ class ipc {
         bool had_error();
         void clear_error();
         void set_error();
+        bool data_waiting();
 
         ipc *exchange_data(void *data, unsigned int size);
 

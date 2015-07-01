@@ -29,6 +29,15 @@ bool ipc::assert_send() {
     return true;
 }
 
+bool ipc::data_waiting() {
+    if(dir == DIRECTION_RECV) {
+        DWORD n;
+        if(PeekNamedPipe(p, NULL, NULL, NULL, &n, NULL))
+            return (n >= sizeof(int));
+    }
+    return false;
+}
+
 ipc *ipc::exchange_data(void *data, unsigned int size) {
     if(dir == DIRECTION_SEND) {
         DWORD s;
