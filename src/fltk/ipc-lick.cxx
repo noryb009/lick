@@ -18,7 +18,9 @@ lickdir_t *copy_lickdir_t(lickdir_t *src) {
     return dst;
 }
 
-void exchange_lick(ipc *p, lickdir_t *lick) {
+void exchange_lick(ipc *p, lickdir_t *&lick) {
+    if(lick == NULL)
+        lick = (lickdir_t *)malloc(sizeof(lickdir_t));
     p
         ->exchange_str(lick->lick)
         ->exchange_str(lick->drive)
@@ -126,6 +128,9 @@ void ipc_error::exchange(ipc *p) {
 ipc_lick *recv_command(ipc *p) {
     IPC_COMMANDS type;
     p->exchange(type);
+    if(p->had_error())
+        return NULL;
+
     ipc_lick *c;
     switch(type) {
     case IPC_EXIT:
@@ -161,7 +166,8 @@ void send_command(ipc *p, IPC_COMMANDS c) {
 }
 
 void send_command(ipc *p, ipc_lick *c) {
-    send_command(p, c->type());
+    IPC_COMMANDS type = c->type();
+    send_command(p, type);
     c->exchange(p);
 }
 

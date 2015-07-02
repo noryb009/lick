@@ -30,7 +30,7 @@ class ipc_exit : public ipc_lick {
 class ipc_install : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_INSTALL;}
-        ipc_install() {}
+        ipc_install() {lick = NULL;}
         ipc_install(const char *id, const char *name, const char *iso,
                 const char *install_dir, lickdir_t *lick);
         ~ipc_install();
@@ -46,7 +46,7 @@ class ipc_install : public ipc_lick {
 class ipc_uninstall : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_UNINSTALL;}
-        ipc_uninstall() {}
+        ipc_uninstall() {lick = NULL;}
         ipc_uninstall(const char *id, lickdir_t *lick);
         ~ipc_uninstall();
         void exchange(ipc *p);
@@ -64,7 +64,7 @@ class ipc_check_loader : public ipc_lick {
 class ipc_loader : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_LOADER;}
-        ipc_loader() {}
+        ipc_loader() {lick = NULL;}
         ipc_loader(int install, lickdir_t *lick);
         ~ipc_loader();
         void exchange(ipc *p);
