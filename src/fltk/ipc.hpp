@@ -45,7 +45,6 @@ class ipc {
 
         ipc *exchange(char *&str);
         ipc *exchange(const char *&str);
-        ipc *exchange(ipc_command *c);
 
         ipc *exchange_str(char *&str);
         ipc *exchange_str(const char *&str);
@@ -53,6 +52,7 @@ class ipc {
 
     protected:
         bool assert_send();
+        bool assert_recv();
         bool err;
         direction_e dir;
         pipe_t p;

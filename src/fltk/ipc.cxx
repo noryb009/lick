@@ -3,8 +3,6 @@
 
 #include "ipc.hpp"
 
-#include <cstdio>
-
 ipc::ipc(direction_e dir, pipe_t p) {
     this->dir = dir;
     this->p = p;
@@ -29,24 +27,36 @@ bool ipc::assert_send() {
     return true;
 }
 
+bool ipc::assert_recv() {
+    if(dir != DIRECTION_RECV) {
+        set_error();
+        return false;
+    }
+    return true;
+}
+
 bool ipc::data_waiting() {
-    if(dir == DIRECTION_RECV) {
+    if(assert_recv() && !had_error()) {
         DWORD n;
         if(PeekNamedPipe(p, NULL, NULL, NULL, &n, NULL))
-            return (n >= sizeof(int));
+            return n > 0;
+        else
+            set_error();
     }
     return false;
 }
 
 ipc *ipc::exchange_data(void *data, unsigned int size) {
+    if(had_error())
+        return this;
     if(dir == DIRECTION_SEND) {
         DWORD s;
         if(!WriteFile(p, data, size, &s, NULL) || s != size)
-            err = true;
+            set_error();
     } else {
         DWORD s;
         if(!ReadFile(p, data, size, &s, NULL) || s != size)
-            err = true;
+            set_error();
     }
     return this;
 }
@@ -56,9 +66,6 @@ ipc *ipc::exchange(char *&str) {
 }
 ipc *ipc::exchange(const char *&str) {
     return exchange_str(str);
-}
-ipc *ipc::exchange(ipc_command *c) {
-    return exchange_command(c);
 }
 
 ipc *ipc::exchange_str(char *&str) {
@@ -78,13 +85,12 @@ ipc *ipc::exchange_str(char *&str) {
         unsigned int size;
         if(str == NULL)
             size = 0;
-        else {
+        else
             size = strlen(str) + 1;
-            this
-                ->exchange(size)
-                ->exchange_data(str, size)
-            ;
-        }
+        this
+            ->exchange(size)
+            ->exchange_data(str, size)
+        ;
     }
     return this;
 }
