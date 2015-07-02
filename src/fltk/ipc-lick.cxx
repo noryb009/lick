@@ -102,12 +102,14 @@ ipc_status::ipc_status(int ret, const char *err) {
 ipc_status::~ipc_status() {
     free_nonnull(err);
 }
-void ipc_status::exchange(ipc *p) {
-    // NOTE: send_status needs the same scheme
+void send_status_inner(ipc *p, int ret, const char *err) {
     p
         ->exchange(ret)
         ->exchange_str(err)
     ;
+}
+void ipc_status::exchange(ipc *p) {
+    send_status_inner(p, ret, err);
 }
 
 // IPC_ERROR
@@ -118,11 +120,13 @@ ipc_error::ipc_error(const char *err) {
 ipc_error::~ipc_error() {
     free_nonnull(err);
 }
-void ipc_error::exchange(ipc *p) {
-    // NOTE: send_error needs the same scheme
+void send_error_inner(ipc *p, const char *err) {
     p
         ->exchange_str(err)
     ;
+}
+void ipc_error::exchange(ipc *p) {
+    send_error_inner(p, err);
 }
 
 ipc_lick *recv_command(ipc *p) {
@@ -173,15 +177,10 @@ void send_command(ipc *p, ipc_lick *c) {
 
 void send_status(ipc *p, int ret, const char *err) {
     send_command(p, IPC_STATUS);
-    p
-        ->exchange(ret)
-        ->exchange_str(err)
-    ;
+    send_status_inner(p, ret, err);
 }
 
 void send_error(ipc *p, const char *err) {
     send_command(p, IPC_ERROR);
-    p
-        ->exchange_str(err)
-    ;
+    send_error_inner(p, err);
 }
