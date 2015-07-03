@@ -108,7 +108,7 @@ char *concat_strs(int n, ...);
  * @param size the size of a TCHAR
  * @return a string. Must be freed using free
  */
-char *TCHAR_to_char(void *s, int len, int size);
+char *TCHAR_to_char(void *s, int len, size_t size);
 /**
  * @brief find the path of this program
  * @return a string. Must be freed using free

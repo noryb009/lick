@@ -29,7 +29,7 @@ class ipc {
         void set_error();
         bool data_waiting();
 
-        ipc *exchange_data(void *data, unsigned int size);
+        ipc *exchange_data(void *data, size_t size);
 
         template<typename T>
         ipc *exchange(T &data) {

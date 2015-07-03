@@ -330,7 +330,7 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-char *TCHAR_to_char(void *s, int len, int size) {
+char *TCHAR_to_char(void *s, int len, size_t size) {
 #ifdef _WIN32
     char *str = s;
     char *to = malloc(len + 1);

@@ -46,7 +46,7 @@ bool ipc::data_waiting() {
     return false;
 }
 
-ipc *ipc::exchange_data(void *data, unsigned int size) {
+ipc *ipc::exchange_data(void *data, size_t size) {
     if(had_error())
         return this;
     if(dir == DIRECTION_SEND) {
@@ -69,9 +69,9 @@ ipc *ipc::exchange(const char *&str) {
 }
 
 ipc *ipc::exchange_str(char *&str) {
+    size_t size;
     if(dir == DIRECTION_RECV) {
         str = NULL;
-        unsigned int size;
         exchange(size);
         if(had_error() || size == 0)
             return this;
@@ -82,7 +82,6 @@ ipc *ipc::exchange_str(char *&str) {
             str = NULL;
         }
     } else {
-        unsigned int size;
         if(str == NULL)
             size = 0;
         else
