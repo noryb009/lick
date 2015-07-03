@@ -38,8 +38,9 @@ int supported_loader_vista(sys_info_t *info) {
     case V_WINDOWS_ME:
     case V_WINDOWS_2000:
     case V_WINDOWS_XP:
-        return 0;
+        break;
     }
+    return 0;
 }
 
 int check_loader_vista(sys_info_t *info) {
@@ -98,6 +99,7 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_ME:
     case V_WINDOWS_2000:
     case V_WINDOWS_XP:
+    case V_WINDOWS_VISTA:
     case V_WINDOWS_7:
         break;
     }
