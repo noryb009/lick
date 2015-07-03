@@ -368,6 +368,9 @@ int Frontend::handle_event(ipc_lick *c) {
         handle_status(command, (ipc_status *)c);
         delete command;
         }break;
+    case IPC_PROGRESS:
+        // TODO: process: show window if hidden, update bars
+        break;
     case IPC_ERROR: {
         ipc_error *e = (ipc_error *)c;
         if(e->err) {
@@ -402,9 +405,13 @@ int Frontend::event_loop() {
             return 1;
         }
 
-        if(!waiting_for_backend && !commands_queue.empty()) {
+        if(!waiting_for_backend) {
+            if(!commands_queue.empty()) {
             send_command(send, commands_queue.front());
             waiting_for_backend = true;
+            } else {
+                // TODO: close progress or show done
+            }
         }
     }
     return 0;

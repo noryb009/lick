@@ -112,6 +112,22 @@ void ipc_status::exchange(ipc *p) {
     send_status_inner(p, ret, err);
 }
 
+// IPC_PROGRESS
+
+ipc_progress::ipc_progress(uniso_progress_t cur, uniso_progress_t total) {
+    this->cur = cur;
+    this->total = total;
+}
+void send_progress_inner(ipc *p, uniso_progress_t &cur, uniso_progress_t &total) {
+    p
+        ->exchange(cur)
+        ->exchange(total)
+    ;
+}
+void ipc_progress::exchange(ipc *p) {
+    send_progress_inner(p, cur, total);
+}
+
 // IPC_ERROR
 
 ipc_error::ipc_error(const char *err) {
@@ -158,6 +174,9 @@ ipc_lick *recv_command(ipc *p) {
     case IPC_STATUS:
         c = new ipc_status();
         break;
+    case IPC_PROGRESS:
+        c = new ipc_progress();
+        break;
     case IPC_ERROR:
         c = new ipc_error();
         break;
@@ -181,6 +200,11 @@ void send_command(ipc *p, ipc_lick *c) {
 void send_status(ipc *p, int ret, const char *err) {
     send_command(p, IPC_STATUS);
     send_status_inner(p, ret, (char *&)err);
+}
+
+void send_progress(ipc *p, uniso_progress_t cur, uniso_progress_t total) {
+    send_command(p, IPC_PROGRESS);
+    send_progress_inner(p, cur, total);
 }
 
 void send_error(ipc *p, const char *err) {

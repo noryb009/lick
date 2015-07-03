@@ -115,8 +115,9 @@ void free_list_installed(node_t *n) {
     free_list(n, (void (*)(void *))free_installed);
 }
 
-int install(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick, menu_t *menu) {
+int install_cb(const char *id, const char *name, const char *iso,
+        const char *install_dir, lickdir_t *lick, menu_t *menu,
+        uniso_progress_cb cb, void *cb_data) {
     char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
     char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
 
@@ -128,7 +129,7 @@ int install(const char *id, const char *name, const char *iso,
         return 0;
     }
 
-    uniso_status_t *status = uniso(iso, install_dir);
+    uniso_status_t *status = uniso(iso, install_dir, cb, cb_data);
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
@@ -168,6 +169,11 @@ int install(const char *id, const char *name, const char *iso,
     free(info_path);
     free(menu_path);
     return 1;
+}
+
+int install(const char *id, const char *name, const char *iso,
+        const char *install_dir, lickdir_t *lick, menu_t *menu) {
+    return install_cb(id, name, iso, install_dir, lick, menu, NULL, NULL);
 }
 
 int uninstall_delete_files(const char *info, const char *menu) {

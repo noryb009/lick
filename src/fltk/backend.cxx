@@ -14,6 +14,14 @@ Backend::~Backend() {
         delete recv;
 }
 
+void Backend::progress_cb(uniso_progress_t cur, uniso_progress_t total) {
+    send_progress(send, cur, total);
+}
+
+void progress_cb(uniso_progress_t cur, uniso_progress_t total, void *backend) {
+    ((Backend *)backend)->progress_cb(cur, total);
+}
+
 int Backend::event_loop() {
     for(;;) {
         ipc_lick *c = recv_command(recv);

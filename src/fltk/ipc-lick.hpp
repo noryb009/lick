@@ -13,6 +13,7 @@ typedef enum {
     // responses, backend -> frontend
     IPC_READY,
     IPC_STATUS,
+    IPC_PROGRESS,
     IPC_ERROR,
 } IPC_COMMANDS;
 
@@ -91,6 +92,17 @@ class ipc_status : public ipc_lick {
         char *err;
 };
 
+class ipc_progress : public ipc_lick {
+    public:
+        IPC_COMMANDS type() {return IPC_PROGRESS;}
+        ipc_progress() {}
+        ipc_progress(uniso_progress_t cur, uniso_progress_t total);
+        void exchange(ipc *p);
+
+        uniso_progress_t cur;
+        uniso_progress_t total;
+};
+
 class ipc_error : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_ERROR;}
@@ -106,4 +118,5 @@ ipc_lick *recv_command(ipc *p);
 void send_command(ipc *p, IPC_COMMANDS c);
 void send_command(ipc *p, ipc_lick *c);
 void send_status(ipc *p, int ret, const char *err);
+void send_progress(ipc *p, uniso_progress_t cur, uniso_progress_t total);
 void send_error(ipc *p, const char *err);

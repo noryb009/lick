@@ -62,6 +62,19 @@ int install(const char *id, const char *name, const char *iso,
 
 /**
  * @brief install a distribution
+ *
+ * see install for more information on parameters
+ *
+ * @param cb a function to call for extraction progress
+ * @param cb_data extra data to call the callback with
+ * @return 1 on success, 0 on error
+ */
+int install_cb(const char *id, const char *name, const char *iso,
+        const char *install_dir, lickdir_t *lick, menu_t *menu,
+        uniso_progress_cb cb, void *cb_data);
+
+/**
+ * @brief install a distribution
  * @param lick the LICK directory
  * @param id the id
  * @param menu the menu plugin

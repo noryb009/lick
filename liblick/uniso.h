@@ -23,13 +23,20 @@ typedef struct {
     char *kernel;
 } uniso_status_t;
 
+typedef size_t uniso_progress_t;
+typedef void (*uniso_progress_cb)(uniso_progress_t cur,
+        uniso_progress_t total, void *cb_data);
+
 /**
  * @brief extract an ISO file
  * @param src the path of the ISO file to extract
  * @param dst the path to extract the ISO file to
+ * @param cb an optional callback to update the status
+ * @param cb_data data to call the callback with
  * @return information about the extraction
  */
-uniso_status_t *uniso(const char *src, const char *dst);
+uniso_status_t *uniso(const char *src, const char *dst,
+        uniso_progress_cb cb, void *cb_data);
 /**
  * @brief free the memory used by an uniso_status_t
  * @param s the status to free

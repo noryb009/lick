@@ -72,32 +72,45 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     return 1;
 }
 
-int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst) {
+int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
+        uniso_progress_cb cb) {
     struct archive_entry *e;
 
     make_dir_parents(dst);
 
+    uniso_progress_t total = 0;
+    uniso_progress_t current = 0;
+
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
-        const struct stat *stat = archive_entry_stat(e);
         char *name = strdup2(archive_entry_pathname(e));
-        if(S_ISDIR(stat->st_mode) || !filter_file(s, name, dst)) {
+        if(archive_entry_filetype(e) == AE_IFDIR
+                || !filter_file(s, name, dst)) {
             free(name);
             continue;
         }
         s->files = new_node(name, s->files);
+        ++total;
+    }
 
-        char *dest = create_dest(dst, "/", name);
+    if(cb)
+        cb(current, total);
+
+    for(node_t *n = s->files; n != NULL; n = n->next) {
+        char *dest = create_dest(dst, "/", (char*)s->files->val);
         if(!extract_file(s, iso, dest)) {
             free(dest);
             return 0;
         }
         free(dest);
+        ++current;
+        if(cb)
+            cb(current, total);
     }
 
     return 1;
 }
 
-uniso_status_t *uniso(const char *src, const char *dst) {
+uniso_status_t *uniso(const char *src, const char *dst, uniso_progress_cb cb) {
     uniso_status_t *s = new_status();
 
     struct archive *iso = archive_read_new();
@@ -107,7 +120,7 @@ uniso_status_t *uniso(const char *src, const char *dst) {
         return s;
     }
 
-    if(extract_iso(s, iso, dst)) {
+    if(extract_iso(s, iso, dst, cb)) {
         s->finished = 1;
     }
 

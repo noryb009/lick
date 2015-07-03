@@ -8,6 +8,7 @@ class Backend {
         int main(int argc, char *argv[]);
         Backend();
         ~Backend();
+        void progress_cb(uniso_progress_t cur, uniso_progress_t total);
 
     private:
         int event_loop();
