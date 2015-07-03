@@ -18,7 +18,7 @@ void Backend::progress_cb(uniso_progress_t cur, uniso_progress_t total) {
     send_progress(send, cur, total);
 }
 
-void progress_cb(uniso_progress_t cur, uniso_progress_t total, void *backend) {
+void inner_progress_cb(uniso_progress_t cur, uniso_progress_t total, void *backend) {
     ((Backend *)backend)->progress_cb(cur, total);
 }
 
@@ -42,7 +42,9 @@ int Backend::event_loop() {
             return 0;
         case IPC_INSTALL:
             in = (ipc_install *)c;
-            send_status(send, install(in->id, in->name, in->iso, in->install_dir, in->lick, menu), in->lick->err);
+            send_status(send, install_cb(in->id, in->name, in->iso,
+                        in->install_dir, in->lick, menu, inner_progress_cb,
+                        this), in->lick->err);
             break;
         case IPC_UNINSTALL:
             un = (ipc_uninstall *)c;
@@ -60,6 +62,7 @@ int Backend::event_loop() {
             break;
         case IPC_READY:
         case IPC_STATUS:
+        case IPC_PROGRESS:
         case IPC_ERROR:
             //printf("Received command sent the wrong way.\n");
             break;

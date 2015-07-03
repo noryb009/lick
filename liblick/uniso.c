@@ -17,7 +17,7 @@ uniso_status_t *new_status() {
     return s;
 }
 
-int filter_file(uniso_status_t *s, const char *f, const char *dst) {
+int filter_file(const char *f) {
     if(strcmp(f, "boot.cat") == 0
             || strcmp(f, "boot.msg") == 0
             || strcmp(f, "help.msg") == 0
@@ -30,6 +30,10 @@ int filter_file(uniso_status_t *s, const char *f, const char *dst) {
         return 0;
     }
 
+    return 1;
+}
+
+void find_if_special(uniso_status_t *s, const char *f, const char *dst) {
     // check for kernel or initrd
     if(s->kernel == NULL && (strstr(f, "vmlinu") || strstr(f, "VMLINU"))) {
         s->kernel = concat_strs(3, dst, "/", f);
@@ -37,8 +41,6 @@ int filter_file(uniso_status_t *s, const char *f, const char *dst) {
     if(s->initrd == NULL && (strstr(f, "initr") || strstr(f, "INITR"))) {
         s->initrd = concat_strs(3, dst, "/", f);
     }
-
-    return 1;
 }
 
 char *create_dest(const char *dst, const char *path, const char *f) {
@@ -72,59 +74,83 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     return 1;
 }
 
-int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
-        uniso_progress_cb cb) {
+uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso) {
+    uniso_progress_t total = 0;
     struct archive_entry *e;
+
+    while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
+        char *name = strdup2(archive_entry_pathname(e));
+        if(archive_entry_filetype(e) != AE_IFDIR
+                && filter_file(name))
+            ++total;
+        free(name);
+    }
+
+    return total;
+}
+
+int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
+        uniso_progress_t total, uniso_progress_cb cb, void *cb_data) {
+    struct archive_entry *e;
+    uniso_progress_t current = 0;
 
     make_dir_parents(dst);
 
-    uniso_progress_t total = 0;
-    uniso_progress_t current = 0;
+    if(cb)
+        cb(current, total, cb_data);
 
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
         char *name = strdup2(archive_entry_pathname(e));
         if(archive_entry_filetype(e) == AE_IFDIR
-                || !filter_file(s, name, dst)) {
+                || !filter_file(name)) {
             free(name);
             continue;
         }
-        s->files = new_node(name, s->files);
-        ++total;
-    }
-
-    if(cb)
-        cb(current, total);
-
-    for(node_t *n = s->files; n != NULL; n = n->next) {
-        char *dest = create_dest(dst, "/", (char*)s->files->val);
+        char *dest = create_dest(dst, "/", name);
         if(!extract_file(s, iso, dest)) {
             free(dest);
             return 0;
         }
-        free(dest);
         ++current;
+        s->files = new_node(name, s->files);
+        find_if_special(s, name, dst);
         if(cb)
-            cb(current, total);
+            cb(current, total, cb_data);
+        free(dest);
     }
 
     return 1;
 }
 
-uniso_status_t *uniso(const char *src, const char *dst, uniso_progress_cb cb) {
-    uniso_status_t *s = new_status();
-
+struct archive *uniso_open(uniso_status_t *s, const char *src) {
     struct archive *iso = archive_read_new();
     archive_read_support_format_iso9660(iso);
     if(archive_read_open_filename(iso, src, 10240) != ARCHIVE_OK) {
         s->error = strdup2("Could not open ISO file.");
+        return NULL;
+    }
+    return iso;
+}
+
+uniso_status_t *uniso(const char *src, const char *dst,
+        uniso_progress_cb cb, void *cb_data) {
+    uniso_status_t *s = new_status();
+
+    struct archive *iso = uniso_open(s, src);
+    if(!iso)
         return s;
-    }
-
-    if(extract_iso(s, iso, dst, cb)) {
-        s->finished = 1;
-    }
-
+    uniso_progress_t total = count_in_iso(s, iso);
     archive_read_free(iso);
+    if(total == 0)
+        return s;
+
+    iso = uniso_open(s, src);
+    if(!iso)
+        return s;
+    if(extract_iso(s, iso, dst, total, cb, cb_data))
+        s->finished = 1;
+    archive_read_free(iso);
+
     return s;
 }
 
