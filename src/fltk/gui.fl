@@ -9,7 +9,8 @@ class lick_fltk {open
 } {
   Function {make_window(Frontend *frontend)} {open
   } {
-    Fl_Window window {open selected
+    Fl_Window window {
+      label LICK open selected
       xywh {406 256 270 240} type Double
       code0 {\#include "frontend.hpp"} visible
     } {
@@ -63,6 +64,17 @@ class lick_fltk {open
       }
     }
     code {this->frontend = frontend;} {}
+  }
+  Function {make_progress_window()} {open
+  } {
+    Fl_Window progress_window {
+      label Progress open
+      xywh {712 220 325 45} type Double hide modal
+    } {
+      Fl_Progress progress_bar {
+        xywh {10 10 305 25}
+      }
+    }
   }
   decl {Frontend *frontend;} {private local
   }

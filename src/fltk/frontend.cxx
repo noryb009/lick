@@ -152,6 +152,7 @@ void Frontend::on_install() {
     commands_queue.push(new ipc_loader(1, lick));
     commands_queue.push(new ipc_install(w->text_id->value(), w->text_name->value(), iso, install_to, lick));
     free(install_to);
+    progress_set_size();
 }
 
 void Frontend::on_uninstall() {
@@ -181,6 +182,7 @@ void Frontend::on_uninstall() {
 
     commands_queue.push(new ipc_uninstall(ent->id, lick));
     commands_queue.push(new ipc_loader(0, lick));
+    progress_set_size();
 }
 
 int Frontend::check_id(int ok) {
@@ -259,6 +261,63 @@ void Frontend::clear_commands_queue() {
     }
 }
 
+const char *command_name(ipc_lick *c) {
+    switch(c->type()) {
+    case IPC_INSTALL:
+        return "Installing";
+    case IPC_UNINSTALL:
+        return "Uninstalling";
+    case IPC_CHECK_LOADER:
+        return "Checking boot loader status";
+    case IPC_LOADER:
+        if(((ipc_loader *)c)->install)
+            return "Installing bootloader";
+        else
+            return "Uninstalling bootloader";
+    case IPC_READY:
+    case IPC_STATUS:
+    case IPC_PROGRESS:
+    case IPC_ERROR:
+    case IPC_EXIT:
+    default:
+        return "Unknown";
+    }
+}
+
+void Frontend::progress_reset() {
+    w->progress_window->hide();
+}
+void Frontend::progress_set_size() {
+    bar->maximum(commands_queue.size());
+    bar->value(0);
+    bar->label("");
+    w->progress_window->show();
+}
+void Frontend::progress_set() {
+    int size = commands_queue.size();
+    int max_size = (int)(0.5+bar->maximum());
+    bar->value(max_size - size);
+    if(size == 0)
+        bar->label("");
+    else {
+        char *lbl = new char[128];
+        snprintf(lbl, 127, "Step %d / %d: %s",
+                max_size-size+1, max_size, command_name(commands_queue.front()));
+        bar->copy_label(lbl);
+        delete lbl;
+    }
+}
+void Frontend::progress_set_sub(uniso_progress_t cur, uniso_progress_t total) {
+    int size = commands_queue.size();
+    int max_size = (int)(0.5+bar->maximum());
+
+    char *lbl = new char[128];
+    snprintf(lbl, 127, "Step %d / %d: %s, %d / %d files extracted",
+            max_size-size+1, max_size, command_name(commands_queue.front()), cur, total);
+    bar->copy_label(lbl);
+    delete lbl;
+}
+
 bool is_loader(ipc_lick *c) {
     return c->type() == IPC_LOADER;
 }
@@ -306,7 +365,6 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
             delete commands_queue.front();
             commands_queue.pop();
         }
-
         }break;
     case IPC_CHECK_LOADER:
         if(!commands_queue.empty() && s->ret
@@ -349,6 +407,8 @@ int Frontend::handle_event(ipc_lick *c) {
 
         w = new lick_fltk();
         w->make_window(this)->show();
+        w->make_progress_window();
+        bar = w->progress_bar;
         id_bg = w->text_id->color();
         refresh_window();
         break;
@@ -366,11 +426,14 @@ int Frontend::handle_event(ipc_lick *c) {
         ipc_lick *command = commands_queue.front();
         commands_queue.pop();
         handle_status(command, (ipc_status *)c);
+        if(commands_queue.empty())
+            progress_reset();
         delete command;
         }break;
-    case IPC_PROGRESS:
-        // TODO: process: show window if hidden, update bars
-        break;
+    case IPC_PROGRESS: {
+        ipc_progress *p = (ipc_progress *)c;
+        progress_set_sub(p->cur, p->total);
+        }break;
     case IPC_ERROR: {
         ipc_error *e = (ipc_error *)c;
         if(e->err) {
@@ -405,13 +468,10 @@ int Frontend::event_loop() {
             return 1;
         }
 
-        if(!waiting_for_backend) {
-            if(!commands_queue.empty()) {
+        if(!waiting_for_backend && !commands_queue.empty()) {
+            progress_set();
             send_command(send, commands_queue.front());
             waiting_for_backend = true;
-            } else {
-                // TODO: close progress or show done
-            }
         }
     }
     return 0;

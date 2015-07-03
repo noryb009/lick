@@ -1,5 +1,6 @@
 #pragma once
 
+#include <FL/Fl_Progress.H>
 #include <queue>
 
 #include "../../liblick/lick.h"
@@ -29,6 +30,12 @@ class Frontend {
         void handle_status(ipc_lick *c, ipc_status *s);
         int event_loop();
         void clear_commands_queue();
+
+        void progress_reset();
+        void progress_set_size();
+        void progress_set();
+        void progress_set_sub(uniso_progress_t cur, uniso_progress_t total);
+        Fl_Progress *bar;
 
         std::queue<ipc_lick *> commands_queue;
         bool waiting_for_backend;
