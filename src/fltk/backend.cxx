@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 
 #include "backend.hpp"
 
@@ -73,6 +74,26 @@ int Backend::event_loop() {
 
 int Backend::main(int argc, char *argv[]) {
     char *p = get_program_path();
+
+    info = get_system_info();
+    if(info->is_admin != ADMIN_YES) {
+        int try_uac = 1;
+        for(int i = 0; i < argc; ++i) {
+            if(strcmp(argv[i], "--no-try-uac") == 0) {
+                try_uac = 0;
+                break;
+            }
+        }
+        if(try_uac) {
+            // TODO: pass on full argv
+            if(run_privileged(p, "--no-try-uac")) {
+                return 1;
+            }
+        }
+        // if already tried, or if the call fails, then continue, make the
+        //   frontend, and display an error
+    }
+
     char *c = concat_strs(2, p, " --frontend");
 #ifdef _WIN32
     HANDLE input, output;
@@ -87,7 +108,6 @@ int Backend::main(int argc, char *argv[]) {
 #endif
 
     // get ready
-    info = get_system_info();
     if(info->is_admin != ADMIN_YES) {
         send_error(send, "LICK must be run as an admin.");
         return 1;

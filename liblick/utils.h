@@ -82,6 +82,13 @@ int run_system_output(const char *c, char **out);
  */
 int run_unprivileged(const char *c, void *input, void *output);
 /**
+ * @brief run a command, similar to system(), with administrator privileges
+ * @param c the command to run
+ * @param p the parameters
+ * @return 1 if the program starts correctly, otherwise 0
+ */
+int run_privileged(const char *c, const char *p);
+/**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy
  * @return a copy of s. Free using free()

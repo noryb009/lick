@@ -8,6 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <sddl.h>
+#include <shellapi.h>
 #endif
 
 #include "scandir.h"
@@ -220,6 +221,10 @@ int run_unprivileged(const char *c, void *input, void *output) {
     CloseHandle(p.hProcess);
     CloseHandle(p.hThread);
     return 1;
+}
+
+int run_privileged(const char *c, const char *p) {
+    return (int)ShellExecute(NULL, "runas", c, p, NULL, SW_SHOWDEFAULT) > 32;
 }
 
 int run_system_output(const char *c, char **out) {

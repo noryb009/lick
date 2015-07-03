@@ -381,10 +381,22 @@ void auto_install(program_status_t *p_parent, char *iso) {
 int main(int argc, char *argv[]) {
     program_status_t *p = new_program_status();
 
-    // TODO: allow certain functions
     p->info = get_system_info();
     p->lick = get_lickdir();
     if(p->info->is_admin != ADMIN_YES) {
+        // TODO: allow certain functions if not admin
+        int try_uac = 1;
+        for(int i = 0; i < argc; ++i) {
+            if(strcmp(argv[i], "--no-try-uac") == 0)
+                try_uac = 0;
+        }
+        if(try_uac) {
+            char *p = get_program_path();
+            int ret = run_privileged(p, "--no-try-uac");
+            free(p);
+            if(ret)
+                return 0;
+        }
         printf("Must be admin.\n");
         return 1;
     }
