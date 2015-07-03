@@ -2,6 +2,9 @@ set(exe_name "lick-fltk")
 
 set(sources
     backend.cxx
+    frontend.cxx
+    ipc.cxx
+    ipc-lick.cxx
     drop-area.cxx)
 
 find_package(FLTK REQUIRED)
