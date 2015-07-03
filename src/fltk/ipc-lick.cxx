@@ -102,7 +102,7 @@ ipc_status::ipc_status(int ret, const char *err) {
 ipc_status::~ipc_status() {
     free_nonnull(err);
 }
-void send_status_inner(ipc *p, int ret, const char *err) {
+void send_status_inner(ipc *p, int &ret, char *&err) {
     p
         ->exchange(ret)
         ->exchange_str(err)
@@ -120,7 +120,7 @@ ipc_error::ipc_error(const char *err) {
 ipc_error::~ipc_error() {
     free_nonnull(err);
 }
-void send_error_inner(ipc *p, const char *err) {
+void send_error_inner(ipc *p, char *&err) {
     p
         ->exchange_str(err)
     ;
@@ -158,6 +158,9 @@ ipc_lick *recv_command(ipc *p) {
     case IPC_STATUS:
         c = new ipc_status();
         break;
+    case IPC_ERROR:
+        c = new ipc_error();
+        break;
     default:
         return NULL;
     }
@@ -177,10 +180,10 @@ void send_command(ipc *p, ipc_lick *c) {
 
 void send_status(ipc *p, int ret, const char *err) {
     send_command(p, IPC_STATUS);
-    send_status_inner(p, ret, err);
+    send_status_inner(p, ret, (char *&)err);
 }
 
 void send_error(ipc *p, const char *err) {
     send_command(p, IPC_ERROR);
-    send_error_inner(p, err);
+    send_error_inner(p, (char *&)err);
 }
