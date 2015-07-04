@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 set(proj_name "LICK")
 set(VERSION_MAJOR "0")
-set(VERSION_MINOR "1")
-set(VERSION_PATCH "1")
+set(VERSION_MINOR "2")
+set(VERSION_PATCH "0")
 
 project(${proj_name})
 
