@@ -178,7 +178,7 @@ int install_iso(program_status_t *p, char *iso) {
 
     // install
     int ret = 0;
-    for(;;) {
+    do {
         if(!check_loader(p->loader, p->info))
             if(!install_loader(p->loader, p->info, p->lick))
                 break;
@@ -187,8 +187,7 @@ int install_iso(program_status_t *p, char *iso) {
             break;
 
         ret = 1;
-        break;
-    }
+    } while(0);
 
     free(id);
     free(name);

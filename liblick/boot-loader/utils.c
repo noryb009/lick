@@ -154,9 +154,10 @@ char *get_bcdedit() {
 
     for(int i = 0; edit[i] != NULL; ++i) {
         snprintf(c, COMMAND_BUFFER_LEN, "%s%s", path, edit[i]);
-        if(path_exists(c))
+        if(path_exists(c)) {
             free(path);
             return c;
+        }
     }
 
     free(path);

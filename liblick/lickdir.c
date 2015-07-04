@@ -37,8 +37,10 @@ void free_lick_dir(lickdir_t *l) {
 
 lickdir_t *expand_lick_dir(char *d) {
     char *res = concat_strs(2, d, "/res");
-    if(!path_exists(res))
+    if(!path_exists(res)) {
+        free(res);
         return NULL;
+    }
     return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), res);
 }
