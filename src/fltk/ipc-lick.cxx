@@ -48,6 +48,7 @@ ipc_install::~ipc_install() {
     free_nonnull(iso);
     free_nonnull(install_dir);
     free_lick_dir(lick);
+    free(lick);
 }
 
 void ipc_install::exchange(ipc *p) {
@@ -69,6 +70,7 @@ ipc_uninstall::ipc_uninstall(const char *id, lickdir_t *lick) {
 ipc_uninstall::~ipc_uninstall() {
     free_nonnull(id);
     free_lick_dir(lick);
+    free(lick);
 }
 void ipc_uninstall::exchange(ipc *p) {
     p
@@ -85,6 +87,7 @@ ipc_loader::ipc_loader(int install, lickdir_t *lick) {
 }
 ipc_loader::~ipc_loader() {
     free_lick_dir(lick);
+    free(lick);
 }
 void ipc_loader::exchange(ipc *p) {
     p
@@ -188,26 +191,31 @@ ipc_lick *recv_command(ipc *p) {
 }
 
 void send_command(ipc *p, IPC_COMMANDS c) {
+    p->assert_send();
     p->exchange(c);
 }
 
 void send_command(ipc *p, ipc_lick *c) {
+    p->assert_send();
     IPC_COMMANDS type = c->type();
     send_command(p, type);
     c->exchange(p);
 }
 
 void send_status(ipc *p, int ret, const char *err) {
+    p->assert_send();
     send_command(p, IPC_STATUS);
     send_status_inner(p, ret, (char *&)err);
 }
 
 void send_progress(ipc *p, uniso_progress_t cur, uniso_progress_t total) {
+    p->assert_send();
     send_command(p, IPC_PROGRESS);
     send_progress_inner(p, cur, total);
 }
 
 void send_error(ipc *p, const char *err) {
+    p->assert_send();
     send_command(p, IPC_ERROR);
     send_error_inner(p, (char *&)err);
 }

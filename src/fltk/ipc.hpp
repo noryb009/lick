@@ -29,6 +29,9 @@ class ipc {
         void set_error();
         bool data_waiting();
 
+        bool assert_send();
+        bool assert_recv();
+
         ipc *exchange_data(void *data, size_t size);
 
         template<typename T>
@@ -51,8 +54,6 @@ class ipc {
         ipc *exchange_command(ipc_command *c);
 
     protected:
-        bool assert_send();
-        bool assert_recv();
         bool err;
         direction_e dir;
         pipe_t p;

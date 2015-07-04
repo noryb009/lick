@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,6 +66,7 @@ int scandir_main(const char *path, struct dirent ***e,
 
     closedir(d);
     *e = ents;
+    assert(n >= 0);
     return n;
 }
 

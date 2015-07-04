@@ -6,6 +6,10 @@
 Backend::Backend() {
     send = NULL;
     recv = NULL;
+
+    loader = NULL;
+    menu = NULL;
+    info = NULL;
 }
 
 Backend::~Backend() {
@@ -87,6 +91,7 @@ int Backend::main(int argc, char *argv[]) {
         if(try_uac) {
             // TODO: pass on full argv
             if(run_privileged(p, "--no-try-uac")) {
+                free(p);
                 return 1;
             }
         }
@@ -97,8 +102,11 @@ int Backend::main(int argc, char *argv[]) {
     char *c = concat_strs(2, p, " --frontend");
 #ifdef _WIN32
     HANDLE input, output;
-    if(!run_unprivileged(c, &input, &output))
+    if(!run_unprivileged(c, &input, &output)) {
+        free(p);
+        free(c);
         return 1;
+    }
     free(p);
     free(c);
     send = new ipc(DIRECTION_SEND, (pipe_t)input);

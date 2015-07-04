@@ -3,6 +3,8 @@
 
 #include "ipc.hpp"
 
+#define MAX_SIZE 65536
+
 ipc::ipc(direction_e dir, pipe_t p) {
     this->dir = dir;
     this->p = p;
@@ -50,10 +52,18 @@ ipc *ipc::exchange_data(void *data, size_t size) {
     if(had_error())
         return this;
     if(dir == DIRECTION_SEND) {
+        if(size < 0 || size > MAX_SIZE) {
+            set_error();
+            return this;
+        }
         DWORD s;
         if(!WriteFile(p, data, size, &s, NULL) || s != size)
             set_error();
     } else {
+        if(size < 0 || size > MAX_SIZE) {
+            set_error();
+            return this;
+        }
         DWORD s;
         if(!ReadFile(p, data, size, &s, NULL) || s != size)
             set_error();
@@ -75,6 +85,10 @@ ipc *ipc::exchange_str(char *&str) {
         exchange(size);
         if(had_error() || size == 0)
             return this;
+        if(size < 0 || size > MAX_SIZE) {
+            set_error();
+            return this;
+        }
         str = (char *)malloc(size);
         exchange_data(str, size);
         if(had_error()) {

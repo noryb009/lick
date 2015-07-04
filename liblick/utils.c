@@ -109,8 +109,8 @@ int unlink_recursive(const char *d) {
 #ifdef _WIN32
 #define PIPE_BUF_SIZE 256
 void read_from_pipe(HANDLE pipe, char **out) {
-    int size = PIPE_BUF_SIZE * 4;
-    int used = 0;
+    size_t size = PIPE_BUF_SIZE * 4;
+    size_t used = 0;
     *out = malloc(size + 1);
     (*out)[0] = '\0';
 
@@ -147,6 +147,7 @@ int create_pipes(STARTUPINFO *s, HANDLE *p_output_read, HANDLE *p_input_write) {
         return 0;
     if(!CreatePipe(&p_input_read, &p_input_write_tmp, &sec, 0)) {
         CloseHandle(p_output_read_tmp);
+        CloseHandle(p_output_write);
         return 0;
     }
     if(!DuplicateHandle(GetCurrentProcess(), p_output_write,
@@ -160,6 +161,8 @@ int create_pipes(STARTUPINFO *s, HANDLE *p_output_read, HANDLE *p_input_write) {
                 DUPLICATE_SAME_ACCESS)) {
         CloseHandle(p_output_read_tmp);
         CloseHandle(p_input_write_tmp);
+        CloseHandle(p_input_read);
+        CloseHandle(p_output_write);
         return 0;
     }
     CloseHandle(p_output_read_tmp);

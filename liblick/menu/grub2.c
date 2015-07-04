@@ -34,10 +34,10 @@ char mount_uefi_partition() {
     return drive;
 }
 
-void unmount_uefi_partition(char drive) {
+int unmount_uefi_partition(char drive) {
     char c[strlen(COMMAND_UMOUNT_UEFI) + 1];
     sprintf(c, COMMAND_UMOUNT_UEFI, drive);
-    run_system(c);
+    return run_system(c);
 }
 
 void grub2_write_entry(FILE *f, entry_t *e) {
@@ -105,6 +105,7 @@ int install_grub2(lickdir_t *lick) {
         if(!ln)
             break;
         fprintf(f, "static %s\n", ln);
+        free(ln);
     }
 
     fclose(src);

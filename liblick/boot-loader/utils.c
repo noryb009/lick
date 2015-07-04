@@ -105,6 +105,7 @@ int get_id_from_command_range(const char *c, char *out, char *start, char *end) 
 
     char *buf;
     if(!run_system_output(c, &buf)) {
+        free(buf);
         return 0;
     }
 
@@ -154,9 +155,11 @@ char *get_bcdedit() {
     for(int i = 0; edit[i] != NULL; ++i) {
         snprintf(c, COMMAND_BUFFER_LEN, "%s%s", path, edit[i]);
         if(path_exists(c))
+            free(path);
             return c;
     }
 
+    free(path);
     free(c);
     return NULL;
 }

@@ -109,6 +109,7 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
         char *dest = create_dest(dst, "/", name);
         if(!extract_file(s, iso, dest)) {
             free(dest);
+            free(name);
             return 0;
         }
         ++current;

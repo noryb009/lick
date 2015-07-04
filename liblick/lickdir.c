@@ -40,7 +40,7 @@ lickdir_t *expand_lick_dir(char *d) {
     if(!path_exists(res))
         return NULL;
     return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
-            concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
+            concat_strs(2, d, "/menu"), res);
 }
 
 lickdir_t *get_lickdir() {

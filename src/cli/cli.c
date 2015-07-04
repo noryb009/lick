@@ -1,6 +1,6 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "cli.h"
 
@@ -177,23 +177,26 @@ int install_iso(program_status_t *p, char *iso) {
     free(drive);
 
     // install
-    if(!check_loader(p->loader, p->info))
-        if(!install_loader(p->loader, p->info, p->lick))
-            goto free_and_handle_error;
+    int ret = 0;
+    for(;;) {
+        if(!check_loader(p->loader, p->info))
+            if(!install_loader(p->loader, p->info, p->lick))
+                break;
 
-    if(!install(id, name, iso, install_to, p->lick, p->menu))
-        goto free_and_handle_error;
+        if(!install(id, name, iso, install_to, p->lick, p->menu))
+            break;
+
+        ret = 1;
+        break;
+    }
 
     free(id);
     free(name);
+    free(iso);
     free(install_to);
-    return 1;
-free_and_handle_error:
-    free(id);
-    free(name);
-    free(install_to);
-    handle_error(p);
-    return 0;
+    if(!ret)
+        handle_error(p);
+    return ret;
 }
 
 int ask_uninstall_loader(program_status_t *p) {
@@ -376,6 +379,7 @@ void auto_install(program_status_t *p_parent, char *iso) {
     p->loader = NULL;
     p->menu = NULL;
     free_program_status(p);
+    free(p);
 }
 
 int main(int argc, char *argv[]) {

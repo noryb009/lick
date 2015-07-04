@@ -45,6 +45,10 @@ Frontend::Frontend() {
     recv = NULL;
     has_started = false;
 
+    bar = NULL;
+    waiting_for_backend = 0;
+    id_bg = NULL;
+
     clear();
 }
 
@@ -304,7 +308,7 @@ void Frontend::progress_set() {
         snprintf(lbl, 127, "Step %d / %d: %s",
                 max_size-size+1, max_size, command_name(commands_queue.front()));
         bar->copy_label(lbl);
-        delete lbl;
+        delete [] lbl;
     }
 }
 void Frontend::progress_set_sub(uniso_progress_t cur, uniso_progress_t total) {
@@ -315,7 +319,7 @@ void Frontend::progress_set_sub(uniso_progress_t cur, uniso_progress_t total) {
     snprintf(lbl, 127, "Step %d / %d: %s, %d / %d files extracted",
             max_size-size+1, max_size, command_name(commands_queue.front()), cur, total);
     bar->copy_label(lbl);
-    delete lbl;
+    delete [] lbl;
 }
 
 bool is_loader(ipc_lick *c) {

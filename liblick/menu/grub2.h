@@ -16,8 +16,9 @@ char mount_uefi_partition();
 /**
  * @brief unmounts the UEFI partition
  * @param drive the drive letter where the partition is mounted
+ * @return 1 if the partition is unmounted
  */
-void unmount_uefi_partition(char drive);
+int unmount_uefi_partition(char drive);
 /**
  * @brief get the grub2 menu plugin
  * @return a menu_t. Must be freed using free
