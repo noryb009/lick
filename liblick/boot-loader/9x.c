@@ -13,7 +13,9 @@
 
 char *config_sys_path() {
     drive_t *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive->path, "/config.sys");
+    if(!drive)
+        return NULL;
+    char *loc = unix_path(concat_strs(2, drive->path, "/config.sys"));
     free_drive(drive);
     return loc;
 }
@@ -29,6 +31,8 @@ int check_loader_9x(sys_info_t *info) {
 
     // load config.sys into a string
     char *config_sys = config_sys_path();
+    if(!config_sys)
+        return 0;
     FILE *f = fopen(config_sys, "r");
     if(!f) {
         free(config_sys);
@@ -41,6 +45,70 @@ int check_loader_9x(sys_info_t *info) {
     free(config);
     free(config_sys);
     return lick != NULL;
+}
+
+char *install_to_config_sys(char *config, lickdir_t *lick) {
+    // find [menu] section
+    char *start = strstr(config, "[menu]");
+    if(start == NULL) {
+        // config.sys doesn't have sections
+        char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
+        char *ret = concat_strs(7,
+                "[menu]\r\nmenuitem=WINDOWS,Start Windows\r\n",
+                MENU_ITEM,
+                "menudefault=WINDOWS,10\r\nmenucolor=7,0\r\n",
+                LICK_SECTION, grub_exe,
+                "\r\n\r\n[WINDOWS]", config);
+        free(grub_exe);
+        return ret;
+    }
+
+    // find end of menu (start of next section, or EOF)
+    char *end = strchr(start + 1, '[');
+    if(end == NULL) {
+        end = start;
+        while(end[0] != '\0')
+            end++;
+    }
+
+    // location of menuitem
+    char *menuitem = NULL;
+
+    // attempt to find a "nice" place to put menuitem=...
+    // aka. after the other menuitems
+    char *next_menu = strstr(start, "menuitem=");
+    while(next_menu != NULL && next_menu < end) {
+        menuitem = next_menu;
+        next_menu = strstr(menuitem + 1, "menuitem=");
+    }
+
+    if(menuitem != NULL)
+        // at last menuitem, move to end of line where the next will go
+        menuitem = advance_to_newline(menuitem);
+    else
+        // otherwise, put right after [menu]
+        menuitem = advance_to_newline(start);
+
+    // TODO: timeout?
+
+    char *before = "\n";
+    char *after = menuitem + 1;
+    if(menuitem[0] == '\0') {
+        before = "\r\n";
+        after = menuitem;
+    }
+
+    char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
+
+    menuitem[0] = '\0';
+    char *ret = concat_strs(8,
+            config, before,
+            MENU_ITEM, after,
+             "\r\n", LICK_SECTION, grub_exe, "\r\n");
+
+    free(grub_exe);
+    return ret;
+
 }
 
 // load config.sys
@@ -57,45 +125,15 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     FILE *f = fopen(config_sys, "r");
     if(!f) {
         free(config_sys);
+        if(!lick->err)
+            lick->err = strdup2("Could not load config.sys");
         return 0;
     }
     char *config = file_to_str(f);
     fclose(f);
 
-    // find [menu] section
-    char *start = strstr(config, "[menu]");
-    if(start == NULL) {
-        free(config);
-        free(config_sys);
-        return 0;
-    }
-    char *end = strchr(start + 1, '[');
-    if(end == NULL) {
-        end = start;
-        while(end[0] != '\0')
-            end++;
-    }
-
-    char *menuitem = NULL;
-
-    // attempt to find a "nice" place to put menuitem=...
-    // aka. after the other menuitems
-    char *next_menu;
-
-    next_menu = strstr(start, "menuitem=");
-    while(next_menu != NULL && next_menu < end) {
-        menuitem = next_menu;
-        next_menu = strstr(menuitem + 1, "menuitem=");
-    }
-
-    if(menuitem != NULL)
-        menuitem = advance_to_newline(menuitem);
-
-    // otherwise, right after [menu]
-    if(menuitem == NULL)
-        menuitem = advance_to_newline(start);
-
-    // TODO: timeout?
+    char *new_config = install_to_config_sys(config, lick);
+    free(config);
 
     backup_file(config_sys);
 
@@ -103,34 +141,24 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     f = fopen(config_sys, "w");
     if(!f) {
         attrib_save(config_sys, attrib);
-        free(config);
+        free(new_config);
         free(config_sys);
+        if(!lick->err)
+            lick->err = strdup2("Could not open config.sys for writing");
         return 0;
     }
 
-    char *before = "\n";
-    char *after = menuitem + 1;
-    if(menuitem[0] == '\0') {
-        before = "\r\n";
-        after = menuitem;
-    }
-
-    char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
-
-    menuitem[0] = '\0';
-    fprintf(f, "%s%s%s%s", config, before, MENU_ITEM, after);
-    // add [LICK] section to end of file
-    fprintf(f, "\r\n%s%s\r\n", LICK_SECTION, grub_exe);
+    fprintf(f, "%s", new_config);
     fclose(f);
     attrib_save(config_sys, attrib);
+    free(new_config);
+    free(config_sys);
 
+    char *grub_exe = concat_strs(2, lick->drive, "/pupl.exe");
     char *res_grub_exe = concat_strs(2, lick->res, "/pupl.exe");
     copy_file(grub_exe, res_grub_exe);
-
-    free(res_grub_exe);
     free(grub_exe);
-    free(config);
-    free(config_sys);
+    free(res_grub_exe);
     return 1;
 }
 
