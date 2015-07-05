@@ -460,8 +460,9 @@ file_type_e file_type(const char *path) {
 }
 
 int path_exists(const char *path) {
+    char path2[strlen(path) + 1];
     struct stat s;
-    return (stat(path, &s) == 0);
+    return stat(unix_path(strcpy(path2, path)), &s) == 0;
 }
 
 #define LINE_SIZE_START 1024
