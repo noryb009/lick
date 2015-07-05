@@ -176,15 +176,33 @@ int create_pipes(STARTUPINFO *s, HANDLE *p_output_read, HANDLE *p_input_write) {
 }
 
 int unprivileged_token(HANDLE *token, PSID *sid) {
+    typedef BOOL (WINAPI *open_p_tok)(HANDLE ProcessHandle, DWORD DesiredAccess, PHANDLE TokenHandle);
+    typedef BOOL (WINAPI *dup_token)(HANDLE hExistingToken, DWORD dwDesiredAccess, LPSECURITY_ATTRIBUTES lpTokenAttributes, SECURITY_IMPERSONATION_LEVEL ImpersonationLevel, TOKEN_TYPE TokenType, PHANDLE phNewToken);
+    typedef BOOL (WINAPI *conv_sid)(LPCTSTR StringSid, PSID *Sid);
+
+    HMODULE a = LoadLibrary("Advapi32.dll");
+    if(!a)
+        return -1;
+    open_p_tok fn_open = GetProcAddress(a, "OpenProcessToken");
+    dup_token fn_dup = GetProcAddress(a, "DuplicateTokenEx");
+    conv_sid fn_conv = GetProcAddress(a, "ConvertStringSidToSidA");
+    if(!fn_open || !fn_dup || !fn_conv) {
+        FreeLibrary(a);
+        return -1;
+    }
+
     char *med_integrity = "S-1-16-8192";
     HANDLE t;
     TOKEN_MANDATORY_LABEL TIL = {0};
 
-    if(!OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE | TOKEN_ADJUST_DEFAULT | TOKEN_QUERY | TOKEN_ASSIGN_PRIMARY, &t)
-            || !DuplicateTokenEx(t, 0, NULL, SecurityImpersonation, TokenPrimary, token)
-            || !ConvertStringSidToSidA(med_integrity, sid)) {
+    if(!fn_open(GetCurrentProcess(), TOKEN_DUPLICATE | TOKEN_ADJUST_DEFAULT | TOKEN_QUERY | TOKEN_ASSIGN_PRIMARY, &t)
+            || !fn_dup(t, 0, NULL, SecurityImpersonation, TokenPrimary, token)
+            || !fn_conv(med_integrity, sid)) {
+        FreeLibrary(a);
         return 0;
     }
+    FreeLibrary(a);
+
     TIL.Label.Attributes = SE_GROUP_INTEGRITY;
     TIL.Label.Sid = *sid;
     SetTokenInformation(*token, TokenIntegrityLevel, &TIL, sizeof(TOKEN_MANDATORY_LABEL) + GetLengthSid(med_integrity));
@@ -198,27 +216,50 @@ int run_unprivileged(const char *c, void *input, void *output) {
     HANDLE *out = (HANDLE*)output;
     PSID sid;
     HANDLE token;
+    int token_supported = 1;
+
+    int tok_ret = unprivileged_token(&token, &sid);
+    if(tok_ret == 0)
+        return 0;
+    else if(tok_ret == -1) { // not supported
+        token_supported = 0;
+    }
 
     memset(&s, 0, sizeof(s));
     s.cb = sizeof(s);
 
-    if(!unprivileged_token(&token, &sid))
-        return 0;
-
     if(!create_pipes(&s, out, in)) {
-        LocalFree(sid);
-        CloseHandle(token);
+        if(token_supported) {
+            LocalFree(sid);
+            CloseHandle(token);
+        }
         return 0;
     }
 
     char *command = strdup2(c);
-    DWORD ret = CreateProcessAsUserA(token, NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p);
+    DWORD ret;
+    if(token_supported) {
+        typedef BOOL (WINAPI *create_as_user)(HANDLE hToken, LPCTSTR lpApplicationName, LPTSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCTSTR lpCurrentDirectory, LPSTARTUPINFO lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
+        HANDLE a = LoadLibrary("Advapi32.dll");
+        if(!a)
+            ret = 0;
+        else {
+            create_as_user fn = GetProcAddress(a, "CreateProcessAsUserA");
+            if(!fn)
+                ret = 0;
+            else
+                ret = fn(token, NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p);
+        }
+    } else
+        ret = CreateProcess(NULL, command, 0, 0, TRUE, NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW, 0, 0, &s, &p);
     free(command);
     CloseHandle(s.hStdInput);
     CloseHandle(s.hStdOutput);
     CloseHandle(s.hStdError);
-    LocalFree(sid);
-    CloseHandle(token);
+    if(token_supported) {
+        LocalFree(sid);
+        CloseHandle(token);
+    }
     if(!ret)
         return 0;
     CloseHandle(p.hProcess);

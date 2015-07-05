@@ -82,16 +82,31 @@ node_t *unused_drives() {
 }
 
 char *get_windows_path() {
-    TCHAR buf[256];
-    int len = GetSystemWindowsDirectory(buf, 255);
-    if(len == 0)
+    typedef UINT (WINAPI *get_dir)(LPTSTR lpBuffer, UINT uSize);
+    HMODULE k = LoadLibrary("Kernel32.dll");
+    if(!k)
         return NULL;
-    if(len <= 255)
+    get_dir fn = (get_dir)GetProcAddress(k, "GetSystemWindowsDirectoryA");
+    if(!fn) fn = (get_dir)GetProcAddress(k, "GetWindowsDirectoryA");
+    if(!fn) {
+        FreeLibrary(k);
+        return NULL;
+    }
+    TCHAR buf[256];
+    int len = fn(buf, 255);
+    if(len == 0) {
+        FreeLibrary(k);
+        return NULL;
+    }
+    if(len <= 255) {
+        FreeLibrary(k);
         return TCHAR_to_char(buf, len, sizeof(TCHAR));
+    }
 
     // not big enough
     TCHAR buf2[len + 1];
-    len = GetSystemWindowsDirectory(buf2, len + 1);
+    len = fn(buf2, len + 1);
+    FreeLibrary(k);
     if(len == 0)
         return NULL;
     return TCHAR_to_char(buf2, len, sizeof(TCHAR));
@@ -99,6 +114,8 @@ char *get_windows_path() {
 
 drive_t *get_windows_drive() {
     char *path = get_windows_path();
+    if(!path)
+        return NULL;
 
     char letters[4];
     letters[0] = path[0];
