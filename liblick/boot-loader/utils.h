@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include "../lickdir.h"
+
 #define ID_LEN 37
 #define COMMAND_BUFFER_LEN 1024
 
@@ -67,3 +69,18 @@ int get_id_from_command(const char *c, char *out);
  * @return path to bcdedit.exe. Must be freed using free
  */
 char *get_bcdedit();
+/**
+ * @brief applies a function to a file
+ *
+ * Reads a file and applies the function to the contents. If the return value
+ * is a string, optionally backs up the file, then saves the return value in
+ * the file. This also ensures the file is saved with the same attributes.
+ *
+ * @param file the file to apply the function on
+ * @param fn the function to apply
+ * @param backup to backup the file or not before saving
+ * @param lick the lick environment
+ * @return 1 on success
+ */
+int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
+        int backup, lickdir_t *lick);

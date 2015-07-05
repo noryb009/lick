@@ -8,8 +8,8 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define MENU_ITEM "menuitem=LICK, Start Puppy Linux\r\n"
-#define LICK_SECTION "\r\n[LICK]\r\nshell="
+#define MENU_ITEM "menuitem=LICK, Start Puppy Linux\n"
+#define LICK_SECTION "[LICK]\nshell="
 
 char *config_sys_path() {
     drive_t *drive = get_windows_drive();
@@ -54,11 +54,11 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
         // config.sys doesn't have sections
         char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
         char *ret = concat_strs(7,
-                "[menu]\r\nmenuitem=WINDOWS,Start Windows\r\n",
+                "[menu]\nmenuitem=WINDOWS,Start Windows\n",
                 MENU_ITEM,
-                "menudefault=WINDOWS,10\r\nmenucolor=7,0\r\n",
+                "menudefault=WINDOWS,10\nmenucolor=7,0\n\n",
                 LICK_SECTION, grub_exe,
-                "\r\n\r\n[WINDOWS]", config);
+                "\n\n[WINDOWS]", config);
         free(grub_exe);
         return ret;
     }
@@ -93,10 +93,8 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 
     char *before = "\n";
     char *after = menuitem + 1;
-    if(menuitem[0] == '\0') {
-        before = "\r\n";
+    if(menuitem[0] == '\0')
         after = menuitem;
-    }
 
     char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
 
@@ -104,11 +102,62 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
     char *ret = concat_strs(8,
             config, before,
             MENU_ITEM, after,
-             "\r\n", LICK_SECTION, grub_exe, "\r\n");
+             "\n\n", LICK_SECTION, grub_exe, "\n");
 
     free(grub_exe);
     return ret;
+}
 
+char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
+    // find the LICK menu item
+    char *menuitem = strstr(config, MENU_ITEM);
+    if(menuitem == NULL) {
+        if(!lick->err)
+            lick->err = strdup2("Could not find the LICK menuitem in config.sys");
+        return NULL;
+    }
+
+    // find the start of the next line
+    char *menuitem_end = advance_to_newline(menuitem);
+    if(menuitem_end[0] != '\0')
+        menuitem_end++;
+
+    // find the start of the LICK section
+    char *lick_section = strstr(config, "[LICK]");
+    if(lick_section == NULL) {
+        if(!lick->err)
+            lick->err = strdup2("Could not find the LICK section in config.sys");
+        return NULL;
+    }
+
+    // find end of LICK section
+    char *lick_section_end = strchr(lick_section + 1, '[');
+    if(lick_section_end == NULL)
+        lick_section_end = strchr(lick_section, '\0');
+
+    //sanity check
+    if((menuitem < lick_section && lick_section < menuitem_end)
+            || (lick_section < menuitem && menuitem < lick_section_end)) {
+        if(!lick->err)
+            lick->err = strdup2("Error uninstalling from config.sys");
+        return NULL;
+    }
+
+    // cutting out these parts, so set beginning to NULL
+    menuitem[0] = '\0';
+    lick_section[0] = '\0';
+
+    // swap pointers if lick is before menu to reuse code
+    if(menuitem > lick_section) {
+        char *tmp = lick_section_end;
+        lick_section_end = menuitem_end;
+        menuitem_end = tmp;
+    }
+
+    return concat_strs(3,
+            config,
+            menuitem_end,
+            lick_section_end);
 }
 
 // load config.sys
@@ -120,39 +169,12 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
         return 0;
     }
 
-    // load config.sys into a string
+    // add to config.sys
     char *config_sys = config_sys_path();
-    FILE *f = fopen(config_sys, "r");
-    if(!f) {
-        free(config_sys);
-        if(!lick->err)
-            lick->err = strdup2("Could not load config.sys");
-        return 0;
-    }
-    char *config = file_to_str(f);
-    fclose(f);
-
-    char *new_config = install_to_config_sys(config, lick);
-    free(config);
-
-    backup_file(config_sys);
-
-    attrib_t *attrib = attrib_open(config_sys);
-    f = fopen(config_sys, "w");
-    if(!f) {
-        attrib_save(config_sys, attrib);
-        free(new_config);
-        free(config_sys);
-        if(!lick->err)
-            lick->err = strdup2("Could not open config.sys for writing");
-        return 0;
-    }
-
-    fprintf(f, "%s", new_config);
-    fclose(f);
-    attrib_save(config_sys, attrib);
-    free(new_config);
+    int ret = apply_fn_to_file(config_sys, install_to_config_sys, 1, lick);
     free(config_sys);
+    if(!ret)
+        return 0;
 
     char *grub_exe = concat_strs(2, lick->drive, "/pupl.exe");
     char *res_grub_exe = concat_strs(2, lick->res, "/pupl.exe");
@@ -167,78 +189,16 @@ int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
         return 0;
     }
 
-    // load config.sys into a string
+    // remove from config.sys
     char *config_sys = config_sys_path();
-    FILE *f = fopen(config_sys, "r");
-    if(!f) {
-        free(config_sys);
+    int ret = apply_fn_to_file(config_sys, uninstall_from_config_sys, 0, lick);
+    free(config_sys);
+    if(!ret)
         return 0;
-    }
-    char *config = file_to_str(f);
-    fclose(f);
-
-    char *menuitem = strstr(config, MENU_ITEM);
-    if(menuitem == NULL) {
-        free(config);
-        free(config_sys);
-        return 0;
-    }
-
-    char *menuitem_end = advance_to_newline(menuitem);
-    if(menuitem_end[0] != '\0')
-        menuitem_end++;
-
-    char *lick_section = strstr(config, LICK_SECTION);
-    if(lick_section == NULL) {
-        free(config);
-        free(config_sys);
-        return 0;
-    }
-    char *lick_section_end =
-        advance_to_newline(lick_section + strlen(LICK_SECTION) - 1);
-    if(lick_section_end[0] != '\0')
-        lick_section_end++;
-
-    while(lick_section[-4] == '\r'
-            && lick_section[-3] == '\n'
-            && lick_section[-2] == '\r'
-            && lick_section[-1] == '\n')
-        lick_section -= 2;
-
-    //sanity check
-    if((menuitem < lick_section && lick_section < menuitem_end)
-            || (lick_section < menuitem && menuitem < lick_section_end)) {
-        free(config);
-        free(config_sys);
-        return 0;
-    }
-
-    menuitem[0] = '\0';
-    lick_section[0] = '\0';
-
-    attrib_t *attrib = attrib_open(config_sys);
-    f = fopen(config_sys, "w");
-    if(!f) {
-        attrib_save(config_sys, attrib);
-        free(config);
-        free(config_sys);
-        return 0;
-    }
-
-    fprintf(f, "%s", config);
-    if(menuitem < lick_section)
-        fprintf(f, "%s%s", menuitem_end, lick_section_end);
-    else
-        fprintf(f, "%s%s", lick_section_end, menuitem_end);
-    fclose(f);
-    attrib_save(config_sys, attrib);
 
     char *grub_exe = concat_strs(2, lick->drive, "/pupl.exe");
     unlink_file(grub_exe);
     free(grub_exe);
-
-    free(config);
-    free(config_sys);
     return 1;
 }
 

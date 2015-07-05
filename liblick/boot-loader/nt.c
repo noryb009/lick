@@ -107,7 +107,6 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     char *before = "\n";
     char *after = bootitem + 1;
     if(bootitem[0] == '\0') {
-        before = "\r\n";
         after = bootitem;
     }
 
@@ -116,7 +115,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     bootitem[0] = '\0';
     // print start of file, newline,
     //   C:\pupldr="Start Puppy Linux", rest of file
-    fprintf(f, "%s%s%s%s\r\n%s", boot, before, pupldr, BOOT_ITEM, after);
+    fprintf(f, "%s%s%s%s\n%s", boot, before, pupldr, BOOT_ITEM, after);
     fclose(f);
     attrib_save(boot_ini, attrib);
 

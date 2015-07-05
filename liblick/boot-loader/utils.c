@@ -164,3 +164,40 @@ char *get_bcdedit() {
     free(c);
     return NULL;
 }
+
+int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
+        int backup, lickdir_t *lick) {
+    FILE *f = fopen(file, "r");
+    if(!f) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", file);
+        return 0;
+    }
+    char *contents = file_to_str(f);
+    fclose(f);
+
+    char *new_contents = fn(contents, lick);
+    free(contents);
+    if(!new_contents)
+        return 0;
+
+    if(backup)
+        backup_file(file);
+
+    attrib_t *attrib = attrib_open(file);
+    f = fopen(file, "w");
+    if(!f) {
+        attrib_save(file, attrib);
+        free(new_contents);
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not open boot loader file for writing", file);
+        return 0;
+    }
+
+    fprintf(f, "%s", new_contents);
+    fclose(f);
+    free(new_contents);
+    attrib_save(file, attrib);
+
+    return 1;
+}
