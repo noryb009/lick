@@ -41,38 +41,18 @@ int check_loader_nt(sys_info_t *info) {
     return pupldr != NULL;
 }
 
-// load boot.ini
-// make sure good timeout
-// [operating systems] ~> /path/to/grldr="Puppy Linux"
-int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_nt(info)) {
-        return 0;
-    }
-
-    // load boot.ini into a string
-    char *boot_ini = boot_ini_path();
-    FILE *f = fopen(boot_ini, "r");
-    if(!f) {
-        free(boot_ini);
-        return 0;
-    }
-    char *boot = file_to_str(f);
-    fclose(f);
-
+char *install_to_boot_ini(char *boot, lickdir_t *lick) {
     // TODO: check timeout
 
     char *start = strstr(boot, "[operating systems]");
     if(start == NULL) {
-        free(boot);
-        free(boot_ini);
-        return 0;
+        if(!lick->err)
+            lick->err = strdup2("Invalid boot.ini");
+        return NULL;
     }
     char *end = strchr(start + 1, '[');
-    if(end == NULL) {
-        end = start;
-        while(end[0] != '\0')
-            end++;
-    }
+    if(end == NULL)
+        end = strchr(start, '\0');
 
     char *bootitem = NULL;
 
@@ -88,23 +68,10 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
 
     if(bootitem != NULL)
         bootitem = advance_to_newline(bootitem);
-
-    // otherwise, right after [operating systems]
-    if(bootitem == NULL)
+    else
+        // otherwise, right after [operating systems]
         bootitem = advance_to_newline(start);
 
-    backup_file(boot_ini);
-
-    attrib_t *attrib = attrib_open(boot_ini);
-    f = fopen(boot_ini, "w");
-    if(!f) {
-        attrib_save(boot_ini, attrib);
-        free(boot_ini);
-        free(boot);
-        return 0;
-    }
-
-    char *before = "\n";
     char *after = bootitem + 1;
     if(bootitem[0] == '\0') {
         after = bootitem;
@@ -115,41 +82,21 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     bootitem[0] = '\0';
     // print start of file, newline,
     //   C:\pupldr="Start Puppy Linux", rest of file
-    fprintf(f, "%s%s%s%s\n%s", boot, before, pupldr, BOOT_ITEM, after);
-    fclose(f);
-    attrib_save(boot_ini, attrib);
-
-    char *res_pupldr = concat_strs(2, lick->res, "/pupldr");
-    copy_file(pupldr, res_pupldr);
-
-    free(res_pupldr);
+    char *ret = concat_strs(6,
+            boot,
+            "\n", pupldr, BOOT_ITEM, "\n",
+            after);
     free(pupldr);
-    free(boot);
-    free(boot_ini);
-    return 1;
+    return ret;
 }
 
-int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_nt(info)) {
-        return 0;
-    }
-
-    // load boot.ini into a string
-    char *boot_ini = boot_ini_path();
-    FILE *f = fopen(boot_ini, "r");
-    if(!f) {
-        free(boot_ini);
-        return 0;
-    }
-    char *boot = file_to_str(f);
-    fclose(f);
-
+char *uninstall_from_boot_ini(char *boot, lickdir_t *lick) {
     // find ="Start Puppy Linux"
     char *bootitem = strstr(boot, BOOT_ITEM);
     if(bootitem == NULL) {
-        free(boot);
-        free(boot_ini);
-        return 0;
+        if(!lick->err)
+            lick->err = strdup2("Error uninstalling from boot.ini");
+        return NULL;
     }
 
     // find start of next line
@@ -161,27 +108,52 @@ int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
     while(boot < bootitem && bootitem[-1] != '\n')
         bootitem--;
 
+    // take out boot item
     bootitem[0] = '\0';
 
-    attrib_t *attrib = attrib_open(boot_ini);
-    f = fopen(boot_ini, "w");
-    if(!f) {
-        attrib_save(boot_ini, attrib);
-        free(boot);
-        free(boot_ini);
+    return concat_strs(2, boot, bootitem_end);
+}
+
+// load boot.ini
+// make sure good timeout
+// [operating systems] ~> /path/to/grldr="Puppy Linux"
+int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
+    if(!supported_loader_nt(info)) {
         return 0;
     }
 
-    fprintf(f, "%s%s", boot, bootitem_end);
-    fclose(f);
-    attrib_save(boot_ini, attrib);
+    // add to boot.ini
+    char *boot_ini = boot_ini_path();
+    int ret = apply_fn_to_file(boot_ini, install_to_boot_ini, 1, lick);
+    free(boot_ini);
+    if(!ret)
+        return 0;
+
+    char *pupldr = concat_strs(2, lick->drive, "/pupldr");
+    char *res_pupldr = concat_strs(2, lick->res, "/pupldr");
+    copy_file(pupldr, res_pupldr);
+
+    free(res_pupldr);
+    free(pupldr);
+    return 1;
+}
+
+int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
+    if(!supported_loader_nt(info)) {
+        return 0;
+    }
+
+    // remove from boot.ini
+    char *boot_ini = boot_ini_path();
+    int ret = apply_fn_to_file(boot_ini, uninstall_from_boot_ini, 0, lick);
+    free(boot_ini);
+    if(!ret)
+        return 0;
 
     char *pupldr = concat_strs(2, lick->drive, "/pupldr");
     unlink_file(pupldr);
 
     free(pupldr);
-    free(boot);
-    free(boot_ini);
     return 1;
 }
 

@@ -91,7 +91,6 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 
     // TODO: timeout?
 
-    char *before = "\n";
     char *after = menuitem + 1;
     if(menuitem[0] == '\0')
         after = menuitem;
@@ -100,8 +99,8 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 
     menuitem[0] = '\0';
     char *ret = concat_strs(8,
-            config, before,
-            MENU_ITEM, after,
+            config,
+            "\n", MENU_ITEM, after,
              "\n\n", LICK_SECTION, grub_exe, "\n");
 
     free(grub_exe);
