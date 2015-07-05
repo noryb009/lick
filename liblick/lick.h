@@ -5,6 +5,7 @@
  * A header which includes all headers needed for a front-end
  */
 
+#pragma once
 #ifdef __cplusplus
 extern "C" {
 #endif

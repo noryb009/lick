@@ -2,10 +2,10 @@ set(exe_name "lick-fltk")
 
 set(sources
     backend.cxx
+    drop-area.cxx
     frontend.cxx
     ipc.cxx
-    ipc-lick.cxx
-    drop-area.cxx)
+    ipc-lick.cxx)
 
 find_package(FLTK REQUIRED)
 FLTK_WRAP_UI(${exe_name} gui.fl)

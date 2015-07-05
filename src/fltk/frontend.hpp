@@ -1,12 +1,12 @@
 #pragma once
 
 #include <FL/Fl_Progress.H>
-#include <queue>
 
 #include "../../liblick/lick.h"
 #include "drop-area.hpp"
 #include "ipc-lick.hpp"
 #include "gui.h"
+#include "qqueue.hpp"
 
 class lick_fltk;
 
@@ -37,7 +37,7 @@ class Frontend {
         void progress_set_sub(uniso_progress_t cur, uniso_progress_t total);
         Fl_Progress *bar;
 
-        std::queue<ipc_lick *> commands_queue;
+        qqueue<ipc_lick *> commands_queue;
         bool waiting_for_backend;
 
         ipc *recv;

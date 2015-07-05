@@ -4,6 +4,9 @@
  */
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct node_t node_t;
 
@@ -58,3 +61,7 @@ void do_nothing(void *n);
  *   be free()
  */
 void free_list(node_t *n, void (*free_fn)(void *n));
+
+#ifdef __cplusplus
+}
+#endif
