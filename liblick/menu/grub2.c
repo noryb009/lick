@@ -81,7 +81,7 @@ int regenerate_grub2(lickdir_t *lick) {
 }
 
 int install_grub2(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "/00-header.conf");
+    char *header = unix_path(concat_strs(2, lick->menu, "/00-header.conf"));
     FILE *f = fopen(header, "w");
     free(header);
 
@@ -91,7 +91,7 @@ int install_grub2(lickdir_t *lick) {
         return 0;
     }
 
-    char *grub_cfg_header = concat_strs(2, lick->res, "/grub.cfg");
+    char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/grub.cfg"));
     FILE *src = fopen(grub_cfg_header, "r");
     free(grub_cfg_header);
     if(!src) {

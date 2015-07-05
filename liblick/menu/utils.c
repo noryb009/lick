@@ -134,7 +134,9 @@ void write_menu(lickdir_t *lick, FILE *menu,
 
     node_t *files = get_conf_files(lick->menu);
     for(node_t *n = files; n != NULL; n = n->next) {
-        FILE *f = fopen(n->val, "r");
+        char f_name[strlen(n->val) + 1];
+        unix_path(strcpy(f_name, n->val));
+        FILE *f = fopen(f_name, "r");
         if(!f)
             continue;
         while(1) {

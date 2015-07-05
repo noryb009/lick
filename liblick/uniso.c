@@ -50,7 +50,8 @@ char *create_dest(const char *dst, const char *path, const char *f) {
 }
 
 int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
-    FILE *out = fopen(dst, "wb");
+    char dst_name[strlen(dst) + 1];
+    FILE *out = fopen(unix_path(strcpy(dst_name, dst)), "wb");
     if(!out) {
         s->error = strdup2("Error opening output file.");
         return 0;

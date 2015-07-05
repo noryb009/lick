@@ -95,7 +95,9 @@ node_t *list_installed(lickdir_t *lick) {
     node_t *installed = NULL;
 
     for(node_t *n = lst; n != NULL; n = n->next) {
-        install = get_installed(lick, n->val);
+        char install_name[strlen(n->val) + 1];
+        unix_path(strcpy(install_name, n->val));
+        install = get_installed(lick, install_name);
         if(install)
             installed = new_node(install, installed);
     }
@@ -118,8 +120,8 @@ void free_list_installed(node_t *n) {
 int install_cb(const char *id, const char *name, const char *iso,
         const char *install_dir, lickdir_t *lick, menu_t *menu,
         uniso_progress_cb cb, void *cb_data) {
-    char *info_path = concat_strs(4, lick->entry, "/", id, ".conf");
-    char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
+    char *info_path = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
+    char *menu_path = unix_path(concat_strs(4, lick->menu, "/50-", id, ".conf"));
 
     if(path_exists(info_path) || path_exists(menu_path)) {
         free(info_path);
@@ -214,8 +216,8 @@ int uninstall_delete_files(const char *info, const char *menu) {
 }
 
 int uninstall(const char *id, lickdir_t *lick, menu_t *menu) {
-    char *info = concat_strs(4, lick->entry, "/", id, ".conf");
-    char *menu_path = concat_strs(4, lick->menu, "/50-", id, ".conf");
+    char *info = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
+    char *menu_path = unix_path(concat_strs(4, lick->menu, "/50-", id, ".conf"));
     int ret = uninstall_delete_files(info, menu_path);
     free(info);
     free(menu_path);

@@ -19,10 +19,12 @@ int is_slash(char c) {
 }
 
 int make_dir(const char *d) {
+    char d_name[strlen(d) + 1];
+    unix_path(strcpy(d_name, d));
 #ifdef _WIN32
-        if(mkdir(d) == 0)
+        if(mkdir(d_name) == 0)
 #else
-        if(mkdir(d, S_IRWXU) == 0)
+        if(mkdir(d_name, S_IRWXU) == 0)
 #endif
             return 1;
         else if(errno == EEXIST)
@@ -54,10 +56,12 @@ int make_dir_parents(const char *d) {
 }
 
 int copy_file(const char *dst, const char *src) {
-    FILE *s = fopen(src, "rb");
+    char src_name[strlen(src) + 1];
+    FILE *s = fopen(unix_path(strcpy(src_name, src)), "rb");
     if(!s)
         return 0;
-    FILE *d = fopen(dst, "wb");
+    char dst_name[strlen(dst) + 1];
+    FILE *d = fopen(unix_path(strcpy(dst_name, dst)), "wb");
     if(!d) {
         fclose(s);
         return 0;
@@ -82,10 +86,12 @@ int copy_file(const char *dst, const char *src) {
 }
 
 int unlink_dir(const char *d) {
-    return !rmdir(d);
+    char d_name[strlen(d) + 1];
+    return !rmdir(unix_path(strcpy(d_name, d)));
 }
 int unlink_file(const char *f) {
-    return !unlink(f);
+    char f_name[strlen(f) + 1];
+    return !unlink(unix_path(strcpy(f_name, f)));
 }
 int unlink_recursive(const char *d) {
     struct dirent **e;
