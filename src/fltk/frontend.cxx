@@ -24,7 +24,7 @@ void Frontend::reset() {
     if(info)
         free_sys_info(info);
     if(lick)
-        free_lick_dir(lick);
+        free_lickdir(lick);
 
     if(iso)
         free(iso);

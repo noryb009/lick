@@ -47,7 +47,7 @@ ipc_install::~ipc_install() {
     free_nonnull(name);
     free_nonnull(iso);
     free_nonnull(install_dir);
-    free_lick_dir(lick);
+    free_lickdir(lick);
     free(lick);
 }
 
@@ -69,7 +69,7 @@ ipc_uninstall::ipc_uninstall(const char *id, lickdir_t *lick) {
 }
 ipc_uninstall::~ipc_uninstall() {
     free_nonnull(id);
-    free_lick_dir(lick);
+    free_lickdir(lick);
     free(lick);
 }
 void ipc_uninstall::exchange(ipc *p) {
@@ -86,7 +86,7 @@ ipc_loader::ipc_loader(int install, lickdir_t *lick) {
     this->lick = copy_lickdir_t(lick);
 }
 ipc_loader::~ipc_loader() {
-    free_lick_dir(lick);
+    free_lickdir(lick);
     free(lick);
 }
 void ipc_loader::exchange(ipc *p) {

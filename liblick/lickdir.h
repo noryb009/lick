@@ -37,15 +37,15 @@ typedef struct {
  * @param entry the entry subdirectory
  * @param menu the subdirectory for menu fragments
  * @param res the resource subdirectory
- * @return a new lickdir_t. Must be freed with #free_lick_dir
+ * @return a new lickdir_t. Must be freed with #free_lickdir
  */
-lickdir_t *new_lick_dir(char *lick, char *entry, char *menu,
+lickdir_t *new_lickdir(char *lick, char *entry, char *menu,
         char *res);
 /**
  * @brief free the memory a lickdir_t is using
  * @param l the lickdir_t to free
  */
-void free_lick_dir(lickdir_t *l);
+void free_lickdir(lickdir_t *l);
 /**
  * @brief
  *   given the path to a LICK directory, return a lickdir_t structure with
@@ -53,7 +53,7 @@ void free_lick_dir(lickdir_t *l);
  * @param d path to the LICK directory
  * @return a lickdir_t with default subdirectory names
  */
-lickdir_t *expand_lick_dir(char *d);
+lickdir_t *expand_lickdir(char *d);
 /**
  * @brief returns the LICK directory, if the program running is in
  *   the root of the directory

@@ -16,7 +16,7 @@ program_status_t *new_program_status() {
 
 void free_program_status(program_status_t *p) {
     if(p->lick)
-        free_lick_dir(p->lick);
+        free_lickdir(p->lick);
     if(p->loader)
         free_loader(p->loader);
     if(p->menu)

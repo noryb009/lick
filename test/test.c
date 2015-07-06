@@ -22,7 +22,7 @@ void print_installed(lickdir_t *lick) {
 }
 
 lickdir_t *test_lick(const char *d) {
-    return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
+    return new_lickdir(strdup2(d), concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
 }
 
@@ -141,8 +141,8 @@ void test_bootloader_9x() {
     assert(compare_files(uninstall_from_config_sys(strdup2(base_inst), lick_c), base));
     assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_z), lick_z), base));
     assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_after), lick_c), base));
-    free_lick_dir(lick_c);
-    free_lick_dir(lick_z);
+    free_lickdir(lick_c);
+    free_lickdir(lick_z);
 }
 
 void test_bootloader_nt() {
@@ -158,8 +158,8 @@ void test_bootloader_nt() {
     assert(compare_files(install_to_boot_ini(strdup2(base), lick_z), base_inst_z));
     assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst), lick_c), base));
     assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst_z), lick_z), base));
-    free_lick_dir(lick_c);
-    free_lick_dir(lick_z);
+    free_lickdir(lick_c);
+    free_lickdir(lick_z);
 }
 
 void test_bootloader() {

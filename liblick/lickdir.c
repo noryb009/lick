@@ -9,7 +9,7 @@
 #endif
 
 // TODO: clean up unused functions
-lickdir_t *new_lick_dir(char *lick, char *entry, char *menu, char *res) {
+lickdir_t *new_lickdir(char *lick, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->lick = lick;
     l->drive = strdup2("?:/");
@@ -25,7 +25,7 @@ lickdir_t *new_lick_dir(char *lick, char *entry, char *menu, char *res) {
     return l;
 }
 
-void free_lick_dir(lickdir_t *l) {
+void free_lickdir(lickdir_t *l) {
     free(l->lick);
     free(l->drive);
     free(l->entry);
@@ -35,23 +35,23 @@ void free_lick_dir(lickdir_t *l) {
         free(l->err);
 }
 
-lickdir_t *expand_lick_dir(char *d) {
+lickdir_t *expand_lickdir(char *d) {
     char *res = concat_strs(2, d, "/res");
     if(!path_exists(res)) {
         free(res);
         return NULL;
     }
-    return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
+    return new_lickdir(strdup2(d), concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), res);
 }
 
 lickdir_t *get_lickdir() {
 #ifdef _WIN32
     char *name = get_program_path();
-    lickdir_t *lick = expand_lick_dir(dirname(name));
+    lickdir_t *lick = expand_lickdir(dirname(name));
     free(name);
     return lick;
 #else
-    return expand_lick_dir("/lick");
+    return expand_lickdir("/lick");
 #endif
 }
