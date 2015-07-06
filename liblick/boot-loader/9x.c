@@ -9,7 +9,9 @@
 #include "../utils.h"
 
 #define MENU_ITEM "menuitem=LICK, Start Puppy Linux\n"
-#define LICK_SECTION "[LICK]\nshell="
+#define LICK_SECTION_1 "[LICK]\ndevice="
+#define LICK_SECTION_2 "\ninstall="
+#define LICK_SECTION_3 "\nshell="
 
 char *config_sys_path() {
     drive_t *drive = get_windows_drive();
@@ -53,12 +55,14 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
     if(start == NULL) {
         // config.sys doesn't have sections
         char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
-        char *ret = concat_strs(7,
+        char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
                 MENU_ITEM,
                 "menudefault=WINDOWS,10\nmenucolor=7,0\n\n",
-                LICK_SECTION, grub_exe,
-                "\n\n[WINDOWS]", config);
+                LICK_SECTION_1, grub_exe,
+                LICK_SECTION_2, grub_exe,
+                LICK_SECTION_3, grub_exe,
+                "\n\n[WINDOWS]\n", config);
         free(grub_exe);
         return ret;
     }
@@ -98,10 +102,13 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
     char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
 
     menuitem[0] = '\0';
-    char *ret = concat_strs(8,
+    char *ret = concat_strs(12,
             config,
-            "\n", MENU_ITEM, after,
-             "\n\n", LICK_SECTION, grub_exe, "\n");
+            "\n", MENU_ITEM, after, "\n\n",
+            LICK_SECTION_1, grub_exe,
+            LICK_SECTION_2, grub_exe,
+            LICK_SECTION_3, grub_exe,
+            "\n");
 
     free(grub_exe);
     return ret;
