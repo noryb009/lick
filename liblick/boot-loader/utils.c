@@ -27,6 +27,54 @@ char *advance_to_newline(char *s) {
     return s;
 }
 
+char *advance_to_nextline(char *s) {
+    if(s == NULL)
+        return NULL;
+    char *newline = advance_to_newline(s);
+    if(newline[0] == '\n')
+        ++newline;
+    return newline;
+}
+
+int find_section(const char *haystack, const char *needle, char **start, char **end) {
+    *start = strstr(haystack, needle);
+    if(*start == NULL) {
+        *end = NULL;
+        return 0;
+    }
+    *end = strchr(*start + 1, '[');
+    if(*end == NULL)
+        *end = strchr(*start, '\0');
+    return 1;
+}
+
+char *after_last_entry(char *sec, char *sec_end, const char *needle) {
+    // isolate section
+    char old_end = sec_end[0];
+    sec_end[0]= '\0';
+    // find line after last menuitem=
+    char *item = strstrr(sec, needle);
+    sec_end[0] = old_end;
+
+    if(item != NULL)
+        // found last item, move to next line
+        item = advance_to_newline(item);
+    else
+        // otherwise, put right after start of section
+        item = advance_to_newline(sec);
+
+    if(item[0] == '\n') {
+        // item is pointing to the newline after the last entry.
+        // replace the '\n' with `\nentry=...', injecting the entry after
+        //   the current last entry
+        item[0] = '\0';
+        return item + 1;
+    } else
+        // item is pointing to the end of the file.
+        // print the entire file, then `\nentry=...'
+        return item;
+}
+
 char *file_to_str(FILE *f) {
     int len = 0;
     rewind(f);

@@ -43,43 +43,16 @@ int check_loader_nt(sys_info_t *info) {
 
 char *install_to_boot_ini(char *boot, lickdir_t *lick) {
     // TODO: check timeout
-
-    char *start = strstr(boot, "[operating systems]");
-    if(start == NULL) {
+    char *start, *end;
+    if(!find_section(boot, "[operating systems]", &start, &end)) {
         if(!lick->err)
             lick->err = strdup2("Invalid boot.ini");
         return NULL;
     }
-    char *end = strchr(start + 1, '[');
-    if(end == NULL)
-        end = strchr(start, '\0');
 
-    char *bootitem = NULL;
-
-    // attempt to find a "nice" place to put the entry
-    // aka. after the other items
-    char *next_boot;
-
-    next_boot = strchr(start, '=');
-    while(next_boot != NULL && next_boot < end) {
-        bootitem = next_boot;
-        next_boot = strchr(bootitem + 1, '=');
-    }
-
-    if(bootitem != NULL)
-        bootitem = advance_to_newline(bootitem);
-    else
-        // otherwise, right after [operating systems]
-        bootitem = advance_to_newline(start);
-
-    char *after = bootitem + 1;
-    if(bootitem[0] == '\0') {
-        after = bootitem;
-    }
-
+    char *after = after_last_entry(start, end, "=");
     char *pupldr = win_path(concat_strs(2, lick->drive, "/pupldr"));
 
-    bootitem[0] = '\0';
     // print start of file, newline,
     //   C:\pupldr="Start Puppy Linux", rest of file
     char *ret = concat_strs(6,
@@ -92,23 +65,23 @@ char *install_to_boot_ini(char *boot, lickdir_t *lick) {
 
 char *uninstall_from_boot_ini(char *boot, lickdir_t *lick) {
     // find ="Start Puppy Linux"
-    char *bootitem = strstr(boot, BOOT_ITEM);
-    if(bootitem == NULL) {
-        if(!lick->err)
-            lick->err = strdup2("Error uninstalling from boot.ini");
-        return NULL;
-    }
+    char *bootitem = strstr(boot, "pupldr=");
+    if(!bootitem)
+        bootitem = strstr(boot, "pupldr");
+    if(!bootitem)
+        // looks like it's already uninstalled
+        return boot;
 
     // find start of next line
     char *bootitem_end = advance_to_newline(bootitem);
     if(bootitem_end[0] != '\0')
-        bootitem_end++;
+        ++bootitem_end;
 
     // back up to start of current line
     while(boot < bootitem && bootitem[-1] != '\n')
-        bootitem--;
+        --bootitem;
 
-    // take out boot item
+    // remove boot item
     bootitem[0] = '\0';
 
     return concat_strs(2, boot, bootitem_end);

@@ -8,7 +8,9 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define MENU_ITEM "menuitem=LICK, Start Puppy Linux\n"
+#define MENU_ITEM "menuitem=LICK,"
+#define MENU_ITEM_TEXT "Start Puppy Linux"
+#define FULL_MENU_ITEM MENU_ITEM " " MENU_ITEM_TEXT "\n"
 #define LICK_SECTION_1 "[LICK]\ndevice="
 #define LICK_SECTION_2 "\ninstall="
 #define LICK_SECTION_3 "\nshell="
@@ -50,14 +52,15 @@ int check_loader_9x(sys_info_t *info) {
 }
 
 char *install_to_config_sys(char *config, lickdir_t *lick) {
+    // TODO: check timeout
     // find [menu] section
-    char *start = strstr(config, "[menu]");
-    if(start == NULL) {
+    char *start, *end;
+    if(!find_section(config, "[menu]", &start, &end)) {
         // config.sys doesn't have sections
         char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
         char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
-                MENU_ITEM,
+                FULL_MENU_ITEM,
                 "menudefault=WINDOWS,10\nmenucolor=7,0\n\n",
                 LICK_SECTION_1, grub_exe,
                 LICK_SECTION_2, grub_exe,
@@ -67,44 +70,12 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
         return ret;
     }
 
-    // find end of menu (start of next section, or EOF)
-    char *end = strchr(start + 1, '[');
-    if(end == NULL) {
-        end = start;
-        while(end[0] != '\0')
-            end++;
-    }
-
-    // location of menuitem
-    char *menuitem = NULL;
-
-    // attempt to find a "nice" place to put menuitem=...
-    // aka. after the other menuitems
-    char *next_menu = strstr(start, "menuitem=");
-    while(next_menu != NULL && next_menu < end) {
-        menuitem = next_menu;
-        next_menu = strstr(menuitem + 1, "menuitem=");
-    }
-
-    if(menuitem != NULL)
-        // at last menuitem, move to end of line where the next will go
-        menuitem = advance_to_newline(menuitem);
-    else
-        // otherwise, put right after [menu]
-        menuitem = advance_to_newline(start);
-
-    // TODO: timeout?
-
-    char *after = menuitem + 1;
-    if(menuitem[0] == '\0')
-        after = menuitem;
-
+    char *after = after_last_entry(start, end, "menuitem=");
     char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
 
-    menuitem[0] = '\0';
     char *ret = concat_strs(12,
             config,
-            "\n", MENU_ITEM, after, "\n\n",
+            "\n", FULL_MENU_ITEM, after, "\n\n",
             LICK_SECTION_1, grub_exe,
             LICK_SECTION_2, grub_exe,
             LICK_SECTION_3, grub_exe,
@@ -115,55 +86,48 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 }
 
 char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
-    // find the LICK menu item
-    char *menuitem = strstr(config, MENU_ITEM);
-    if(menuitem == NULL) {
-        if(!lick->err)
-            lick->err = strdup2("Could not find the LICK menuitem in config.sys");
+    char *item, *item_end, *menu_sec, *menu_sec_end;
+    // find the LICK menu item, in the menu section
+    if(find_section(config, "[menu]", &menu_sec, &menu_sec_end)
+            && (item = strstr(menu_sec, MENU_ITEM)) != NULL) {
+        // find the start of the next line
+        item_end = advance_to_newline(item);
+        if(item_end[0] != '\0')
+            item_end++;
+    } else
+        item = item_end = strchr(config, '\0');
+
+    // find the LICK section
+    char *sec, *sec_end;
+    find_section(config, "[LICK]", &sec, &sec_end);
+    if(sec == NULL)
+        // item is closer to the end of config
+        sec = sec_end = strchr(item, '\0');
+
+    // make sure sections aren't overlapping
+    if(item[0] != '\0' && sec[0] != '\0'
+            && ((item < sec && sec < item_end)
+                || (sec < item && item < sec_end))) {
+        // this shouldn't happen
+        // TODO: figure out what to do here
         return NULL;
     }
 
-    // find the start of the next line
-    char *menuitem_end = advance_to_newline(menuitem);
-    if(menuitem_end[0] != '\0')
-        menuitem_end++;
-
-    // find the start of the LICK section
-    char *lick_section = strstr(config, "[LICK]");
-    if(lick_section == NULL) {
-        if(!lick->err)
-            lick->err = strdup2("Could not find the LICK section in config.sys");
-        return NULL;
-    }
-
-    // find end of LICK section
-    char *lick_section_end = strchr(lick_section + 1, '[');
-    if(lick_section_end == NULL)
-        lick_section_end = strchr(lick_section, '\0');
-
-    //sanity check
-    if((menuitem < lick_section && lick_section < menuitem_end)
-            || (lick_section < menuitem && menuitem < lick_section_end)) {
-        if(!lick->err)
-            lick->err = strdup2("Error uninstalling from config.sys");
-        return NULL;
-    }
-
-    // cutting out these parts, so set beginning to NULL
-    menuitem[0] = '\0';
-    lick_section[0] = '\0';
+    // removing these parts, so set beginning to NULL
+    item[0] = '\0';
+    sec[0] = '\0';
 
     // swap pointers if lick is before menu to reuse code
-    if(menuitem > lick_section) {
-        char *tmp = lick_section_end;
-        lick_section_end = menuitem_end;
-        menuitem_end = tmp;
+    if(item_end > sec_end) {
+        char *tmp = sec_end;
+        sec_end = item_end;
+        item_end = tmp;
     }
 
     return concat_strs(3,
             config,
-            menuitem_end,
-            lick_section_end);
+            item_end,
+            sec_end);
 }
 
 // load config.sys

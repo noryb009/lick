@@ -21,6 +21,25 @@ typedef struct attrib_s attrib_t;
  */
 char *advance_to_newline(char *s);
 /**
+ * @brief find the extents of an INI section
+ * @param[in] haystack the file
+ * @param[in] needle the section header, including brackets
+ * @param[out] start points to first character of section
+ * @param[out] end points to first character of the next section, or '\0'
+ * @return 1 if the section is found, otherwise 0
+ */
+int find_section(const char *haystack, const char *needle, char **start, char **end);
+/**
+ * @brief find the line after the last needle in an INI section
+ *
+ * sec and sec_end can be start and end from find_section
+ *
+ * @param sec the beginning of the section
+ * @param sec_end the beginning of the next section
+ * @param needle a needle to determine if something is an entry
+ */
+char *after_last_entry(char *sec, char *sec_end, const char *needle);
+/**
  * @brief read a file into a string
  * @param f the file to read
  * @return the contents of the file, in a string
