@@ -24,16 +24,16 @@ set(sources
 
 set(inc_dirs
     ${inc_dirs}
-    ${CMAKE_BINARY_DIR}/libarchive/include)
+    ${CMAKE_SOURCE_DIR}/libcdio/include)
 
 set(link_dirs
     ${link_dirs}
-    ${CMAKE_BINARY_DIR}/libarchive/lib
-    ${CMAKE_BINARY_DIR}/libarchive/bin)
+    ${CMAKE_SOURCE_DIR}/libcdio/lib)
 
 set(libs
     ${libs}
-    archive)
+    iso9660
+    cdio)
 
 include_directories(${inc_dirs})
 link_directories(${link_dirs})

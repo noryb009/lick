@@ -1,5 +1,5 @@
-#include <archive.h>
-#include <archive_entry.h>
+#include <cdio/cdio.h>
+#include <cdio/iso9660.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,50 +49,75 @@ char *create_dest(const char *dst, const char *path, const char *f) {
     return s;
 }
 
-int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
+int extract_file(uniso_status_t *s, iso9660_t *iso, iso9660_stat_t *stat,
+        const char *dst) {
+    printf("1\n");
     char dst_name[strlen(dst) + 1];
     FILE *out = fopen(unix_path(strcpy(dst_name, dst)), "wb");
+    printf("2\n");
     if(!out) {
         s->error = strdup2("Error opening output file.");
         return 0;
     }
 
-    char buf[1024];
-    int size;
+    // size in blocks, rounded up
+    unsigned int blks = stat->size / ISO_BLOCKSIZE;
+    if(stat->size % ISO_BLOCKSIZE != 0) ++blks;
+    printf("3\n");
 
-    for(;;) {
-        size = archive_read_data(iso, buf, 1024);
-        if(size == 0) {
-            break;
-        } else if(size < 0) {
+    char buf[ISO_BLOCKSIZE];
+
+    printf("4\n");
+    for(unsigned int i = 0, total = 0; i < blks; ++i, total += ISO_BLOCKSIZE) {
+    printf("5\n");
+        lsn_t lsn = stat->lsn + i;
+        memset(buf, 0, ISO_BLOCKSIZE);
+
+    printf("6\n");
+        if(ISO_BLOCKSIZE != iso9660_iso_seek_read(iso, buf, lsn, 1)) {
             fclose(out);
             return 0;
-        } else {
-            fwrite(buf, 1, size, out);
         }
+
+    printf("7\n");
+        if(stat->size - total >= ISO_BLOCKSIZE)
+            fwrite(buf, ISO_BLOCKSIZE, 1, out);
+        else
+            fwrite(buf, stat->size - total, 1, out);
+
+    printf("8\n");
+        if(ferror(out))
+            return 0;
     }
+    printf("9\n");
+
     fclose(out);
     return 1;
 }
 
-uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso) {
+uniso_progress_t count_in_iso(uniso_status_t *s, CdioList_t *files) {
     uniso_progress_t total = 0;
-    struct archive_entry *e;
+    CdioListNode_t *file;
 
-    while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
-        char *name = strdup2(archive_entry_pathname(e));
-        if(archive_entry_filetype(e) != AE_IFDIR
+    _CDIO_LIST_FOREACH(file, files) {
+        char name[4096];
+        iso9660_stat_t *stat = (iso9660_stat_t *)_cdio_list_node_data(file);
+        iso9660_name_translate(stat->filename, name);
+        if(stat->type != _STAT_DIR
                 && filter_file(name))
             ++total;
-        free(name);
     }
 
     return total;
 }
 
-int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
-        uniso_progress_t total, uniso_progress_cb cb, void *cb_data) {
-    struct archive_entry *e;
+int extract_iso(uniso_status_t *s, iso9660_t *iso, const char *dst,
+        uniso_progress_cb cb, void *cb_data) {
+    CdioList_t *files = iso9660_ifs_readdir(iso, "/");
+    if(!files)
+        return 0;
+
+    uniso_progress_t total = count_in_iso(s, files);
     uniso_progress_t current = 0;
 
     make_dir_parents(dst);
@@ -100,34 +125,35 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
     if(cb)
         cb(current, total, cb_data);
 
-    while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
-        char *name = strdup2(archive_entry_pathname(e));
-        if(archive_entry_filetype(e) == AE_IFDIR
-                || !filter_file(name)) {
-            free(name);
-            continue;
-        }
-        char *dest = create_dest(dst, "/", name);
-        if(!extract_file(s, iso, dest)) {
+    CdioListNode_t *file;
+    _CDIO_LIST_FOREACH(file, files) {
+        char name[4096];
+        iso9660_stat_t *stat = (iso9660_stat_t *)_cdio_list_node_data(file);
+        iso9660_name_translate(stat->filename, name);
+        if(stat->type != _STAT_DIR
+                && filter_file(name)) {
+            char *dest = create_dest(dst, "/", name);
+            if(!extract_file(s, iso, stat, dest)) {
+                free(dest);
+                return 0;
+            }
+            ++current;
+            s->files = new_node(strdup2(name), s->files);
+            find_if_special(s, name, dst);
+            if(cb)
+                cb(current, total, cb_data);
             free(dest);
-            free(name);
-            return 0;
         }
-        ++current;
-        s->files = new_node(name, s->files);
-        find_if_special(s, name, dst);
-        if(cb)
-            cb(current, total, cb_data);
-        free(dest);
     }
 
     return 1;
 }
 
-struct archive *uniso_open(uniso_status_t *s, const char *src) {
-    struct archive *iso = archive_read_new();
-    archive_read_support_format_iso9660(iso);
-    if(archive_read_open_filename(iso, src, 10240) != ARCHIVE_OK) {
+iso9660_t *uniso_open(uniso_status_t *s, const char *src) {
+    printf("z\n");
+    iso9660_t *iso = iso9660_open(src);
+    printf("y\n");
+    if(iso == NULL) {
         s->error = strdup2("Could not open ISO file.");
         return NULL;
     }
@@ -136,22 +162,21 @@ struct archive *uniso_open(uniso_status_t *s, const char *src) {
 
 uniso_status_t *uniso(const char *src, const char *dst,
         uniso_progress_cb cb, void *cb_data) {
+    printf("a\n");
     uniso_status_t *s = new_status();
 
-    struct archive *iso = uniso_open(s, src);
+    printf("bb, %s\n", src);
+    iso9660_t *iso = uniso_open(s, src);
     if(!iso)
         return s;
-    uniso_progress_t total = count_in_iso(s, iso);
-    archive_read_free(iso);
-    if(total == 0)
-        return s;
+    printf("c\n");
 
-    iso = uniso_open(s, src);
-    if(!iso)
-        return s;
-    if(extract_iso(s, iso, dst, total, cb, cb_data))
+    if(extract_iso(s, iso, dst, cb, cb_data))
         s->finished = 1;
-    archive_read_free(iso);
+    printf("d\n");
+
+    iso9660_close(iso);
+    printf("DONE\n");
 
     return s;
 }

@@ -5,24 +5,26 @@ set(sources
 
 set(inc_dirs
     ${inc_dirs}
-    ${PROJECT_BINARY_DIR}/libarchive/include
+    ${CMAKE_SOURCE_DIR}/libcdio/include
     ${PROJECT_SOURCE_DIR}/liblick)
 
 set(link_dirs
     ${link_dirs}
-    ${PROJECT_BINARY_DIR}/libarchive/lib
+    ${CMAKE_SOURCE_DIR}/libcdio/lib
     ${PROJECT_BINARY_DIR}/liblick)
 
 if(WIN32)
     set(libs
         ${libs}
         lick_static
-        archive_static)
+        iso9660
+        cdio)
 else()
     set(libs
         ${libs}
         lick
-        archive)
+        iso9660
+        cdio)
 endif()
 
 include_directories(${inc_dirs})

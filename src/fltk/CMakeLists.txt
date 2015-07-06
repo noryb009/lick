@@ -16,11 +16,11 @@ set(sources
 set(inc_dirs
     ${inc_dirs}
     ${CMAKE_CURRENT_LIST_DIR}
-    ${PROJECT_BINARY_DIR}/libarchive/include
+    ${CMAKE_SOURCE_DIR}/libcdio/include
     ${PROJECT_SOURCE_DIR}/liblick)
 set(link_dirs
     ${link_dirs}
-    ${PROJECT_BINARY_DIR}/libarchive/lib
+    ${CMAKE_SOURCE_DIR}/libcdio/lib
     ${PROJECT_BINARY_DIR}/liblick)
 
 if(WIN32)
@@ -29,7 +29,8 @@ if(WIN32)
         ${libs}
         fltk wsock32 comctl32
         lick_static
-        archive_static)
+        iso9660
+        cdio)
     set(sources
         WIN32
         ${sources})
@@ -38,7 +39,8 @@ else()
         ${libs}
         ${FLTK_LIBRARIES}
         lick
-        archive)
+        iso9660
+        cdio)
 endif()
 
 include_directories(${inc_dirs})

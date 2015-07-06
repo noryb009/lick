@@ -19,22 +19,21 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 endif()
 
 # TODO: only build needed targets
-include(ExternalProject)
-ExternalProject_Add(
-    libarchive-3.1.2
-    URL http://libarchive.org/downloads/libarchive-3.1.2.tar.gz
-    URL_MD5 efad5a503f66329bb9d2f4308b5de98a
-    PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/res-build/libarchive-no-system-zlib.patch
-    CMAKE_ARGS
-        -DENABLE_NETTLE=OFF -DENABLE_OPENSSL=OFF -DENABLE_TAR=OFF
-        -DENABLE_CPIO=OFF -DENABLE_XATTR=OFF -DENABLE_ACL=OFF
-        -DENABLE_ICONV=OFF -DENABLE_TEST=OFF
-        -DENABLE_LZMA=OFF -DENABLE_ZLIB=OFF -DENABLE_BZip2=OFF
-        -DENABLE_EXPAT=OFF -DENABLE_PCREPOSIX=OFF
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_C_FLAGS=-static-libgcc)
+#include(ExternalProject)
+#ExternalProject_Add(
+#    libarchive-3.1.2
+#    URL http://libarchive.org/downloads/libarchive-3.1.2.tar.gz
+#    URL_MD5 efad5a503f66329bb9d2f4308b5de98a
+#    PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/res-build/libarchive-no-system-zlib.patch
+#    CMAKE_ARGS
+#        -DENABLE_NETTLE=OFF -DENABLE_OPENSSL=OFF -DENABLE_TAR=OFF
+#        -DENABLE_CPIO=OFF -DENABLE_XATTR=OFF -DENABLE_ACL=OFF
+#        -DENABLE_ICONV=OFF -DENABLE_TEST=OFF
+#        -DENABLE_LZMA=OFF -DENABLE_ZLIB=OFF -DENABLE_BZip2=OFF -DENABLE_EXPAT=OFF -DENABLE_PCREPOSIX=OFF
+#        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+#        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
+#        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#        -DCMAKE_C_FLAGS=-static-libgcc)
 
 add_subdirectory(liblick)
 add_subdirectory(test)
