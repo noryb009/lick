@@ -21,10 +21,15 @@ void print_installed(lickdir_t *lick) {
     free_list_installed(l);
 }
 
+lickdir_t *test_lick(const char *d) {
+    return new_lick_dir(strdup2(d), concat_strs(2, d, "/entries"),
+            concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
+}
+
 void install_iso(char *iso, char *to) {
     sys_info_t *info = get_system_info();
     loader_t *loader = get_loader(info);
-    lickdir_t *lick = expand_lick_dir("C:\\lick");
+    lickdir_t *lick = test_lick("C:\\lick");
     menu_t *menu = get_menu(loader);
 
     printf("Before install:\n");
@@ -46,7 +51,7 @@ void install_iso(char *iso, char *to) {
 void loud_test_install(char *iso) {
     sys_info_t *info = get_system_info();
     loader_t *loader = get_loader(info);
-    lickdir_t *lick = expand_lick_dir("C:\\lick");
+    lickdir_t *lick = test_lick("C:\\lick");
 
     printf("check: %d\n", check_loader(loader, info));
     printf("install: %d\n", install_loader(loader, info, lick));
@@ -64,7 +69,7 @@ void loud_test_install(char *iso) {
 void test_install() {
     sys_info_t *info = get_system_info();
     loader_t *loader = get_loader(info);
-    lickdir_t *lick = expand_lick_dir("C:\\lick");
+    lickdir_t *lick = test_lick("C:\\lick");
 
     install_loader(loader, info, lick);
     uninstall_loader(loader, info, lick);
@@ -98,16 +103,82 @@ void test_list() {
     free(lst);
 }
 
+int compare_files(const char *a, const char *b) {
+    if((a == NULL || b == NULL) && a != b)
+        return 0;
+    for(int i = 0, j = 0;; ++i, ++j) {
+        int a_newline = 0, b_newline = 0;
+        if(a[i] == '\n') {
+            while(a[i] == '\n')
+                ++i;
+            a_newline = 1;
+        }
+        if(b[j] == '\n') {
+            while(b[j] == '\n')
+                ++j;
+            b_newline = 1;
+        }
+        if(a[i] == '\0' && b[j] == '\0')
+            return 1;
+        else if(a_newline != b_newline)
+            return 0;
+        else if(a[i] != b[j])
+            return 0;
+    }
+}
+
+void test_bootloader_9x() {
+    lickdir_t *lick_c = test_lick("C:\\lick");
+    lickdir_t *lick_z = test_lick("Z:\\lick");
+    const char *empty = "";
+    const char *base = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[WINDOWS]";
+    const char *base_inst = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe\n[WINDOWS]";
+    const char *base_inst_z = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=Z:\\pupl.exe\ninstall=Z:\\pupl.exe\nshell=Z:\\pupl.exe\n[WINDOWS]";
+    const char *base_inst_after = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[WINDOWS]\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe";
+    assert(compare_files(install_to_config_sys(strdup2(empty), lick_c), base_inst));
+    assert(compare_files(install_to_config_sys(strdup2(empty), lick_z), base_inst_z));
+    assert(compare_files(install_to_config_sys(strdup2(base), lick_c), base_inst_after));
+    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst), lick_c), base));
+    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_z), lick_z), base));
+    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_after), lick_c), base));
+    free_lick_dir(lick_c);
+    free_lick_dir(lick_z);
+}
+
+void test_bootloader_nt() {
+    lickdir_t *lick_c = test_lick("C:\\lick");
+    lickdir_t *lick_z = test_lick("Z:\\lick");
+
+#define NT_BASE "[boot loader]\ntimeout=10\ndefault=abc\n[operating systems]\nabc=\"abc /abc\""
+    const char *empty = "";
+    const char *base = NT_BASE;
+    const char *base_inst = NT_BASE "\nC:\\pupldr=\"Start Puppy Linux\"";
+    const char *base_inst_z = NT_BASE "\nZ:\\pupldr=\"Start Puppy Linux\"";
+    assert(compare_files(install_to_boot_ini(strdup2(base), lick_c), base_inst));
+    assert(compare_files(install_to_boot_ini(strdup2(base), lick_z), base_inst_z));
+    assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst), lick_c), base));
+    assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst_z), lick_z), base));
+    free_lick_dir(lick_c);
+    free_lick_dir(lick_z);
+}
+
+void test_bootloader() {
+    test_bootloader_9x();
+    test_bootloader_nt();
+}
+
 int main(int argc, char* argv[]) {
     sys_info_t *info = get_system_info();
     print_info(info);
 
     test_list();
 
-    if(argc < 2)
+    /*if(argc < 2)
         test_install();
     else
-        loud_test_install(argv[1]);
+        loud_test_install(argv[1]);*/
+
+    test_bootloader();
 
     //print_drives();
 
