@@ -135,7 +135,7 @@ int install_cb(const char *id, const char *name, const char *iso,
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
-        uniso_status_free(status);
+        free_uniso_status(status);
         free(info_path);
         free(menu_path);
         return 0;
@@ -150,7 +150,7 @@ int install_cb(const char *id, const char *name, const char *iso,
         // TODO: clean up extracted files
         if(lick->err == NULL)
             lick->err = strdup2("Could not write to info file.");
-        uniso_status_free(status);
+        free_uniso_status(status);
         free(info_path);
         free(menu_path);
         return 0;
@@ -167,7 +167,7 @@ int install_cb(const char *id, const char *name, const char *iso,
     fprintf(info_f, "%s\n", unix_path(install_dir_unix));
     fclose(info_f);
 
-    uniso_status_free(status);
+    free_uniso_status(status);
     free(info_path);
     free(menu_path);
     return 1;

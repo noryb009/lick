@@ -41,4 +41,4 @@ uniso_status_t *uniso(const char *src, const char *dst,
  * @brief free the memory used by an uniso_status_t
  * @param s the status to free
  */
-void uniso_status_free(uniso_status_t *s);
+void free_uniso_status(uniso_status_t *s);

@@ -156,7 +156,7 @@ uniso_status_t *uniso(const char *src, const char *dst,
     return s;
 }
 
-void uniso_status_free(uniso_status_t *s) {
+void free_uniso_status(uniso_status_t *s) {
     if(s->initrd != NULL) {
         free(s->initrd);
     }
