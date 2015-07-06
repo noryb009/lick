@@ -386,6 +386,10 @@ int main(int argc, char *argv[]) {
 
     p->info = get_system_info();
     p->lick = get_lickdir();
+    if(!p->lick) {
+        printf("LICK is not in a valid location. Please make sure you have extracted or installed LICK completely.");
+        return 0;
+    }
     if(p->info->is_admin != ADMIN_YES) {
         // TODO: allow certain functions if not admin
         int try_uac = 1;
