@@ -1,7 +1,8 @@
 #pragma once
 
+#include <lick.h>
+
 #include "ipc.hpp"
-#include "../../liblick/lick.h"
 
 typedef enum {
     // commands, frontend -> backend

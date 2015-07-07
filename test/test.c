@@ -1,11 +1,11 @@
 #include <assert.h>
+#include <boot-loader/9x.h>
+#include <boot-loader/nt.h>
+#include <lick.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "lick.h"
-#include "boot-loader/9x.h"
-#include "boot-loader/nt.h"
 
 void print_info(sys_info_t *info) {
     printf("family: %s\n", info->family_name);

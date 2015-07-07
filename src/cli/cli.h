@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../liblick/lick.h"
+#include <lick.h>
 
 enum VOLUME {
     VOLUME_SILENCE = 0,

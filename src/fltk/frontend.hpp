@@ -1,8 +1,8 @@
 #pragma once
 
 #include <FL/Fl_Progress.H>
+#include <lick.h>
 
-#include "../../liblick/lick.h"
 #include "drop-area.hpp"
 #include "ipc-lick.hpp"
 #include "gui.h"

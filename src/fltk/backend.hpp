@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../liblick/lick.h"
+#include <lick.h>
+
 #include "ipc-lick.hpp"
 
 class Backend {
