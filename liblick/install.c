@@ -130,6 +130,15 @@ int install_cb(const char *id, const char *name, const char *iso,
         return 0;
     }
 
+    char iso_name[strlen(iso) + 1];
+    if(!path_exists(unix_path(strcpy(iso_name, iso)))) {
+        free(info_path);
+        free(menu_path);
+        if(lick->err == NULL)
+            lick->err = strdup2("Could not find ISO file.");
+        return 0;
+    }
+
     FILE *info_f = fopen(info_path, "w");
     if(!info_f) {
         if(lick->err == NULL)
@@ -139,7 +148,7 @@ int install_cb(const char *id, const char *name, const char *iso,
         return 0;
     }
 
-    uniso_status_t *status = uniso(iso, install_dir, cb, cb_data);
+    uniso_status_t *status = uniso(iso_name, install_dir, cb, cb_data);
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
@@ -152,6 +161,7 @@ int install_cb(const char *id, const char *name, const char *iso,
 
     // write menu entries
     write_menu_frag(menu_path, name, status, install_dir);
+    // TODO: don't regenerate if loader isn't installed
     menu->regenerate(lick);
 
     fprintf(info_f, "name %s\n", name);
