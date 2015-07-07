@@ -212,6 +212,14 @@ int install_iso(program_status_t *p, char *iso) {
     return ret;
 }
 
+int ask_install_loader(program_status_t *p) {
+    if(p->volume <= VOLUME_NO_QUESTIONS)
+        return 1;
+    printf("Do you wish to install the boot loader? [Y/n]\n");
+    return ask_bool(1,
+            "Invalid input. Do you wish to install the boot loader? [Y/n]");
+}
+
 int ask_uninstall_loader(program_status_t *p) {
     if(p->volume <= VOLUME_NO_QUESTIONS)
         return 1;
@@ -320,8 +328,9 @@ int main_menu(program_status_t *p) {
         printf("\n\nMain menu:\n");
         printf("1) Install ISO\n");
         printf("2) Entry submenu (view/delete)\n");
-        printf("3) Regenerate boot loader menu\n");
-        printf("4) Quit\n");
+        printf("3) Install/uninstall boot loader\n");
+        printf("4) Regenerate boot loader menu\n");
+        printf("5) Quit\n");
 
         printf("Choice: ");
 
@@ -334,6 +343,17 @@ int main_menu(program_status_t *p) {
             entry_submenu(p);
             break;
         case 3:
+            if(check_loader(p->loader, p->info)) {
+                if(ask_uninstall_loader(p))
+                    if(!uninstall_loader(p->loader, p->info, p->lick))
+                        printf("Error uninstalling loader!\n");
+            } else {
+                if(ask_install_loader(p))
+                    if(!install_loader(p->loader, p->info, p->lick))
+                        printf("Error installing loader!\n");
+            }
+            break;
+        case 4:
             if(!check_loader(p->loader, p->info))
                 printf("Loader isn't installed, not loader to regenerate\n");
             else if(p->menu->regenerate(p->lick))
@@ -341,7 +361,7 @@ int main_menu(program_status_t *p) {
             else
                 handle_error(p);
             break;
-        case 4:
+        case 5:
             free_program_status(p);
             exit(0);
             break;
