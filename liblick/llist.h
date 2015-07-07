@@ -51,7 +51,7 @@ node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
 /**
  * @brief does nothing. Useful with free_list
  */
-void do_nothing(void *n);
+void free_nothing(void *n);
 /**
  * @brief free a list, freeing all elements along the way
  * @param n the list to free

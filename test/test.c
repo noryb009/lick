@@ -102,7 +102,7 @@ void test_list() {
 
     assert(list_length(lst) == 5);
 
-    free_list(lst, do_nothing);
+    free_list(lst, free_nothing);
 }
 
 int compare_files(const char *a, const char *b) {

@@ -53,7 +53,7 @@ node_t *array_to_list(void **arr, int len) {
 node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b)) {
     int len;
     void **arr = list_to_array(lst, &len);
-    free_list(lst, do_nothing);
+    free_list(lst, free_nothing);
 
     qsort(arr, len, sizeof(void *), compare);
 
@@ -62,7 +62,7 @@ node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b)) {
     return lst;
 }
 
-void do_nothing(void *n) {}
+void free_nothing(void *n) {}
 
 void free_list(node_t *n, void (*free_fn)(void *n)) {
     node_t *next;
