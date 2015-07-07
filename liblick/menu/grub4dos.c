@@ -33,13 +33,12 @@ void grub4dos_write_entry(FILE *f, entry_t *e) {
 
 int regenerate_grub4dos(lickdir_t *lick) {
     drive_t *win_drive = get_windows_drive();
-    // TODO: don't use menu.lst to avoid naming conflicts
-    char *menu_lst = unix_path(concat_strs(2, win_drive->path, "/menu.lst"));
+    char *menu_lst = unix_path(concat_strs(2, win_drive->path, "/lickmenu.lst"));
 
     FILE *menu = fopen(menu_lst, "w");
     if(!menu) {
         if(lick->err == NULL)
-            lick->err = strdup2("Could not write to menu.lst");
+            lick->err = strdup2("Could not write to lickmenu.lst");
         free(menu_lst);
         free_drive(win_drive);
         return 0;
@@ -83,7 +82,7 @@ int uninstall_grub4dos(lickdir_t *lick) {
     free(header);
 
     drive_t *win_drive = get_windows_drive();
-    char *menu_lst = concat_strs(2, win_drive->path, "/menu.lst");
+    char *menu_lst = concat_strs(2, win_drive->path, "/lickmenu.lst");
     unlink_file(menu_lst);
     free(menu_lst);
     free_drive(win_drive);
