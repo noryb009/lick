@@ -50,10 +50,14 @@ int Backend::event_loop() {
             send_status(send, install_cb(in->id, in->name, in->iso,
                         in->install_dir, in->lick, menu, inner_progress_cb,
                         this), in->lick->err);
+            if(check_loader(loader, info))
+                menu->regenerate(in->lick);
             break;
         case IPC_UNINSTALL:
             un = (ipc_uninstall *)c;
             send_status(send, uninstall(un->id, un->lick, menu), un->lick->err);
+            if(check_loader(loader, info))
+                menu->regenerate(un->lick);
             break;
         case IPC_CHECK_LOADER:
             send_status(send, check_loader(loader, info), NULL);

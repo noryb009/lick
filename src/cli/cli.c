@@ -128,6 +128,12 @@ char *ask_iso(program_status_t *p) {
     return c;
 }
 
+int regen_menu(program_status_t *p, int regen) {
+    if(regen && check_loader(p->loader, p->info))
+        return p->menu->regenerate(p->lick);
+    return 1;
+}
+
 int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
         iso = ask_iso(p);
@@ -215,11 +221,6 @@ int ask_uninstall_loader(program_status_t *p) {
 }
 
 int uninstall_id(program_status_t *p, char *id) {
-    if(!p->loader)
-        p->loader = get_loader(p->info);
-    if(!p->menu)
-        p->menu = get_menu(p->loader);
-
     // uninstall
     if(!uninstall(id, p->lick, p->menu)) {
         handle_error(p);
@@ -282,6 +283,7 @@ int ask_uninstall(program_status_t *p) {
 
     int ret = uninstall_id(p, install->id);
     free_list_installed(entries);
+    regen_menu(p, 1);
     return ret;
 }
 
@@ -326,16 +328,15 @@ int main_menu(program_status_t *p) {
         switch(ask_int()) {
         case 1:
             install_iso(p, NULL);
+            regen_menu(p, 1);
             break;
         case 2:
             entry_submenu(p);
             break;
         case 3:
-            if(p->loader == NULL)
-                p->loader = get_loader(p->info);
-            if(p->menu == NULL)
-                p->menu = get_menu(p->loader);
-            if(p->menu->regenerate(p->lick))
+            if(!check_loader(p->loader, p->info))
+                printf("Loader isn't installed, not loader to regenerate\n");
+            else if(p->menu->regenerate(p->lick))
                 printf("Done.\n");
             else
                 handle_error(p);
@@ -469,7 +470,6 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         case 'h':
         case '?':
         default:
-            // TODO: help
             print_help();
             free_program_status(p);
             free_program_args(a);
@@ -488,6 +488,7 @@ int main(int argc, char **argv) {
     program_status_t *p = new_program_status();
     program_args_t *a = handle_args(p, argc, argv);
     int ret = 0;
+    int regen = 0;
 
     p->info = get_system_info();
     p->lick = get_lickdir();
@@ -571,13 +572,16 @@ int main(int argc, char **argv) {
             if(!uninstall(install->id, p->lick, p->menu)) {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Could not uninstall %s\n", install->id);
-                if(!a->ignore_errors)
+                if(!a->ignore_errors) {
+                    regen_menu(p, 1);
                     return 1;
+                }
                 ret = 1;
             } else {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Uninstalled %s\n", install->id);
             }
+            regen = 1;
         }
         free_list_installed(entries);
     } else if(a->uninstall) {
@@ -588,11 +592,14 @@ int main(int argc, char **argv) {
             } else {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Could not uninstall %s\n", (char *)n->val);
-                if(!a->ignore_errors)
+                if(!a->ignore_errors) {
+                    regen_menu(p, 1);
                     return 1;
+                }
                 ret = 1;
             }
         }
+        regen = 1;
     }
 
     for(node_t *n = a->install; n != NULL; n = n->next) {
@@ -602,10 +609,14 @@ int main(int argc, char **argv) {
         } else {
             if(p->volume > VOLUME_SILENCE)
                 printf("Could not install %s\n", (char *)n->val);
-                if(!a->ignore_errors)
+                regen = 1;
+                if(!a->ignore_errors) {
+                    regen_menu(p, 1);
                     return 1;
+                }
                 ret = 1;
         }
+        regen = 1;
     }
 
     if((a->install_loader == 0)
@@ -620,10 +631,16 @@ int main(int argc, char **argv) {
             if(!a->ignore_errors)
                 return 1;
             ret = 1;
-        }
+        } else if(p->volume > VOLUME_SILENCE)
+            printf("Loader uninstalled\n");
     }
 
     free_program_args(a);
+
+    if(!regen_menu(p, regen)) {
+        printf("Could not regenerate menu\n");
+        return 1;
+    }
 
     if(p->volume > VOLUME_NO_MENU && ret == 0)
         return main_menu(p);

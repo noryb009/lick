@@ -161,8 +161,6 @@ int install_cb(const char *id, const char *name, const char *iso,
 
     // write menu entries
     write_menu_frag(menu_path, name, status, install_dir);
-    // TODO: don't regenerate if loader isn't installed
-    menu->regenerate(lick);
 
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
@@ -230,7 +228,5 @@ int uninstall(const char *id, lickdir_t *lick, menu_t *menu) {
     int ret = uninstall_delete_files(info, menu_path);
     free(info);
     free(menu_path);
-    if(menu && !menu->regenerate(lick))
-        ret = 0;
     return ret;
 }
