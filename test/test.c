@@ -4,6 +4,8 @@
 #include <string.h>
 
 #include "lick.h"
+#include "boot-loader/9x.h"
+#include "boot-loader/nt.h"
 
 void print_info(sys_info_t *info) {
     printf("family: %s\n", info->family_name);
@@ -100,7 +102,7 @@ void test_list() {
 
     assert(list_length(lst) == 5);
 
-    free(lst);
+    free_list(lst, do_nothing);
 }
 
 int compare_files(const char *a, const char *b) {
@@ -127,6 +129,17 @@ int compare_files(const char *a, const char *b) {
     }
 }
 
+int bootloader_inner(char *(*fn)(char *, lickdir_t *), const char *str, lickdir_t *lick, const char *expect) {
+    char *cpy = strdup2(str);
+    char *after_fn = fn(cpy, lick);
+    free(cpy);
+    if(!after_fn)
+        return 0;
+    int ret = compare_files(after_fn, expect);
+    free(after_fn);
+    return ret;
+}
+
 void test_bootloader_9x() {
     lickdir_t *lick_c = test_lick("C:\\lick");
     lickdir_t *lick_z = test_lick("Z:\\lick");
@@ -135,12 +148,12 @@ void test_bootloader_9x() {
     const char *base_inst = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe\n[WINDOWS]";
     const char *base_inst_z = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=Z:\\pupl.exe\ninstall=Z:\\pupl.exe\nshell=Z:\\pupl.exe\n[WINDOWS]";
     const char *base_inst_after = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[WINDOWS]\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe";
-    assert(compare_files(install_to_config_sys(strdup2(empty), lick_c), base_inst));
-    assert(compare_files(install_to_config_sys(strdup2(empty), lick_z), base_inst_z));
-    assert(compare_files(install_to_config_sys(strdup2(base), lick_c), base_inst_after));
-    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst), lick_c), base));
-    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_z), lick_z), base));
-    assert(compare_files(uninstall_from_config_sys(strdup2(base_inst_after), lick_c), base));
+    assert(bootloader_inner(install_to_config_sys, empty, lick_c, base_inst));
+    assert(bootloader_inner(install_to_config_sys, empty, lick_z, base_inst_z));
+    assert(bootloader_inner(install_to_config_sys, base, lick_c, base_inst_after));
+    assert(bootloader_inner(uninstall_from_config_sys, base_inst, lick_c, base));
+    assert(bootloader_inner(uninstall_from_config_sys, base_inst_z, lick_z, base));
+    assert(bootloader_inner(uninstall_from_config_sys, base_inst_after, lick_c, base));
     free_lickdir(lick_c);
     free_lickdir(lick_z);
 }
@@ -150,26 +163,25 @@ void test_bootloader_nt() {
     lickdir_t *lick_z = test_lick("Z:\\lick");
 
 #define NT_BASE "[boot loader]\ntimeout=10\ndefault=abc\n[operating systems]\nabc=\"abc /abc\""
-    const char *empty = "";
     const char *base = NT_BASE;
     const char *base_inst = NT_BASE "\nC:\\pupldr=\"Start Puppy Linux\"";
     const char *base_inst_z = NT_BASE "\nZ:\\pupldr=\"Start Puppy Linux\"";
-    assert(compare_files(install_to_boot_ini(strdup2(base), lick_c), base_inst));
-    assert(compare_files(install_to_boot_ini(strdup2(base), lick_z), base_inst_z));
-    assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst), lick_c), base));
-    assert(compare_files(uninstall_from_boot_ini(strdup2(base_inst_z), lick_z), base));
+    assert(bootloader_inner(install_to_boot_ini, base, lick_c, base_inst));
+    assert(bootloader_inner(install_to_boot_ini, base, lick_z, base_inst_z));
+    assert(bootloader_inner(uninstall_from_boot_ini, base_inst, lick_c, base));
+    assert(bootloader_inner(uninstall_from_boot_ini, base_inst_z, lick_z, base));
     free_lickdir(lick_c);
     free_lickdir(lick_z);
 }
 
 void test_bootloader() {
-    test_bootloader_9x();
-    test_bootloader_nt();
+    test_bootloader_9x(); test_bootloader_nt();
 }
 
 int main(int argc, char* argv[]) {
     sys_info_t *info = get_system_info();
     print_info(info);
+    free_sys_info(info);
 
     test_list();
 
