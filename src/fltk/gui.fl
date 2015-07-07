@@ -10,55 +10,79 @@ class lick_fltk {open
   Function {make_window(Frontend *frontend)} {open
   } {
     Fl_Window window {
-      label LICK open selected
-      xywh {406 256 270 240} type Double
+      label LICK open
+      xywh {552 440 270 260} type Double
       code0 {\#include "frontend.hpp"} visible
     } {
       Fl_Tabs {} {open
-        xywh {5 3 260 232}
+        xywh {5 23 260 232}
       } {
         Fl_Group {} {
           label Install open
-          xywh {5 30 260 205}
+          xywh {5 50 260 205}
         } {
           Fl_Box drop_area_iso {
             label {Click or drop ISO here}
             callback {frontend->on_drop();}
-            xywh {10 36 250 75} box ENGRAVED_BOX
+            xywh {10 56 250 75} box ENGRAVED_BOX
             code0 {\#include "drop-area.hpp"}
             class drop_area
           }
           Fl_Tile {} {open
-            xywh {10 115 250 120}
+            xywh {10 135 250 120}
           } {
             Fl_Input text_id {
               label ID
               callback {frontend->check_id();}
-              xywh {125 115 135 25} when 1
+              xywh {125 135 135 25} when 1
             }
             Fl_Input text_name {
               label Name
-              xywh {125 145 135 25}
+              xywh {125 165 135 25}
             }
             Fl_Choice choice_install_drive {
               label {Install Location}
               callback {frontend->check_id();} open
-              xywh {125 175 135 25} down_box BORDER_BOX
+              xywh {125 195 135 25} down_box BORDER_BOX
             } {}
             Fl_Button {} {
               label Install
               callback {frontend->on_install();}
-              xywh {125 205 135 25}
+              xywh {125 225 135 25}
             }
           }
         }
         Fl_Group {} {
           label Uninstall open
-          xywh {5 25 260 210} hide
+          xywh {5 45 260 210} hide
         } {
           Fl_Browser lst_uninstall {
             callback {frontend->on_uninstall();}
-            xywh {10 31 250 198} type Select
+            xywh {10 51 250 198} type Select
+          }
+        }
+      }
+      Fl_Menu_Bar {} {open
+        xywh {0 0 270 20}
+      } {
+        Submenu {} {
+          label File open
+          xywh {0 0 100 20}
+        } {
+          MenuItem {} {
+            label {Install/Uninstall bootloader}
+            callback {frontend->on_loader_inst();}
+            xywh {10 10 100 20}
+          }
+          MenuItem {} {
+            label {Regenerate Menu}
+            callback {frontend->on_regen();} selected
+            xywh {20 20 100 20}
+          }
+          MenuItem {} {
+            label Quit
+            callback {frontend->on_quit();}
+            xywh {30 30 100 20}
           }
         }
       }

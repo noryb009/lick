@@ -38,37 +38,40 @@ int Backend::event_loop() {
             return 1;
         }
 
-        ipc_install *in;
-        ipc_uninstall *un;
-        ipc_loader *l;
-
         switch(c->type()) {
         case IPC_EXIT:
             return 0;
-        case IPC_INSTALL:
-            in = (ipc_install *)c;
+        case IPC_INSTALL: {
+            ipc_install *in = (ipc_install *)c;
             send_status(send, install_cb(in->id, in->name, in->iso,
                         in->install_dir, in->lick, menu, inner_progress_cb,
                         this), in->lick->err);
             if(check_loader(loader, info))
                 menu->regenerate(in->lick);
-            break;
-        case IPC_UNINSTALL:
-            un = (ipc_uninstall *)c;
+            }break;
+        case IPC_UNINSTALL: {
+            ipc_uninstall *un = (ipc_uninstall *)c;
             send_status(send, uninstall(un->id, un->lick, menu), un->lick->err);
             if(check_loader(loader, info))
                 menu->regenerate(un->lick);
-            break;
+            }break;
         case IPC_CHECK_LOADER:
             send_status(send, check_loader(loader, info), NULL);
             break;
-        case IPC_LOADER:
-            l = (ipc_loader *)c;
+        case IPC_LOADER: {
+            ipc_loader *l = (ipc_loader *)c;
             if(l->install)
                 send_status(send, install_loader(loader, info, l->lick), l->lick->err);
             else
                 send_status(send, uninstall_loader(loader, info, l->lick), l->lick->err);
-            break;
+            }break;
+        case IPC_REGEN: {
+            ipc_regen *r = (ipc_regen *)c;
+            if(check_loader(loader, info))
+                send_status(send, menu->regenerate(r->lick), r->lick->err);
+            else
+                send_status(send, -1, r->lick->err);
+            }break;
         case IPC_READY:
         case IPC_STATUS:
         case IPC_PROGRESS:

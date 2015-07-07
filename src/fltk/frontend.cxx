@@ -189,6 +189,37 @@ void Frontend::on_uninstall() {
     progress_set_size();
 }
 
+void Frontend::on_loader_inst() {
+    if(!commands_queue.empty()) {
+        fl_alert("Please wait until the current operation finishes.");
+        return;
+    }
+
+    commands_queue.push(new ipc_check_loader());
+    commands_queue.push(new ipc_loader(2, lick));
+    progress_set_size();
+}
+
+void Frontend::on_regen() {
+    if(!commands_queue.empty()) {
+        fl_alert("Please wait until the current operation finishes.");
+        return;
+    }
+
+    commands_queue.push(new ipc_regen(lick));
+    progress_set_size();
+}
+
+void Frontend::on_quit() {
+    if(!commands_queue.empty()) {
+        fl_alert("Please wait until the current operation finishes before exiting.");
+        return;
+    }
+
+    w->window->hide();
+}
+
+
 int Frontend::check_id(int ok) {
     if(ok)
         w->text_id->color(id_bg);
@@ -278,6 +309,8 @@ const char *command_name(ipc_lick *c) {
             return "Installing bootloader";
         else
             return "Uninstalling bootloader";
+    case IPC_REGEN:
+        return "Regenerating bootloader menu";
     case IPC_READY:
     case IPC_STATUS:
     case IPC_PROGRESS:
@@ -322,17 +355,15 @@ void Frontend::progress_set_sub(uniso_progress_t cur, uniso_progress_t total) {
     delete [] lbl;
 }
 
-bool is_loader(ipc_lick *c) {
-    return c->type() == IPC_LOADER;
-}
 bool is_loader(ipc_lick *c, bool install) {
-    if(!is_loader(c))
+    if(c->type() != IPC_LOADER)
         return false;
     ipc_loader *l = (ipc_loader *)c;
     return (install && l->install) || (!install && !l->install);
 }
 
 void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
+    // TODO: lick error
     switch(c->type()) {
     case IPC_INSTALL:
         if(!s->ret) {
@@ -371,10 +402,18 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
         }
         }break;
     case IPC_CHECK_LOADER:
-        if(!commands_queue.empty() && s->ret
-                && is_loader(commands_queue.front(), true)) {
-            delete commands_queue.front();
-            commands_queue.pop();
+        if(!commands_queue.empty()
+                && commands_queue.front()->type() == IPC_LOADER) {
+            ipc_loader *l = (ipc_loader *)commands_queue.front();
+            if(l->install == 2) { // toggle
+                if(s->ret)
+                    l->install = 0;
+                else
+                    l->install = 1;
+            } else if(s->ret) {
+                delete commands_queue.front();
+                commands_queue.pop();
+            }
         }
         break;
     case IPC_LOADER:
@@ -387,6 +426,17 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
             clear_commands_queue();
             return;
         }
+        break;
+    case IPC_REGEN:
+        if(s->ret == -1)
+            fl_alert("Boot loader is not installed!");
+        else if(s->ret)
+            fl_alert("Menu regenerated!");
+        else {
+            fl_alert("Error regenerating menu!");
+            clear_commands_queue();
+        }
+        break;
     default:
         return;
     }

@@ -11,6 +11,7 @@ typedef enum {
     IPC_UNINSTALL,
     IPC_CHECK_LOADER,
     IPC_LOADER,
+    IPC_REGEN,
     // responses, backend -> frontend
     IPC_READY,
     IPC_STATUS,
@@ -72,6 +73,17 @@ class ipc_loader : public ipc_lick {
         void exchange(ipc *p);
 
         int install;
+        lickdir_t *lick;
+};
+
+class ipc_regen : public ipc_lick {
+    public:
+        IPC_COMMANDS type() {return IPC_REGEN;}
+        ipc_regen() {lick = NULL;}
+        ipc_regen(lickdir_t *lick);
+        ~ipc_regen();
+        void exchange(ipc *p);
+
         lickdir_t *lick;
 };
 

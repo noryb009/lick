@@ -18,6 +18,10 @@ class Frontend {
         void on_drop();
         void on_install();
         void on_uninstall();
+        void on_loader_inst();
+        void on_regen();
+        void on_quit();
+
         int check_id(int ok);
         int check_id();
         void refresh_window();
