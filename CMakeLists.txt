@@ -18,7 +18,6 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
 endif()
 
-# TODO: only build needed targets
 include(ExternalProject)
 ExternalProject_Add(
     libarchive-3.1.2
@@ -75,9 +74,37 @@ if(WIN32 AND NOT UNIX)
     set(CPACK_NSIS_HELP_LINK "https://github.com/noryb009/lick")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_NSIS_HELP_LINK}")
     set(CPACK_NSIS_CONTACT "noryb009@gmail.com")
-    # TODO: on reinstall, uninstall boot loader, then install overtop
-    # TODO: offer to uninstall all on uninstall
-    #set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
+    # on reinstall, uninstall boot loader, then install overtop
+    set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
+        "
+        Var /GLOBAL lick_reinstall_boot
+        Var /GLOBAL lick_exit_code
+        StrCpy $lick_reinstall_boot 0
+        ; if old install exists
+        IfFileExists '$INSTDIR\\\\lick-cli.exe' 0 lick_after_preinstall
+          ; if is a valid install
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --check-program'
+          Pop $lick_exit_code
+          StrCmp '$lick_exit_code' '0' 0 lick_after_preinstall
+          ; if bootloader is installed
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -sc'
+          Pop $lick_exit_code
+          StrCmp '$lick_exit_code' '1' 0 lick_after_preinstall
+          ; uninstall loader
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-loader'
+          StrCpy $lick_reinstall_boot 1
+        lick_after_preinstall:")
+
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+        "
+        StrCmp '$lick_reinstall_boot' '0' lick_after_install
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --install-loader'
+        lick_after_install:")
+
+    # offer to uninstall all on uninstall
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+        "MessageBox MB_YESNO 'Uninstall bootloader and all currently installed Linux versions?' /SD IDNO IDNO +2
+        ExecWait '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-all'")
 endif()
 
 include(CPack)
