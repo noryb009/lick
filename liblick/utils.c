@@ -365,20 +365,24 @@ char *strstrr(const char *haystack, const char *needle) {
 
 char *concat_strs(int n, ...) {
     va_list args;
-    int len = 1;
+    int str_len = 1;
+    int lens[n];
 
     va_start(args, n);
     for(int i = 0; i < n; ++i) {
-        len += strlen(va_arg(args, char*));
+        lens[i] = strlen(va_arg(args, char*));
+        str_len += lens[i];
     }
     va_end(args);
 
-    char *s = malloc(len);
+    char *s = malloc(str_len);
     s[0] = '\0';
 
+    str_len = 0;
     va_start(args, n);
     for(int i = 0; i < n; ++i) {
-        strcat(s, va_arg(args, char*));
+        strcpy(s + str_len, va_arg(args, char*));
+        str_len += lens[i];
     }
     va_end(args);
 
