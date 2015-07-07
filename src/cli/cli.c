@@ -23,6 +23,7 @@ void free_program_status(program_status_t *p) {
         free_menu(p->menu);
     if(p->info)
         free_sys_info(p->info);
+    free(p);
 }
 
 int is_iso_file(char *f) {
@@ -378,7 +379,6 @@ void auto_install(program_status_t *p_parent, char *iso) {
     p->loader = NULL;
     p->menu = NULL;
     free_program_status(p);
-    free(p);
 }
 
 int main(int argc, char *argv[]) {

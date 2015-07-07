@@ -33,6 +33,7 @@ void free_lickdir(lickdir_t *l) {
     free(l->res);
     if(l->err != NULL)
         free(l->err);
+    free(l);
 }
 
 lickdir_t *expand_lickdir(char *d) {
