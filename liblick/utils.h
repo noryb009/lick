@@ -83,11 +83,12 @@ int run_system_output(const char *c, char **out);
 int run_unprivileged(const char *c, void *input, void *output);
 /**
  * @brief run a command, similar to system(), with administrator privileges
- * @param c the command to run
- * @param p the parameters
- * @return 1 if the program starts correctly, otherwise 0
+ * @param[in] c the command to run
+ * @param[in] p the parameters
+ * @param[out] ret the return code from the process
+ * @return whether the process started correctly
  */
-int run_privileged(const char *c, const char *p);
+int run_privileged(const char *c, const char *p, int *ret);
 /**
  * @brief create a copy of a string, on the heap
  * @param s the string to copy
@@ -121,6 +122,11 @@ char *TCHAR_to_char(void *s, int len, size_t size);
  * @return a string. Must be freed using free
  */
 char *get_program_path();
+/**
+ * @brief find the command line of this program
+ * @return a string. Do not pass this to free
+ */
+const char *get_command_line();
 /**
  * @brief normalizes the path str to a Windows path
  * @param path the path to normalize

@@ -273,8 +273,26 @@ int run_unprivileged(const char *c, void *input, void *output) {
     return 1;
 }
 
-int run_privileged(const char *c, const char *p) {
-    return (int)ShellExecute(NULL, "runas", c, p, NULL, SW_SHOWDEFAULT) > 32;
+int run_privileged(const char *c, const char *p, int *ret) {
+    SHELLEXECUTEINFO info = {0};
+    info.cbSize = sizeof(SHELLEXECUTEINFO);
+    info.fMask = SEE_MASK_NOCLOSEPROCESS;
+    info.hwnd = NULL;
+    info.lpVerb = "runas";
+    info.lpFile = c;
+    info.lpParameters = p;
+    info.lpDirectory = NULL;
+    info.nShow = SW_SHOWDEFAULT;
+    info.hInstApp = NULL;
+    if(!ShellExecuteEx(&info))
+        return 0;
+    WaitForSingleObject(info.hProcess, INFINITE);
+    DWORD process_ret;
+    DWORD success = GetExitCodeProcess(info.hProcess, &process_ret);
+    CloseHandle(info.hProcess);
+    if(ret)
+        *ret = process_ret;
+    return success;
 }
 
 int run_system_output(const char *c, char **out) {
@@ -424,6 +442,14 @@ char *get_program_path() {
     return name;
 #else
     return strdup2("./lick-fltk");
+#endif
+}
+
+const char *get_command_line() {
+#ifdef _WIN32
+    return GetCommandLine();
+#else
+    return "";
 #endif
 }
 

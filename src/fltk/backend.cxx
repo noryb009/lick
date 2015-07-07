@@ -89,10 +89,13 @@ int Backend::main(int argc, char *argv[]) {
             }
         }
         if(try_uac) {
-            // TODO: pass on full argv
-            if(run_privileged(p, "--no-try-uac")) {
+            int process_ret;
+            char *args = concat_strs(2, get_command_line(), " --no-try-uac");
+            int ret = run_privileged(p, args, &process_ret);
+            free(args);
+            if(ret) {
                 free(p);
-                return 1;
+                return process_ret;
             }
         }
         // if already tried, or if the call fails, then continue, make the

@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +27,12 @@ void free_program_status(program_status_t *p) {
     free(p);
 }
 
+void free_program_args(program_args_t *a) {
+    free_list(a->install, free_nothing);
+    free_list(a->uninstall, free_nothing);
+    free(a);
+}
+
 int is_iso_file(char *f) {
     char *iso = strstr(f, ".iso");
     while(iso != NULL) {
@@ -38,9 +45,9 @@ int is_iso_file(char *f) {
 
 void handle_error(program_status_t *p) {
     if(p->lick->err == NULL)
-        fprintf(stderr, "Error: an unknown error occurred.");
+        fprintf(stderr, "Error: an unknown error occurred.\n");
     else
-        fprintf(stderr, "Error: %s", p->lick->err);
+        fprintf(stderr, "Error: %s\n", p->lick->err);
 }
 
 // 1 = yes, 0 = no
@@ -343,18 +350,9 @@ int main_menu(program_status_t *p) {
     }
 }
 
-void auto_install(program_status_t *p_parent, char *iso) {
-    program_status_t *p = new_program_status();
-    p->volume = VOLUME_NO_QUESTIONS;
-    p->info = p_parent->info;
-    p->loader = p_parent->loader;
-    p->menu = p_parent->menu;
-    if(!p->lick)
-        p->lick = get_lickdir();
-    if(!p->lick) {
-        printf("LICK is not in a valid location. Please make sure you have extracted or installed LICK completely.\n");
-        exit(1);
-    }
+int auto_install(program_status_t *p, char *iso) {
+    if(p->volume <= VOLUME_NO_QUESTIONS)
+        return install_iso(p, strdup2(iso));
 
     char *id = gen_id(iso, p->lick, p->lick->drive);
     char *name = gen_name(iso);
@@ -370,58 +368,265 @@ void auto_install(program_status_t *p_parent, char *iso) {
     free(path);
 
     printf("For auto-install, press enter. Otherwise, press n, then enter.\n");
-    if(ask_bool(1, "Invalid input. Press enter or n, then enter.\n")) {
-        install_iso(p, iso);
-    }
-
-    // don't free shared items
-    p->info = NULL;
-    p->loader = NULL;
-    p->menu = NULL;
-    free_program_status(p);
+    enum VOLUME old_vol = p->volume;
+    if(ask_bool(1, "Invalid input. Press enter or n, then enter.\n"))
+        p->volume = VOLUME_NO_QUESTIONS;
+    int ret = install_iso(p, strdup2(iso));
+    p->volume = old_vol;
+    return ret;
 }
 
-int main(int argc, char *argv[]) {
+void print_help() {
+    printf("Usage: lick-cli [options]...\n");
+    printf("\n");
+    printf("Volume:\n");
+    printf("      --verbose          Be verbose (default)\n");
+    printf("      --no-menu          Ask questions, but do not show a menu\n");
+    printf("      --no-questions     Do not ask questions; assume yes\n");
+    printf("  -s, --silent           No output; assume yes\n");
+    printf("\n");
+    printf("Install/uninstall:\n");
+    printf("      --check-loader     Check if boot loader is installed\n");
+    printf("      --install-loader   Install boot loader\n");
+    printf("      --uninstall-loader   Uninstall boot loader\n");
+    printf("      --install          Install the given ISO\n");
+    printf("      --uninstall        Uninstall the given ID\n");
+    printf("      --uninstall-all    Uninstall all IDs and the bootloader\n");
+    printf("\n");
+    printf("      --check-program    Check if the binary can run\n");
+    printf("      --ignore-errors    If errors occur, continue\n");
+    printf("      --no-try-uac       Do not ask to elevate process\n");
+    printf("  -h, --help             Show this help\n");
+}
+
+program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
+    program_args_t *a = malloc(sizeof(program_args_t));
+    a->check_program = 0;
+    a->try_uac = 1;
+    a->ignore_errors = 0;
+    a->check_loader = 0;
+    a->install_loader = -1;
+    a->install = NULL;
+    a->uninstall = NULL;
+    a->uninstall_all = 0;
+
+    struct option ops[] = {
+        // meta
+        {"help", no_argument, 0, 'h'},
+        {"check-program", no_argument, &a->check_program, 1},
+        {"no-try-uac", no_argument, &a->try_uac, 0},
+        {"ignore-errors", no_argument, &a->ignore_errors, 1},
+        // volume
+        {"verbose", no_argument, 0, 'V'},
+        {"no-menu", no_argument, 0, 'm'},
+        {"no-questions", no_argument, 0, 'Q'},
+        {"silent", no_argument, 0, 's'},
+        // install/uninstall
+        {"check-loader", no_argument, 0, 'c'},
+        {"install-loader", no_argument, &a->install_loader, 1},
+        {"uninstall-loader", no_argument, &a->install_loader, 0},
+        {"install", required_argument, 0, 'i'},
+        {"uninstall", required_argument, 0, 'u'},
+        {"uninstall-all", no_argument, &a->uninstall_all, 1},
+        {0, 0, 0, 0}
+    };
+    int c;
+    while((c = getopt_long(argc, argv, "chi:msu:", ops, NULL)) != -1) {
+        switch(c) {
+        case 0: // set flag
+            break;
+        case 'v':
+            p->volume = VOLUME_NORMAL;
+            break;
+        case 'm':
+            p->volume = VOLUME_NO_MENU;
+            break;
+        case 'Q':
+            p->volume = VOLUME_NO_QUESTIONS;
+            break;
+        case 's':
+            p->volume = VOLUME_SILENCE;
+            break;
+        case 'i':
+            if(strcmp(optarg, "--") == 0) {
+                for(int i = optind; i < argc; ++i)
+                    a->install = new_node(argv[i], a->install);
+                optind = argc;
+            } else
+                a->install = new_node(optarg, a->install);
+            break;
+        case 'u':
+            if(strcmp(optarg, "--") == 0) {
+                for(int i = optind; i < argc; ++i)
+                    a->uninstall = new_node(argv[i], a->uninstall);
+                optind = argc;
+            } else
+                a->uninstall = new_node(optarg, a->uninstall);
+            break;
+        case 'c':
+            a->check_loader = 1;
+            break;
+        case 'h':
+        case '?':
+        default:
+            // TODO: help
+            print_help();
+            free_program_status(p);
+            free_program_args(a);
+            if(c == 'h')
+                exit(0);
+            else
+                exit(1);
+        }
+    }
+    a->install = list_reverse(a->install);
+    a->uninstall = list_reverse(a->uninstall);
+    return a;
+}
+
+int main(int argc, char **argv) {
     program_status_t *p = new_program_status();
+    program_args_t *a = handle_args(p, argc, argv);
+    int ret = 0;
 
     p->info = get_system_info();
     p->lick = get_lickdir();
-    if(!p->lick) {
-        printf("LICK is not in a valid location. Please make sure you have extracted or installed LICK completely.");
-        return 0;
+
+    if(a->check_program) {
+        int ret = 0;
+        p->loader = get_loader(p->info);
+        if(!p->lick || !p->loader || p->info->is_admin != ADMIN_YES)
+            ret = 1;
+        free_program_status(p);
+        free_program_args(a);
+        return ret;
     }
-    if(p->info->is_admin != ADMIN_YES) {
-        // TODO: allow certain functions if not admin
-        int try_uac = 1;
-        for(int i = 0; i < argc; ++i) {
-            if(strcmp(argv[i], "--no-try-uac") == 0)
-                try_uac = 0;
-        }
-        if(try_uac) {
-            char *p = get_program_path();
-            int ret = run_privileged(p, "--no-try-uac");
-            free(p);
-            if(ret)
-                return 0;
-        }
-        printf("Must be admin.\n");
+
+    if(!p->lick) {
+        if(p->volume > VOLUME_SILENCE)
+            printf("LICK is not in a valid location. Please make sure you have extracted or installed LICK completely.\n");
+        free_program_status(p);
+        free_program_args(a);
         return 1;
     }
 
-    if(!p->loader)
-        p->loader = get_loader(p->info);
-    if(!p->menu)
-        p->menu = get_menu(p->loader);
+    if(p->info->is_admin != ADMIN_YES) {
+        if(a->try_uac && p->volume > VOLUME_NO_QUESTIONS) {
+            char *program = get_program_path();
+            char *args = concat_strs(2, get_command_line(), " --no-try-uac");
+            int process_ret;
+            int ret = run_privileged(program, args, &process_ret);
+            free(args);
+            free(program);
+            if(ret) {
+                free_program_status(p);
+                free_program_args(a);
+                return process_ret;
+            }
+        }
+        if(p->volume > VOLUME_SILENCE)
+            printf("Must be admin.\n");
+        free_program_status(p);
+        free_program_args(a);
+        return 1;
+    }
 
-    // TODO: real command line processing
-    if(argc > 1) {
-        for(int i = 1; i < argc; ++i) {
-            if(is_iso_file(argv[i])) {
-                auto_install(p, argv[i]);
-                break;
+    if(a->check_loader) {
+        p->loader = get_loader(p->info);
+        if(!p->loader) {
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
+        int ret = check_loader(p->loader, p->info);
+        if(p->volume > VOLUME_SILENCE) {
+            printf("Boot loader is ");
+            if(!ret)
+                printf("not ");
+            printf("installed\n");
+        }
+        free_program_status(p);
+        free_program_args(a);
+        return ret;
+    }
+
+    p->loader = get_loader(p->info);
+    p->menu = get_menu(p->loader);
+
+    if(a->install_loader == 1) {
+        if(check_loader(p->loader, p->info)) {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Loader already installed\n");
+        } else if(!install_loader(p->loader, p->info, p->lick)) {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Error installing loader\n");
+            return 1;
+        }
+    }
+
+    if(a->uninstall_all) {
+        node_t *entries = list_installed(p->lick);
+        for(node_t *n = entries; n != NULL; n = n->next) {
+            installed_t *install = n->val;
+            if(!uninstall(install->id, p->lick, p->menu)) {
+                if(p->volume > VOLUME_SILENCE)
+                    printf("Could not uninstall %s\n", install->id);
+                if(!a->ignore_errors)
+                    return 1;
+                ret = 1;
+            } else {
+                if(p->volume > VOLUME_SILENCE)
+                    printf("Uninstalled %s\n", install->id);
+            }
+        }
+        free_list_installed(entries);
+    } else if(a->uninstall) {
+        for(node_t *n = a->uninstall; n != NULL; n = n->next) {
+            if(uninstall((char *)n->val, p->lick, p->menu)) {
+                if(p->volume > VOLUME_SILENCE)
+                    printf("Uninstalled %s\n", (char *)n->val);
+            } else {
+                if(p->volume > VOLUME_SILENCE)
+                    printf("Could not uninstall %s\n", (char *)n->val);
+                if(!a->ignore_errors)
+                    return 1;
+                ret = 1;
             }
         }
     }
 
-    return main_menu(p);
+    for(node_t *n = a->install; n != NULL; n = n->next) {
+        if(auto_install(p, n->val)) {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Installed %s\n", (char *)n->val);
+        } else {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Could not install %s\n", (char *)n->val);
+                if(!a->ignore_errors)
+                    return 1;
+                ret = 1;
+        }
+    }
+
+    if((a->install_loader == 0)
+            || (a->uninstall_all && a->install == NULL
+                && a->install_loader == -1)) {
+        if(!check_loader(p->loader, p->info)) {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Loader not installed\n");
+        } else if(!uninstall_loader(p->loader, p->info, p->lick)) {
+            if(p->volume > VOLUME_SILENCE)
+                printf("Error uninstalling loader\n");
+            if(!a->ignore_errors)
+                return 1;
+            ret = 1;
+        }
+    }
+
+    free_program_args(a);
+
+    if(p->volume > VOLUME_NO_MENU && ret == 0)
+        return main_menu(p);
+    else
+        return ret;
 }

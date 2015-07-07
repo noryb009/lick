@@ -3,9 +3,10 @@
 #include <lick.h>
 
 enum VOLUME {
-    VOLUME_SILENCE = 0,
-    VOLUME_NO_QUESTIONS = 10,
-    VOLUME_NORMAL = 20,
+    VOLUME_SILENCE,
+    VOLUME_NO_QUESTIONS,
+    VOLUME_NO_MENU,
+    VOLUME_NORMAL,
 };
 
 typedef struct {
@@ -15,3 +16,14 @@ typedef struct {
     menu_t *menu;
     sys_info_t *info;
 } program_status_t;
+
+typedef struct {
+    int check_program;
+    int try_uac;
+    int ignore_errors;
+    int check_loader;
+    int install_loader;
+    node_t *install;
+    node_t *uninstall;
+    int uninstall_all;
+} program_args_t;
