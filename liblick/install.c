@@ -67,7 +67,6 @@ installed_t *get_installed(lickdir_t *lick, const char *filename) {
     if(last_slash == filename - 1)
         last_slash = NULL;
 
-    // TODO: basename
     const char *base_name;
     if(last_slash == NULL)
         base_name = filename;
@@ -131,11 +130,21 @@ int install_cb(const char *id, const char *name, const char *iso,
         return 0;
     }
 
+    FILE *info_f = fopen(info_path, "w");
+    if(!info_f) {
+        if(lick->err == NULL)
+            lick->err = strdup2("Could not write to info file.");
+        free(info_path);
+        free(menu_path);
+        return 0;
+    }
+
     uniso_status_t *status = uniso(iso, install_dir, cb, cb_data);
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
         free_uniso_status(status);
+        fclose(info_f);
         free(info_path);
         free(menu_path);
         return 0;
@@ -145,16 +154,6 @@ int install_cb(const char *id, const char *name, const char *iso,
     write_menu_frag(menu_path, name, status, install_dir);
     menu->regenerate(lick);
 
-    FILE *info_f = fopen(info_path, "w");
-    if(!info_f) {
-        // TODO: clean up extracted files
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to info file.");
-        free_uniso_status(status);
-        free(info_path);
-        free(menu_path);
-        return 0;
-    }
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
     for(node_t *n = status->files; n != NULL; n = n->next) {

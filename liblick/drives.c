@@ -52,9 +52,7 @@ node_t *all_drives() {
         if(n == (n & drive_flags)) {
             path[0] = 'A' + i;
             drive_type_e type = drive_type(path);
-            // TODO: better floppy detection
-            if(type != DRV_UNKNOWN
-                    && (path[0] != 'A' || type != DRV_REMOVABLE))
+            if(type != DRV_UNKNOWN)
                 drives = new_node(new_drive(path, type), drives);
         }
     }

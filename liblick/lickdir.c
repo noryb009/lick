@@ -8,7 +8,6 @@
 #include <windows.h>
 #endif
 
-// TODO: clean up unused functions
 lickdir_t *new_lickdir(char *lick, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->lick = lick;

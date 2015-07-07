@@ -33,6 +33,7 @@ void grub4dos_write_entry(FILE *f, entry_t *e) {
 
 int regenerate_grub4dos(lickdir_t *lick) {
     drive_t *win_drive = get_windows_drive();
+    // TODO: don't use menu.lst to avoid naming conflicts
     char *menu_lst = unix_path(concat_strs(2, win_drive->path, "/menu.lst"));
 
     FILE *menu = fopen(menu_lst, "w");

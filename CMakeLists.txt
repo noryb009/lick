@@ -75,7 +75,8 @@ if(WIN32 AND NOT UNIX)
     set(CPACK_NSIS_HELP_LINK "https://github.com/noryb009/lick")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_NSIS_HELP_LINK}")
     set(CPACK_NSIS_CONTACT "noryb009@gmail.com")
-    # TODO: uninstall all
+    # TODO: on reinstall, uninstall boot loader, then install overtop
+    # TODO: offer to uninstall all on uninstall
     #set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS)
 endif()
 
