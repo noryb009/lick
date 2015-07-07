@@ -363,7 +363,8 @@ bool is_loader(ipc_lick *c, bool install) {
 }
 
 void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
-    // TODO: lick error
+    if(s->err)
+        fl_alert("Error: %s", s->err);
     switch(c->type()) {
     case IPC_INSTALL:
         if(!s->ret) {
@@ -410,6 +411,11 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
                     l->install = 0;
                 else
                     l->install = 1;
+                if((l->install && fl_choice("Are you sure you want to install the boot loader?", "Yes", "No", NULL) != 0)
+                            || (!l->install && fl_choice("Are you sure you want to uninstall the boot loader?", "Yes", "No", NULL) != 0)) {
+                    delete commands_queue.front();
+                    commands_queue.pop();
+                }
             } else if(s->ret) {
                 delete commands_queue.front();
                 commands_queue.pop();
