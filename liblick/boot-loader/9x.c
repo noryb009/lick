@@ -61,7 +61,7 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
         char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
                 FULL_MENU_ITEM,
-                "menudefault=WINDOWS,10\nmenucolor=7,0\n\n",
+                "menudefault=WINDOWS,5\nmenucolor=7,0\n\n",
                 LICK_SECTION_1, grub_exe,
                 LICK_SECTION_2, grub_exe,
                 LICK_SECTION_3, grub_exe,
@@ -82,7 +82,8 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
             "\n");
 
     free(grub_exe);
-    return ret;
+
+    return check_timeout(ret, "menudefault", ",");
 }
 
 char *uninstall_from_config_sys(char *config, lickdir_t *lick) {

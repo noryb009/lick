@@ -75,6 +75,53 @@ char *after_last_entry(char *sec, char *sec_end, const char *needle) {
         return item;
 }
 
+char *check_timeout(char *f, char *key, char *sep) {
+    char *loc = strstr(f, key);
+    if(!loc) // did not find key, use system default
+        return f;
+
+    size_t s = strlen(sep);
+    while(strncmp(loc, sep, s) != 0) {
+        // did not find key separator, add separator
+        if(*loc == '\n' || *loc == '\0') {
+            *loc = '\0';
+            char *after = loc;
+            if(*loc == '\n')
+                after = loc + 1;
+
+            char *ret = concat_strs(4, f, sep, "5\n", after);
+            free(f);
+            return ret;
+        }
+        ++loc;
+    }
+
+    // get timeout
+    loc += strlen(sep);
+    while(*loc < '0' || *loc > '9') {
+        // if non-numeric value, just return
+        if(*loc == '\n' || *loc == '\0')
+            return f;
+        ++loc;
+    }
+
+    int val = 0;
+    char *num_end;
+    for(num_end = loc; *num_end >= '0' && *num_end <= '9'; ++num_end)
+        if(val < 100) // avoid overflow, anything bigger doesn't matter anyway
+            val = val * 10 + (*num_end - '0');
+
+    // if acceptable timeout, return original
+    if(val >= 3 && val <= 30)
+        return f;
+
+    // loc at first number digit, num_end at character after last digit
+    *loc = '\0';
+    char *ret = concat_strs(3, f, "5", num_end);
+    free(f);
+    return ret;
+}
+
 char *file_to_str(FILE *f) {
     int len = 0;
     rewind(f);

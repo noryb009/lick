@@ -40,6 +40,18 @@ int find_section(const char *haystack, const char *needle, char **start, char **
  */
 char *after_last_entry(char *sec, char *sec_end, const char *needle);
 /**
+ * @brief check the timeout value of an INI file
+ *
+ * f must be allocated using malloc, and should contain the contents of an
+ * INI file. f will be freed in this function
+ *
+ * @param f the file
+ * @param key the key of the timeout
+ * @param sep the string before the start of the timeout
+ * @return the INI file. Must be freed using free
+ */
+char *check_timeout(char *f, char *key, char *sep);
+/**
  * @brief read a file into a string
  * @param f the file to read
  * @return the contents of the file, in a string

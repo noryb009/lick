@@ -60,7 +60,8 @@ char *install_to_boot_ini(char *boot, lickdir_t *lick) {
             "\n", pupldr, BOOT_ITEM, "\n",
             after);
     free(pupldr);
-    return ret;
+
+    return check_timeout(ret, "timeout", "=");
 }
 
 char *uninstall_from_boot_ini(char *boot, lickdir_t *lick) {
