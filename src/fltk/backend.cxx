@@ -43,15 +43,17 @@ int Backend::event_loop() {
             return 0;
         case IPC_INSTALL: {
             ipc_install *in = (ipc_install *)c;
-            send_status(send, install_cb(in->id, in->name, in->iso,
+            int ret = install_cb(in->id, in->name, in->iso,
                         in->install_dir, in->lick, menu, inner_progress_cb,
-                        this), in->lick->err);
+                        this);
+            send_status(send, ret, in->lick->err);
             if(check_loader(loader, info))
                 menu->regenerate(in->lick);
             }break;
         case IPC_UNINSTALL: {
             ipc_uninstall *un = (ipc_uninstall *)c;
-            send_status(send, uninstall(un->id, un->lick, menu), un->lick->err);
+            int ret = uninstall(un->id, un->lick, menu);
+            send_status(send, ret, un->lick->err);
             if(check_loader(loader, info))
                 menu->regenerate(un->lick);
             }break;
@@ -60,16 +62,19 @@ int Backend::event_loop() {
             break;
         case IPC_LOADER: {
             ipc_loader *l = (ipc_loader *)c;
-            if(l->install)
-                send_status(send, install_loader(loader, info, l->lick), l->lick->err);
-            else
-                send_status(send, uninstall_loader(loader, info, l->lick), l->lick->err);
+            int ret;
+            if(l->install) {
+                ret = install_loader(loader, info, l->lick);
+            } else
+                ret = uninstall_loader(loader, info, l->lick);
+            send_status(send, ret, l->lick->err);
             }break;
         case IPC_REGEN: {
             ipc_regen *r = (ipc_regen *)c;
-            if(check_loader(loader, info))
-                send_status(send, menu->regenerate(r->lick), r->lick->err);
-            else
+            if(check_loader(loader, info)) {
+                int ret = menu->regenerate(r->lick);
+                send_status(send, ret, r->lick->err);
+            } else
                 send_status(send, -1, r->lick->err);
             }break;
         case IPC_READY:
