@@ -103,8 +103,10 @@ if(WIN32 AND NOT UNIX)
 
     # offer to uninstall all on uninstall
     set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-        "MessageBox MB_YESNO 'Uninstall bootloader and all currently installed Linux versions?' /SD IDNO IDNO +2
-        ExecWait '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-all'")
+        "
+        MessageBox MB_YESNO 'Uninstall bootloader and all currently installed Linux versions?' /SD IDNO IDNO lick_after_uninstall
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-all'
+        lick_after_uninstall:")
 endif()
 
 include(CPack)
