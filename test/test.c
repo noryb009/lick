@@ -101,6 +101,8 @@ void test_list() {
             &a, new_node(&b, new_node(&c, new_node(&d, new_node(&e, NULL)))));
 
     assert(list_length(lst) == 5);
+    lst = list_reverse(lst);
+    assert(list_length(lst) == 5);
 
     free_list(lst, free_nothing);
 }
