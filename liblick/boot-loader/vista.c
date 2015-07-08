@@ -64,35 +64,71 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
         return 0;
     }
 
-    if(strlen(lick->res) < 2 || lick->res[1] != ':')
+    if(strlen(lick->res) < 2 || lick->res[1] != ':') {
+        if(!lick->err)
+            lick->err = strdup2("LICK is on an invalid drive");
         return 0;
+    }
 
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
-    if(!bcdedit)
+    if(!bcdedit) {
+        if(!lick->err)
+            lick->err = strdup2("Could not find bcdedit");
         return 0;
+    }
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_CREATE, bcdedit);
     get_id_from_command(c, id);
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DEVICE, bcdedit, id, lick->drive[0]);
-    if(!run_system(c)) {free(bcdedit);return 0;}
+    if(!run_system(c)) {
+        free(bcdedit);
+        if(!lick->err)
+            lick->err = strdup2("Error editing bcd device");
+        return 0;
+    }
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id);
-    if(!run_system(c)) {free(bcdedit);return 0;}
+    if(!run_system(c)) {
+        free(bcdedit);
+        if(!lick->err)
+            lick->err = strdup2("Error editing bcd path");
+        return 0;
+    }
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ADD_LAST, bcdedit, id);
-    if(!run_system(c)) {free(bcdedit);return 0;}
+    if(!run_system(c)) {
+        free(bcdedit);
+        if(!lick->err)
+            lick->err = strdup2("Error adding to bcd menu");
+        return 0;
+    }
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, bcdedit, id);
-    if(!run_system(c)) {free(bcdedit);return 0;}
+    if(!run_system(c)) {
+        free(bcdedit);
+        if(!lick->err)
+            lick->err = strdup2("Error editing bcd time out");
+        return 0;
+    }
 
     switch(info->version) {
     case V_WINDOWS_8:
     case V_WINDOWS_8_1:
     //case V_WINDOWS_10: // TODO: test
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit, id);
-        if(!run_system(c)) {free(bcdedit);return 0;}
+        if(!run_system(c)) {
+            free(bcdedit);
+            if(!lick->err)
+                lick->err = strdup2("Error changing boot menu to legacy");
+            return 0;
+        }
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
-        if(!run_system(c)) {free(bcdedit);return 0;}
+        if(!run_system(c)) {
+            free(bcdedit);
+            if(!lick->err)
+                lick->err = strdup2("Error disabling fast boot");
+            return 0;
+        }
     case V_UNKNOWN:
     case V_WINDOWS_95:
     case V_WINDOWS_98:
