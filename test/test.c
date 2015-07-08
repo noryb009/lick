@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <boot-loader/9x.h>
 #include <boot-loader/nt.h>
+#include <boot-loader/utils.h>
 #include <lick.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,31 +132,61 @@ int compare_files(const char *a, const char *b) {
     }
 }
 
-int bootloader_inner(char *(*fn)(char *, lickdir_t *), const char *str, lickdir_t *lick, const char *expect) {
+void timeout_inner(const char *orig, char *key, char *sep, const char *expect) {
+    char *cpy = strdup2(orig);
+    cpy = check_timeout(cpy, key, sep);
+    assert(strcmp(cpy, expect) == 0);
+    free(cpy);
+}
+
+void test_timeout() {
+#define TIMEOUT_GEN(t) "[a]\nb=c,d\nto=WINDOWS," t "\ne=f,g\n"
+    const char *two = TIMEOUT_GEN("2");
+    const char *twenty_nine = TIMEOUT_GEN("29");
+    const char *goal = TIMEOUT_GEN("5");
+    const char *no_effect = TIMEOUT_GEN("--");
+    timeout_inner("", "to", ",", "");
+    timeout_inner(two, "to", ",", goal);
+    timeout_inner(two, "to", "=", goal);
+    timeout_inner(TIMEOUT_GEN("60"), "to", "=", goal);
+    timeout_inner(goal, "to", "=", goal);
+    timeout_inner(twenty_nine, "to", "=", twenty_nine);
+    timeout_inner(no_effect, "to", "=", no_effect);
+}
+
+void bootloader_inner(char *(*fn)(char *, lickdir_t *), const char *str, lickdir_t *lick, const char *expect) {
     char *cpy = strdup2(str);
     char *after_fn = fn(cpy, lick);
     free(cpy);
-    if(!after_fn)
-        return 0;
-    int ret = compare_files(after_fn, expect);
+    assert(after_fn);
+    //printf(";;;;;\n%s-----\n%s;;;;;\n", after_fn, expect);
+    assert(compare_files(after_fn, expect));
     free(after_fn);
-    return ret;
 }
 
 void test_bootloader_9x() {
     lickdir_t *lick_c = test_lick("C:\\lick");
     lickdir_t *lick_z = test_lick("Z:\\lick");
-    const char *empty = "";
-    const char *base = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[WINDOWS]";
-    const char *base_inst = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe\n[WINDOWS]";
-    const char *base_inst_z = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[LICK]\ndevice=Z:\\pupl.exe\ninstall=Z:\\pupl.exe\nshell=Z:\\pupl.exe\n[WINDOWS]";
-    const char *base_inst_after = "[menu]\nmenuitem=WINDOWS,Start Windows\nmenuitem=LICK, Start Puppy Linux\nmenudefault=WINDOWS,10\nmenucolor=7,0\n[WINDOWS]\n[LICK]\ndevice=C:\\pupl.exe\ninstall=C:\\pupl.exe\nshell=C:\\pupl.exe";
-    assert(bootloader_inner(install_to_config_sys, empty, lick_c, base_inst));
-    assert(bootloader_inner(install_to_config_sys, empty, lick_z, base_inst_z));
-    assert(bootloader_inner(install_to_config_sys, base, lick_c, base_inst_after));
-    assert(bootloader_inner(uninstall_from_config_sys, base_inst, lick_c, base));
-    assert(bootloader_inner(uninstall_from_config_sys, base_inst_z, lick_z, base));
-    assert(bootloader_inner(uninstall_from_config_sys, base_inst_after, lick_c, base));
+
+#define X_START(t, e) "[menu]\nmenuitem=WINDOWS,Start Windows\n" e "menudefault=WINDOWS," #t "\nmenucolor=7,0\n"
+#define X_START_LICK(t) X_START(t, "menuitem=LICK, Start Puppy Linux\n")
+#define X_WIN "[WINDOWS]\n"
+#define X_WIN_CONTENT X_WIN "a=b\nc=\"d e\"\n"
+#define X_LICK(d) "[LICK]\ndevice=" d ":\\pupl.exe\ninstall=" d ":\\pupl.exe\nshell=" d ":\\pupl.exe\n"
+
+#define X_BASE(t) X_START(t, "") X_WIN
+#define X_INST(t, d) X_START_LICK(t) X_LICK(d) X_WIN
+#define X_BASE_CONTENT(t) X_START(t, "") X_WIN_CONTENT
+#define X_INST_CONTENT(t, d) X_START_LICK(t) X_WIN_CONTENT X_LICK(d)
+    bootloader_inner(install_to_config_sys, "", lick_c, X_INST(5, "C"));
+    bootloader_inner(install_to_config_sys, "", lick_z, X_INST(5, "Z"));
+    bootloader_inner(install_to_config_sys, X_BASE_CONTENT(2), lick_z, X_INST_CONTENT(5, "Z"));
+    bootloader_inner(install_to_config_sys, X_BASE_CONTENT(12), lick_c, X_INST_CONTENT(12, "C"));
+    bootloader_inner(uninstall_from_config_sys, X_INST_CONTENT(12, "C"), lick_c, X_BASE_CONTENT(12));
+    bootloader_inner(uninstall_from_config_sys, X_INST_CONTENT(3, "Z"), lick_c, X_BASE_CONTENT(3));
+    bootloader_inner(uninstall_from_config_sys, X_INST_CONTENT(3, "Z"), lick_z, X_BASE_CONTENT(3));
+    bootloader_inner(uninstall_from_config_sys, X_INST(5, "Z"), lick_z, X_BASE(5));
+    bootloader_inner(uninstall_from_config_sys, X_INST(5, "C"), lick_c, X_BASE(5));
     free_lickdir(lick_c);
     free_lickdir(lick_z);
 }
@@ -164,20 +195,22 @@ void test_bootloader_nt() {
     lickdir_t *lick_c = test_lick("C:\\lick");
     lickdir_t *lick_z = test_lick("Z:\\lick");
 
-#define NT_BASE "[boot loader]\ntimeout=10\ndefault=abc\n[operating systems]\nabc=\"abc /abc\""
-    const char *base = NT_BASE;
-    const char *base_inst = NT_BASE "\nC:\\pupldr=\"Start Puppy Linux\"";
-    const char *base_inst_z = NT_BASE "\nZ:\\pupldr=\"Start Puppy Linux\"";
-    assert(bootloader_inner(install_to_boot_ini, base, lick_c, base_inst));
-    assert(bootloader_inner(install_to_boot_ini, base, lick_z, base_inst_z));
-    assert(bootloader_inner(uninstall_from_boot_ini, base_inst, lick_c, base));
-    assert(bootloader_inner(uninstall_from_boot_ini, base_inst_z, lick_z, base));
+#define NT_BASE(t) "[boot loader]\ntimeout=" #t "\ndefault=abc\n[operating systems]\nabc=\"abc /abc\""
+#define NT_INST(t, d) NT_BASE(t) "\n" d ":\\pupldr=\"Start Puppy Linux\""
+    bootloader_inner(install_to_boot_ini, NT_BASE(10), lick_c, NT_INST(10, "C"));
+    bootloader_inner(install_to_boot_ini, NT_BASE(10), lick_z, NT_INST(10, "Z"));
+    bootloader_inner(install_to_boot_ini, NT_BASE(60), lick_c, NT_INST(5, "C"));
+    bootloader_inner(install_to_boot_ini, NT_BASE(.5), lick_c, NT_INST(.5, "C"));
+    bootloader_inner(uninstall_from_boot_ini, NT_INST(10, "C"), lick_c, NT_BASE(10));
+    bootloader_inner(uninstall_from_boot_ini, NT_INST(10, "D"), lick_z, NT_BASE(10));
     free_lickdir(lick_c);
     free_lickdir(lick_z);
 }
 
 void test_bootloader() {
-    test_bootloader_9x(); test_bootloader_nt();
+    test_timeout();
+    test_bootloader_9x();
+    test_bootloader_nt();
 }
 
 int main(int argc, char* argv[]) {
