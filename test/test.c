@@ -169,7 +169,7 @@ void test_bootloader_9x() {
     lickdir_t *lick_z = test_lick("Z:\\lick");
 
 #define X_START(t, e) "[menu]\nmenuitem=WINDOWS,Start Windows\n" e "menudefault=WINDOWS," #t "\nmenucolor=7,0\n"
-#define X_START_LICK(t) X_START(t, "menuitem=LICK, Start Puppy Linux\n")
+#define X_START_LICK(t) X_START(t, "menuitem=LICK," START_LOADER_DESC "\n")
 #define X_WIN "[WINDOWS]\n"
 #define X_WIN_CONTENT X_WIN "a=b\nc=\"d e\"\n"
 #define X_LICK(d) "[LICK]\ndevice=" d ":\\pupl.exe\ninstall=" d ":\\pupl.exe\nshell=" d ":\\pupl.exe\n"
@@ -196,7 +196,7 @@ void test_bootloader_nt() {
     lickdir_t *lick_z = test_lick("Z:\\lick");
 
 #define NT_BASE(t) "[boot loader]\ntimeout=" #t "\ndefault=abc\n[operating systems]\nabc=\"abc /abc\""
-#define NT_INST(t, d) NT_BASE(t) "\n" d ":\\pupldr=\"Start Puppy Linux\""
+#define NT_INST(t, d) NT_BASE(t) "\n" d ":\\pupldr=\"" START_LOADER_DESC "\""
     bootloader_inner(install_to_boot_ini, NT_BASE(10), lick_c, NT_INST(10, "C"));
     bootloader_inner(install_to_boot_ini, NT_BASE(10), lick_z, NT_INST(10, "Z"));
     bootloader_inner(install_to_boot_ini, NT_BASE(60), lick_c, NT_INST(5, "C"));
