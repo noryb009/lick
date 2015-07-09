@@ -70,7 +70,7 @@ void Frontend::handle_file(const char *file) {
     }
 
     if(!strstr(file, ".iso"))
-        if(fl_choice("%s doesn't look like an ISO file. Are you sure you wish to continue?", "Yes", "No", NULL, file) == 1)
+        if(fl_choice("%s doesn't look like an ISO file. Are you sure you wish to continue?", NULL, "Yes", "No", file) == 2)
             return;
 
     char *id = gen_id(file, lick, w->choice_install_drive->text());
@@ -390,9 +390,8 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
         int remove_next = next_uninstall_loader;
 
         if(next_uninstall_loader && entries == NULL) {
-            if(fl_choice("Uninstalled successfully!\nDo you wish to uninstall the boot loader?", "Yes", "No", NULL) == 0) {
+            if(fl_choice("Uninstalled successfully!\nDo you wish to uninstall the boot loader? If you are not sure, answer 'YES'.", "No", "Yes", NULL) == 1)
                 remove_next = 0;
-            }
         } else {
             fl_message("Uninstalled successfully!");
         }
@@ -411,8 +410,8 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
                     l->install = 0;
                 else
                     l->install = 1;
-                if((l->install && fl_choice("Are you sure you want to install the boot loader?", "Yes", "No", NULL) != 0)
-                            || (!l->install && fl_choice("Are you sure you want to uninstall the boot loader?", "Yes", "No", NULL) != 0)) {
+                if((l->install && fl_choice("Are you sure you want to install the boot loader?", "No", "Yes", NULL) == 0)
+                            || (!l->install && fl_choice("Are you sure you want to uninstall the boot loader?", "No", "Yes", NULL) == 0)) {
                     delete commands_queue.front();
                     commands_queue.pop();
                 }
