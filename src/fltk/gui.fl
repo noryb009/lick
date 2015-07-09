@@ -11,15 +11,15 @@ class lick_fltk {open
   } {
     Fl_Window window {
       label LICK open
-      xywh {552 440 270 260} type Double
+      xywh {552 440 270 265} type Double
       code0 {\#include "frontend.hpp"} visible
     } {
       Fl_Tabs {} {open
-        xywh {5 23 260 232}
+        xywh {5 23 260 237}
       } {
         Fl_Group {} {
-          label Install open
-          xywh {5 50 260 205}
+          label {Install ISO} selected
+          xywh {5 45 260 215}
         } {
           Fl_Box drop_area_iso {
             label {Click or drop ISO here}
@@ -28,37 +28,33 @@ class lick_fltk {open
             code0 {\#include "drop-area.hpp"}
             class drop_area
           }
-          Fl_Tile {} {open
-            xywh {10 135 250 120}
-          } {
-            Fl_Input text_id {
-              label ID
-              callback {frontend->check_id();}
-              xywh {125 135 135 25} when 1
-            }
-            Fl_Input text_name {
-              label Name
-              xywh {125 165 135 25}
-            }
-            Fl_Choice choice_install_drive {
-              label {Install Location}
-              callback {frontend->check_id();} open
-              xywh {125 195 135 25} down_box BORDER_BOX
-            } {}
-            Fl_Button {} {
-              label Install
-              callback {frontend->on_install();}
-              xywh {125 225 135 25}
-            }
+          Fl_Input text_id {
+            label ID
+            callback {frontend->check_id();}
+            xywh {125 140 135 25} when 1
+          }
+          Fl_Input text_name {
+            label Name
+            xywh {125 170 135 25}
+          }
+          Fl_Choice choice_install_drive {
+            label {Install Location}
+            callback {frontend->check_id();} open
+            xywh {125 200 135 25} down_box BORDER_BOX
+          } {}
+          Fl_Button {} {
+            label Install
+            callback {frontend->on_install();}
+            xywh {125 230 135 25}
           }
         }
         Fl_Group {} {
-          label Uninstall open
-          xywh {5 45 260 210} hide
+          label {Uninstall ISO}
+          xywh {5 45 260 215} hide
         } {
           Fl_Browser lst_uninstall {
             callback {frontend->on_uninstall();}
-            xywh {10 51 250 198} type Select
+            xywh {10 51 250 203} type Select
           }
         }
       }
@@ -70,13 +66,13 @@ class lick_fltk {open
           xywh {0 0 100 20}
         } {
           MenuItem {} {
-            label {Install/Uninstall bootloader}
+            label {Install/Uninstall Bootloader}
             callback {frontend->on_loader_inst();}
             xywh {10 10 100 20}
           }
           MenuItem {} {
             label {Regenerate Menu}
-            callback {frontend->on_regen();} selected
+            callback {frontend->on_regen();}
             xywh {20 20 100 20}
           }
           MenuItem {} {
