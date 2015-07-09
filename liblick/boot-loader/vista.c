@@ -9,7 +9,7 @@
 #include "../utils.h"
 
 // install
-#define COMMAND_CREATE "%s /create /d \"" START_LOADER_DESC "\" /application bootsector"
+#define COMMAND_CREATE "%s /create /d \"" LOADER_DESC "\" /application bootsector"
 #define COMMAND_DEVICE "%s /set {%s} device partition=%c:"
 #define COMMAND_PATH "%s /set {%s} path \\pupldr.mbr"
 #define COMMAND_ADD_LAST "%s /displayorder {%s} /addlast"
