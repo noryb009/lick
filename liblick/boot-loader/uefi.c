@@ -26,7 +26,7 @@ int supported_loader_uefi(sys_info_t *info) {
     case V_WINDOWS_7:
     case V_WINDOWS_8:
     case V_WINDOWS_8_1:
-    //case V_WINDOWS_10: // TODO: test
+    case V_WINDOWS_10:
         return 1;
     case V_UNKNOWN:
     case V_WINDOWS_95:
@@ -65,7 +65,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     switch(info->version) {
     case V_WINDOWS_8:
     case V_WINDOWS_8_1:
-    //case V_WINDOWS_10: // TODO: test
+    case V_WINDOWS_10:
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
         if(!run_system(c)) {return 0;}
     case V_UNKNOWN:
