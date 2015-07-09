@@ -64,12 +64,6 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
         return 0;
     }
 
-    if(strlen(lick->res) < 2 || lick->res[1] != ':') {
-        if(!lick->err)
-            lick->err = strdup2("LICK is on an invalid drive");
-        return 0;
-    }
-
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
