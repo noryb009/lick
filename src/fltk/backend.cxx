@@ -1,5 +1,9 @@
 #include <cstdlib>
 #include <cstring>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 #include "backend.hpp"
 
@@ -92,6 +96,18 @@ int Backend::main(int argc, char *argv[]) {
     char *p = get_program_path();
 
     info = get_system_info();
+
+    // Win98 gets stuck showing the window
+    if(info->family == F_WINDOWS_9X) {
+        free_sys_info(info);
+        free(p);
+
+        MessageBox(NULL,
+                "The LICK GUI does not work on your system. Try running the command line interface.",
+                "LICK", MB_OK);
+        return run_system("lick-cli.exe");
+    }
+
     if(info->is_admin != ADMIN_YES) {
         int try_uac = 1;
         for(int i = 0; i < argc; ++i) {
