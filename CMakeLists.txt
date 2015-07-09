@@ -67,13 +67,16 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 if(WIN32 AND NOT UNIX)
     set(CPACK_GENERATOR "${CPACK_GENERATOR};NSIS")
     #set(CPACK_PACKAGE_ICON "")
-    set(CPACK_NSIS_MENU_LINKS
-        "lick-cli.exe" "LICK Command Line Interface"
-        "lick-fltk.exe" "LICK")
     set(CPACK_NSIS_DISPLAY_NAME "LICK")
     set(CPACK_NSIS_HELP_LINK "https://github.com/noryb009/lick")
     set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_NSIS_HELP_LINK}")
     set(CPACK_NSIS_CONTACT "noryb009@gmail.com")
+
+    set(CPACK_NSIS_MENU_LINKS
+        "lick-cli.exe" "LICK Command Line Interface"
+        "lick-fltk.exe" "LICK")
+    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "lick-fltk.exe")
+
     # on reinstall, uninstall boot loader, then install overtop
     set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
         "
