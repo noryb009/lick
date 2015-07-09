@@ -25,7 +25,7 @@ void print_installed(lickdir_t *lick) {
 }
 
 lickdir_t *test_lick(const char *d) {
-    return new_lickdir(strdup2(d), concat_strs(2, d, "/entries"),
+    return new_lickdir(strdup2(d), d[0], concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), concat_strs(2, d, "/res"));
 }
 

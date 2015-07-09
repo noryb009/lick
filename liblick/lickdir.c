@@ -1,6 +1,7 @@
 #include <libgen.h>
 #include <stdlib.h>
 
+#include "drives.h"
 #include "lickdir.h"
 #include "utils.h"
 #ifdef _WIN32
@@ -8,11 +9,19 @@
 #include <windows.h>
 #endif
 
-lickdir_t *new_lickdir(char *lick, char *entry, char *menu, char *res) {
+lickdir_t *new_lickdir(char *lick, char drive, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->lick = lick;
     l->drive = strdup2("?:/");
-    l->drive[0] = lick[0];
+    if(drive == '_') {
+        l->drive[0] = lick[0];
+        if(drive_type(l->drive) != DRV_HDD) {
+            char *win = get_windows_path();
+            l->drive[0] = win[0];
+            free(win);
+        }
+    } else
+        l->drive[0] = drive;
     l->entry = entry;
     l->menu = menu;
     l->res = res;
@@ -41,7 +50,7 @@ lickdir_t *expand_lickdir(char *d) {
         free(res);
         return NULL;
     }
-    return new_lickdir(strdup2(d), concat_strs(2, d, "/entries"),
+    return new_lickdir(strdup2(d), '_', concat_strs(2, d, "/entries"),
             concat_strs(2, d, "/menu"), res);
 }
 

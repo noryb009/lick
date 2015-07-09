@@ -125,6 +125,10 @@ drive_t *get_windows_drive() {
     return new_drive(letters, DRV_HDD);
 }
 #else
+drive_type_e drive_type(char *path) {
+    return DRV_HDD;
+}
+
 node_t *all_drives() {
     return new_node(new_drive("/", DRV_HDD), NULL);
 }

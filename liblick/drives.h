@@ -37,6 +37,12 @@ typedef struct {
 } drive_t;
 
 /**
+ * @brief determines the type of a drive
+ * @param path a drive in the form "A:/"
+ * @return the type of drive
+ */
+drive_type_e drive_type(char *path);
+/**
  * @brief return a list of all drives in the system
  * @return a linked list of all drives. Must be freed using #free_drive_list
  */
@@ -78,21 +84,3 @@ char *get_windows_path();
  *   must be freed using #free_drive
  */
 drive_t *get_windows_drive();
-/**
- * @brief get a list of all drives with LICK installed
- * @return
- *   a list of drive structures which have LICK installed.
- *   Must be freed using #free_drive_list
- */
-node_t *get_lick_drives();
-/**
- * @brief return the drive which is likely the main LICK drive
- *
- * the drive that is most likely what the user would select, if given a choice
- *   of LICK drives. First checks the Windows drive, then goes alphabetically.
- *
- * @return
- *   a drive which is most likely the LICK drive. Must be freed using
- *   #free_drive
- */
-drive_t *get_likely_lick_drive();

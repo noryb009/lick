@@ -34,12 +34,14 @@ typedef struct {
  * valid after the call, and must not be freed
  *
  * @param lick the root lick directory
+ * @param drive the drive of the lick directory, or '_' to pick a fixed hard
+ * drive, with preference to the drive the lick directory is in
  * @param entry the entry subdirectory
  * @param menu the subdirectory for menu fragments
  * @param res the resource subdirectory
  * @return a new lickdir_t. Must be freed with #free_lickdir
  */
-lickdir_t *new_lickdir(char *lick, char *entry, char *menu,
+lickdir_t *new_lickdir(char *lick, char drive, char *entry, char *menu,
         char *res);
 /**
  * @brief free the memory a lickdir_t is using
