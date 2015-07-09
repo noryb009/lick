@@ -8,6 +8,9 @@
 
 #include "../lickdir.h"
 
+#define LOADER_DESC "LICK Boot Loader"
+#define START_LOADER_DESC "Start LICK Boot Loader"
+
 #define ID_LEN 37
 #define COMMAND_BUFFER_LEN 1024
 

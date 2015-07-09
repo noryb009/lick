@@ -10,7 +10,7 @@
 
 // install
 #define COMMAND_GRUB_INSTALL "%s/grub2/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c:/EFI/LICK --recheck"
-#define COMMAND_DESCRIPTION  "%s /set {%s} description \"LICK Boot Manager\":"
+#define COMMAND_DESCRIPTION  "%s /set {%s} description \"" LOADER_DESC "\":"
 #define COMMAND_FAST_BOOT    "powercfg -h off"
 
 // uninstall

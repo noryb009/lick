@@ -8,9 +8,8 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define MENU_ITEM "menuitem=LICK,"
-#define MENU_ITEM_TEXT "Start Puppy Linux"
-#define FULL_MENU_ITEM MENU_ITEM " " MENU_ITEM_TEXT "\n"
+#define MENU_ITEM_KEY "menuitem=LICK,"
+#define MENU_ITEM MENU_ITEM_KEY START_LOADER_DESC "\n"
 #define LICK_SECTION_1 "[LICK]\ndevice="
 #define LICK_SECTION_2 "\ninstall="
 #define LICK_SECTION_3 "\nshell="
@@ -60,7 +59,7 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
         char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
         char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
-                FULL_MENU_ITEM,
+                MENU_ITEM,
                 "menudefault=WINDOWS,5\nmenucolor=7,0\n\n",
                 LICK_SECTION_1, grub_exe,
                 LICK_SECTION_2, grub_exe,
@@ -75,7 +74,7 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 
     char *ret = concat_strs(12,
             config,
-            "\n", FULL_MENU_ITEM, after, "\n\n",
+            "\n", MENU_ITEM, after, "\n\n",
             LICK_SECTION_1, grub_exe,
             LICK_SECTION_2, grub_exe,
             LICK_SECTION_3, grub_exe,
@@ -90,7 +89,7 @@ char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
     char *item, *item_end, *menu_sec, *menu_sec_end;
     // find the LICK menu item, in the menu section
     if(find_section(config, "[menu]", &menu_sec, &menu_sec_end)
-            && (item = strstr(menu_sec, MENU_ITEM)) != NULL) {
+            && (item = strstr(menu_sec, MENU_ITEM_KEY)) != NULL) {
         // find the start of the next line
         item_end = advance_to_newline(item);
         if(item_end[0] != '\0')

@@ -8,7 +8,7 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define BOOT_ITEM "=\"Start Puppy Linux\""
+#define BOOT_ITEM "=\"" START_LOADER_DESC "\""
 
 char *boot_ini_path() {
     drive_t *drive = get_windows_drive();
