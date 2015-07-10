@@ -572,7 +572,19 @@ int main(int argc, char **argv) {
     }
 
     p->loader = get_loader(p->info);
-    p->menu = get_menu(p->loader);
+    if(p->loader)
+        p->menu = get_menu(p->loader);
+    if(!p->loader || !p->menu) {
+        if(p->info->version == V_UNKNOWN)
+            printf("You are using an unknown version of Windows. Make sure you are using the latest version of LICK, and if so, open an issue at github.com/noryb009/lick");
+        else if(p->info->version == V_WINDOWS_ME)
+            printf("LICK is not supported on Windows ME. There's nothing we can do. Sorry. :(");
+        else
+            printf("Something went wrong. Please open a new issue here: github.com/noryb009/lick\nInclude the following informaion:\nFamily: %s\nVersion: %s\nArch: %s\nBios: %s",
+                p->info->family_name, p->info->version_name,
+                p->info->arch_name, p->info->bios_name);
+        return 1;
+    }
 
     if(a->install_loader == 1) {
         if(check_loader(p->loader, p->info)) {

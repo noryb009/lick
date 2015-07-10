@@ -156,19 +156,13 @@ int Backend::main(int argc, char *argv[]) {
     if(loader)
         menu = get_menu(loader);
     if(!loader || !menu) {
-        switch(info->version) {
-        case V_WINDOWS_ME:
-            send_error(send, "LICK is not supported on Windows ME. There's nothing we can do. Sorry. :(");
-            break;
-        case V_UNKNOWN:
+        if(info->version == V_UNKNOWN)
             send_error(send, "You are using an unknown version of Windows. Make sure you are using the latest version of LICK, and if so, open an issue at github.com/noryb009/lick");
-            break;
-        default:
+        else {
             char *str = concat_strs(8, "Something went wrong. Please open a new issue here: github.com/noryb009/lick\nInclude the following informaion:\nFamily: ",
                     info->family_name, "\nVersion: ", info->version_name, "\nArch: ", info->arch_name, "\nBios: ", info->bios_name);
             send_error(send, str);
             free(str);
-            break;
         }
         return 1;
     }
