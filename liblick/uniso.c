@@ -52,7 +52,7 @@ char *create_dest(const char *dst, const char *path, const char *f) {
 int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     FILE *out = fopen(dst, "wb");
     if(!out) {
-        s->error = strdup2("Error opening output file.");
+        s->error = concat_strs(3, "Error opening output file `", dst, "'");
         return 0;
     }
 
@@ -106,14 +106,14 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
             free(name);
             continue;
         }
-        char *dest = create_dest(dst, "/", name);
+        s->files = new_node(name, s->files);
+        char *dest = unix_path(create_dest(dst, "/", name));
         if(!extract_file(s, iso, dest)) {
             free(dest);
             free(name);
             return 0;
         }
         ++current;
-        s->files = new_node(name, s->files);
         find_if_special(s, name, dst);
         if(cb)
             cb(current, total, cb_data);

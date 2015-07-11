@@ -152,8 +152,19 @@ int install_cb(const char *id, const char *name, const char *iso,
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
+
+        // delete files
+        for(node_t *n = status->files; n != NULL; n = n->next) {
+            char *s = concat_strs(3, install_dir, "/", n->val);
+            unlink_file(unix_path(s));
+            free(s);
+        }
+        char install_dir_copy[strlen(install_dir) + 1];
+        unlink_dir(unix_path(strcpy(install_dir_copy, install_dir)));
+
         free_uniso_status(status);
         fclose(info_f);
+        unlink_file(info_path);
         free(info_path);
         free(menu_path);
         return 0;
