@@ -9,16 +9,6 @@
 #include "../drives.h"
 #include "../utils.h"
 
-/**
- * @brief an opaque structure to hold the attributes of a file
- */
-struct attrib_s {
-#ifdef _WIN32
-    DWORD attrib;
-#endif
-    char NOT_EMPTY;
-};
-
 char *advance_to_newline(char *s) {
     if(s == NULL)
         return NULL;
@@ -157,29 +147,26 @@ char *file_to_str_no_rewind(FILE *f) {
 }
 
 #ifdef _WIN32
-attrib_t *attrib_get(const char *file) {
-    attrib_t *attrib = malloc(sizeof(attrib_t));
-    attrib->attrib = GetFileAttributes(file);
-    return attrib;
+attrib_t attrib_get(const char *file) {
+    return GetFileAttributes(file);
 }
 
-attrib_t *attrib_open(const char *file) {
-    attrib_t *attrib = attrib_get(file);
+attrib_t attrib_open(const char *file) {
+    attrib_t attrib = attrib_get(file);
     SetFileAttributes(file, FILE_ATTRIBUTE_NORMAL);
     return attrib;
 }
-void attrib_save(const char *file, attrib_t *attrib) {
-    SetFileAttributes(file, attrib->attrib);
-    free(attrib);
+void attrib_save(const char *file, attrib_t attrib) {
+    SetFileAttributes(file, attrib);
 }
 #else
-attrib_t *attrib_get(const char *file) {
-    return NULL;
+attrib_t attrib_get(const char *file) {
+    return 0;
 }
-attrib_t *attrib_open(const char *file) {
-    return NULL;
+attrib_t attrib_open(const char *file) {
+    return 0;
 }
-void attrib_save(const char *file, attrib_t *attrib) {
+void attrib_save(const char *file, attrib_t attrib) {
     return;
 }
 #endif
@@ -279,7 +266,7 @@ int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
     if(backup)
         backup_file(file);
 
-    attrib_t *attrib = attrib_open(file);
+    attrib_t attrib = attrib_open(file);
     f = fopen(file, "w");
     if(!f) {
         attrib_save(file, attrib);
