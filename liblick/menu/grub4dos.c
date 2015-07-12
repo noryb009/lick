@@ -32,21 +32,22 @@ void grub4dos_write_entry(FILE *f, entry_t *e) {
 }
 
 int regenerate_grub4dos(lickdir_t *lick) {
-    drive_t *win_drive = get_windows_drive();
-    char *menu_lst = unix_path(concat_strs(2, win_drive->path, "/lickmenu.lst"));
+    char *win_drive = get_windows_drive_path();
+    if(!win_drive)
+        return 0;
+    char *menu_lst = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
+    free(win_drive);
 
     FILE *menu = fopen(menu_lst, "w");
     if(!menu) {
         if(lick->err == NULL)
             lick->err = strdup2("Could not write to lickmenu.lst");
         free(menu_lst);
-        free_drive(win_drive);
         return 0;
     }
     write_menu(lick, menu, grub4dos_write_entry);
 
     free(menu_lst);
-    free_drive(win_drive);
     fclose(menu);
     return 1;
 }
@@ -81,11 +82,11 @@ int uninstall_grub4dos(lickdir_t *lick) {
     unlink_file(header);
     free(header);
 
-    drive_t *win_drive = get_windows_drive();
-    char *menu_lst = concat_strs(2, win_drive->path, "/lickmenu.lst");
+    char *win_drive = get_windows_drive_path();
+    char *menu_lst = concat_strs(2, win_drive, "/lickmenu.lst");
     unlink_file(menu_lst);
     free(menu_lst);
-    free_drive(win_drive);
+    free(win_drive);
 
     char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");
     unlink_file(gfxmenu);

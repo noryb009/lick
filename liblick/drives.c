@@ -110,19 +110,17 @@ char *get_windows_path() {
     return TCHAR_to_char(buf2, len, sizeof(TCHAR));
 }
 
-drive_t *get_windows_drive() {
+char *get_windows_drive_path() {
     char *path = get_windows_path();
     if(!path)
         return NULL;
 
-    char letters[4];
-    letters[0] = path[0];
-    letters[1] = path[1];
-    letters[2] = '/';
-    letters[3] = '\0';
+    char *drv = malloc(3 + 1);
+    strcpy(drv, "?:/");
+    drv[0] = path[0];
 
     free(path);
-    return new_drive(letters, DRV_HDD);
+    return drv;
 }
 #else
 drive_type_e drive_type(char *path) {
@@ -140,7 +138,7 @@ node_t *unused_drives() {
 char *get_windows_path() {
     return strdup2("/");
 }
-drive_t *get_windows_drive() {
-    return new_drive("/", DRV_HDD);
+char *get_windows_drive_path() {
+    return strdup2("/");
 }
 #endif

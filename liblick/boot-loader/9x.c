@@ -15,11 +15,11 @@
 #define LICK_SECTION_3 "\nshell="
 
 char *config_sys_path() {
-    drive_t *drive = get_windows_drive();
+    char *drive = get_windows_drive_path();
     if(!drive)
         return NULL;
-    char *loc = unix_path(concat_strs(2, drive->path, "/config.sys"));
-    free_drive(drive);
+    char *loc = unix_path(concat_strs(2, drive, "/config.sys"));
+    free(drive);
     return loc;
 }
 

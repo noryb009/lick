@@ -263,17 +263,20 @@ void Frontend::refresh_window() {
     Fl_Choice *menu = w->choice_install_drive;
     menu->clear();
 
-    drive_t *win_drive = get_windows_drive();
+    char *win_drive = get_windows_drive_path();
     node_t *drvs = all_drives();
-    menu->add(until_first_slash(win_drive->path), 0, 0, 0, 0);
-    menu->value(0);
+    if(win_drive)
+        menu->add(until_first_slash(win_drive), 0, 0, 0, 0);
     for(node_t *d = drvs; d != NULL; d = d->next) {
         drive_t *drv = (drive_t *)d->val;
-        if(drv->path[0] != win_drive->path[0])
+        if(win_drive && drv->path[0] != win_drive[0])
             menu->add(until_first_slash(drv->path), 0, 0, 0, 0);
     }
     free_drive_list(drvs);
-    free_drive(win_drive);
+    if(win_drive)
+        free(win_drive);
+    menu->value(0);
+
     check_id();
 
     // uninstall list

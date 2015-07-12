@@ -8,22 +8,22 @@
 #include "../menu/grub4dos.h"
 #include "../utils.h"
 
-#define ME2DOS_BACKUP "/Me2Dos/backup/"
-
 int supported_loader_me(sys_info_t *info) {
     return info->version == V_WINDOWS_ME;
 }
 
 int check_loader_me_patch() {
-    drive_t *drv = get_windows_drive();
-    char *check = unix_path(concat_strs(2, drv->path, "/Me2Dos"));
+    char *drive = get_windows_drive_path();
+    if(!drive)
+        return 0;
+    char *check = unix_path(concat_strs(2, drive, "/Me2Dos"));
     int ret = 0;
 
     if(path_exists(check))
         ret = 1;
 
     free(check);
-    free_drive(drv);
+    free(drive);
     return ret;
 }
 

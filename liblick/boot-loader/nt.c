@@ -11,9 +11,11 @@
 #define BOOT_ITEM "=\"" START_LOADER_DESC "\""
 
 char *boot_ini_path() {
-    drive_t *drive = get_windows_drive();
-    char *loc = concat_strs(2, drive->path, "/boot.ini");
-    free_drive(drive);
+    char *drive = get_windows_drive_path();
+    if(!drive)
+        return NULL;
+    char *loc = concat_strs(2, drive, "/boot.ini");
+    free(drive);
     return loc;
 }
 

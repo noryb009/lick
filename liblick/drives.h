@@ -78,9 +78,9 @@ int is_lick_drive(drive_t *drive);
  */
 char *get_windows_path();
 /**
- * @brief get the drive Windows is installed on
+ * @brief get the path of the drive Windows is installed on
  * @return
  *   the drive structure corresponding to the drive Windows is installed on.
- *   must be freed using #free_drive
+ *   must be freed using #free
  */
-drive_t *get_windows_drive();
+char *get_windows_drive_path();

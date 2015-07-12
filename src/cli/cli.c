@@ -601,9 +601,15 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        drive_t *drv = get_windows_drive();
-        char *me2dos = unix_path(concat_strs(2, drv->path, "/Me2Dos"));
-        free_drive(drv);
+        char *drv = get_windows_drive_path();
+        if(!drv) {
+            printf("There was an error finding Windows.\n");
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
+        char *me2dos = unix_path(concat_strs(2, drv, "/Me2Dos"));
+        free(drv);
         printf("By default, Windows ME does not have everything LICK requires.\n");
         printf("\n");
         printf("To fix this, you can install a program Me2Dos, which you can get from:\n");
