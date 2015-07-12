@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "cli.h"
+#include "boot-loader/me.h"
 
 program_status_t *new_program_status() {
     program_status_t *p = malloc(sizeof(program_status_t));
@@ -417,6 +418,7 @@ void print_help() {
     printf("      --check-program    Check if the binary can run\n");
     printf("      --ignore-errors    If errors occur, continue\n");
     printf("      --no-try-uac       Do not ask to elevate process\n");
+    printf("      --no-me-check      Ignore possible ME incompatibilities\n");
     printf("  -h, --help             Show this help\n");
 }
 
@@ -425,6 +427,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
     a->check_program = 0;
     a->try_uac = 1;
     a->ignore_errors = 0;
+    a->me_check = 1;
     a->check_loader = 0;
     a->install_loader = -1;
     a->install = NULL;
@@ -437,6 +440,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         {"check-program", no_argument, &a->check_program, 1},
         {"no-try-uac", no_argument, &a->try_uac, 0},
         {"ignore-errors", no_argument, &a->ignore_errors, 1},
+        {"no-me-check", no_argument, &a->me_check, 0},
         // volume
         {"verbose", no_argument, 0, 'V'},
         {"no-menu", no_argument, 0, 'm'},
@@ -518,6 +522,9 @@ int main(int argc, char **argv) {
         p->loader = get_loader(p->info);
         if(!p->lick || !p->loader || p->info->is_admin != ADMIN_YES)
             ret = 1;
+        else if(a->me_check && p->info->version == V_WINDOWS_ME
+                && !check_loader_me_patch())
+            ret = 1;
         free_program_status(p);
         free_program_args(a);
         return ret;
@@ -577,13 +584,44 @@ int main(int argc, char **argv) {
     if(!p->loader || !p->menu) {
         if(p->info->version == V_UNKNOWN)
             printf("You are using an unknown version of Windows. Make sure you are using the latest version of LICK, and if so, open an issue at github.com/noryb009/lick");
-        else if(p->info->version == V_WINDOWS_ME)
-            printf("LICK is not supported on Windows ME. There's nothing we can do. Sorry. :(");
         else
             printf("Something went wrong. Please open a new issue here: github.com/noryb009/lick\nInclude the following informaion:\nFamily: %s\nVersion: %s\nArch: %s\nBios: %s",
                 p->info->family_name, p->info->version_name,
                 p->info->arch_name, p->info->bios_name);
+        free_program_status(p);
+        free_program_args(a);
         return 1;
+    }
+
+    if(a->me_check && p->info->version == V_WINDOWS_ME
+           && !check_loader_me_patch()) {
+        if(p->volume <= VOLUME_NO_QUESTIONS) {
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
+
+        drive_t *drv = get_windows_drive();
+        char *me2dos = unix_path(concat_strs(2, drv->path, "/Me2Dos"));
+        free_drive(drv);
+        printf("By default, Windows ME does not have everything LICK requires.\n");
+        printf("\n");
+        printf("To fix this, you can install a program Me2Dos, which you can get from:\n");
+        printf("    http://www.rkgage.net/bobby/download/Me2Dos.exe\n");
+        printf("Or view the README at:\n");
+        printf("    http://www.rkgage.net/bobby/download/readme.txt\n");
+        printf("\n");
+        printf("If you have enabled booting to DOS another way, create the\n");
+        printf("folder %s to disable this message, or press `c' to continue.\n", me2dos);
+        printf("\n");
+        printf("Press enter to exit.\n");
+        free(me2dos);
+        int c = getchar();
+        if(c != 'c') {
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
     }
 
     if(a->install_loader == 1) {

@@ -2,18 +2,20 @@
 
 #include "boot-loader.h"
 #include "boot-loader/9x.h"
+#include "boot-loader/me.h"
 #include "boot-loader/nt.h"
 #include "boot-loader/uefi.h"
 #include "boot-loader/vista.h"
 
-#define NUM_LOADERS 4
+#define NUM_LOADERS 5
 
 loader_t *get_loaders() {
     loader_t *loaders = malloc(sizeof(loader_t) * NUM_LOADERS);
     loaders[0] = get_9x();
-    loaders[1] = get_nt();
-    loaders[2] = get_vista();
-    loaders[3] = get_uefi();
+    loaders[1] = get_me();
+    loaders[2] = get_nt();
+    loaders[3] = get_vista();
+    loaders[4] = get_uefi();
     return loaders;
 }
 

@@ -28,10 +28,6 @@ int supported_loader_9x(sys_info_t *info) {
 }
 
 int check_loader_9x(sys_info_t *info) {
-    if(!supported_loader_9x(info)) {
-        return 0;
-    }
-
     // load config.sys into a string
     char *config_sys = config_sys_path();
     if(!config_sys)
@@ -135,10 +131,6 @@ char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
 // create [PUPPYLINUX] ~> add shell="/path/to/grub.exe"
 // save, with attributes
 int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_9x(info)) {
-        return 0;
-    }
-
     // add to config.sys
     char *config_sys = config_sys_path();
     int ret = apply_fn_to_file(config_sys, install_to_config_sys, 1, lick);
@@ -155,10 +147,6 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
 }
 
 int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_9x(info)) {
-        return 0;
-    }
-
     // remove from config.sys
     char *config_sys = config_sys_path();
     int ret = apply_fn_to_file(config_sys, uninstall_from_config_sys, 0, lick);

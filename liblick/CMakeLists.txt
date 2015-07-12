@@ -4,6 +4,7 @@ set(lib_static_name "lick_static")
 set(sources
     "boot-loader.c"
     "boot-loader/9x.c"
+    "boot-loader/me.c"
     "boot-loader/nt.c"
     "boot-loader/uefi.c"
     "boot-loader/utils.c"
