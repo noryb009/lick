@@ -4,5 +4,5 @@ I would like to thank the following people for their help or inspiration:
   install methods are based on.
 - The grub4dos and grub2 development teams.
 - The Linux Foundation for their Secure Boot System.
-- Reines and Robert F. Gage for creating `Real DOS-Mode Patch for Windows ME'
-  and `Me2Dos', respectively. Without this, Windows ME support wouldn't be possible.
+- Reines and Robert F. Gage for creating "Real DOS-Mode Patch for Windows ME"
+  and "Me2Dos", respectively. Without this, Windows ME support wouldn't be possible.
