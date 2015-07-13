@@ -44,7 +44,6 @@ int check_loader_nt(sys_info_t *info) {
 }
 
 char *install_to_boot_ini(char *boot, lickdir_t *lick) {
-    // TODO: check timeout
     char *start, *end;
     if(!find_section(boot, "[operating systems]", &start, &end)) {
         if(!lick->err)

@@ -47,7 +47,6 @@ int check_loader_9x(sys_info_t *info) {
 }
 
 char *install_to_config_sys(char *config, lickdir_t *lick) {
-    // TODO: check timeout
     // find [menu] section
     char *start, *end;
     if(!find_section(config, "[menu]", &start, &end)) {

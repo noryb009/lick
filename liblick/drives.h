@@ -28,7 +28,6 @@ typedef enum {
 /**
  * @brief info about a drive
  */
-// TODO: compression
 typedef struct {
     /// the path to the root of a drive
     char *path;
