@@ -88,9 +88,9 @@ int uninstall_grub4dos(lickdir_t *lick) {
     free(menu_lst);
     free(win_drive);
 
-    char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");
-    unlink_file(gfxmenu);
-    free(gfxmenu);
+    //char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");
+    //unlink_file(gfxmenu);
+    //free(gfxmenu);
     return 1;
 }
 
