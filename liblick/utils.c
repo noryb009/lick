@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include <windows.h>
 #include <sddl.h>
 #include <shellapi.h>
+#include <shlobj.h>
 #endif
 
 #include "scandir.h"
@@ -89,10 +91,39 @@ int unlink_dir(const char *d) {
     char d_name[strlen(d) + 1];
     return !rmdir(unix_path(strcpy(d_name, d)));
 }
+
+int unlink_dir_parents(const char *d) {
+    size_t len = strlen(d);
+    char *buf = unix_path(strdup2(d));
+    int ret = 0;
+
+    for(;;) {
+        // strip trailing '/' and '\'
+        while(len > 0 && is_slash(buf[len-1])) {
+            --len;
+            buf[len] = '\0';
+        }
+
+        if(len == 0 || !unlink_dir(buf)) {
+            free(buf);
+            return ret;
+        }
+
+        ret = 1;
+
+        // strip trailing folder name
+        while(len > 0 && !is_slash(buf[len-1])) {
+            --len;
+            buf[len] = '\0';
+        }
+    }
+}
+
 int unlink_file(const char *f) {
     char f_name[strlen(f) + 1];
     return !unlink(unix_path(strcpy(f_name, f)));
 }
+
 int unlink_recursive(const char *d) {
     struct dirent **e;
     int len = scandir2(d, &e, NULL, NULL);
@@ -407,51 +438,123 @@ char *concat_strs(int n, ...) {
     return s;
 }
 
-char *TCHAR_to_char(void *s, int len, size_t size) {
 #ifdef _WIN32
-    char *str = s;
-    char *to = malloc(len + 1);
-    for(int i = 0; i < len; ++i)
-        to[i] = str[i*size];
-    to[len] = '\0';
-    return to;
-#else
-    return strdup2((char *)s);
-#endif
+char *get_windows_path() {
+    typedef UINT (WINAPI *get_dir)(LPTSTR lpBuffer, UINT uSize);
+    HMODULE k = LoadLibrary("Kernel32.dll");
+    if(!k)
+        return NULL;
+    get_dir fn = (get_dir)GetProcAddress(k, "GetSystemWindowsDirectoryA");
+    if(!fn) fn = (get_dir)GetProcAddress(k, "GetWindowsDirectoryA");
+    if(!fn) {
+        FreeLibrary(k);
+        return NULL;
+    }
+    assert(sizeof(char) == sizeof(TCHAR));
+    char buf[256];
+    int len = fn(buf, 255);
+    if(len == 0) {
+        FreeLibrary(k);
+        return NULL;
+    }
+    if(len < 255) {
+        FreeLibrary(k);
+        return strdup2(buf);
+    }
+
+    // not big enough
+    char buf2[len + 1];
+    len = fn(buf2, len + 1);
+    FreeLibrary(k);
+    if(len == 0)
+        return NULL;
+    return strdup2(buf2);
+}
+
+char *get_windows_drive_path() {
+    char *path = get_windows_path();
+    if(!path)
+        return NULL;
+
+    char *drv = malloc(3 + 1);
+    strcpy(drv, "?:/");
+    drv[0] = path[0];
+
+    free(path);
+    return drv;
 }
 
 char *get_program_path() {
-#ifdef _WIN32
     int size = 128;
     int first = 1;
     int ret_size;
 
-    TCHAR *buf = malloc(sizeof(TCHAR) * size);
+    assert(sizeof(char) == sizeof(TCHAR));
+    char *buf = malloc(size);
 
     while(first || ret_size == size) {
         if(first)
             first = 0;
         else {
             size *= 2;
-            buf = realloc(buf, sizeof(TCHAR) * size);
+            buf = realloc(buf, size);
         }
         ret_size = GetModuleFileName(NULL, buf, size);
     }
-    char *name = TCHAR_to_char(buf, ret_size, sizeof(TCHAR));
-    free(buf);
-    return name;
-#else
-    return strdup2("./lick-fltk");
-#endif
+    return buf;
+}
+
+char *get_config_path() {
+    HMODULE s = LoadLibrary("Shell32.dll");
+
+    typedef HRESULT (WINAPI *getFolder)(HWND hwndOwner, int nFolder,
+            HANDLE hToken, DWORD dwFlags, LPTSTR pszPath);
+    getFolder fn = (getFolder)GetProcAddress(s, "SHGetFolderPath");
+
+    if(fn) {
+        FreeLibrary(s);
+
+        char *path = get_windows_drive_path();
+        if(!path)
+            return NULL;
+        char *config = concat_strs(2, path, "ProgramData");
+        free(path);
+        return config;
+    }
+
+    assert(sizeof(char) == sizeof(TCHAR));
+    char *str = malloc(MAX_PATH);
+    str[0] = '\0';
+    HRESULT ret = fn(NULL, CSIDL_COMMON_APPDATA, NULL, 0, str);
+    FreeLibrary(s);
+
+    if(ret == S_OK)
+        return str;
+
+    free(str);
+    return NULL;
 }
 
 const char *get_command_line() {
-#ifdef _WIN32
     return GetCommandLine();
-#else
-    return "";
-#endif
 }
+#else
+char *get_windows_path() {
+    return strdup2("/");
+}
+char *get_windows_drive_path() {
+    return strdup2("/");
+}
+char *get_program_path() {
+    return strdup2("./lick-fltk");
+}
+char *get_config_path() {
+    return strdup2("/lick");
+}
+const char *get_command_line() {
+    return "";
+}
+#endif
 
 char *normalize_path(char *str, char slash) {
     int last_was_slash = 0;

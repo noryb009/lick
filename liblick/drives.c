@@ -60,6 +60,7 @@ node_t *all_drives() {
     return drives;
 }
 
+// TODO: unused_drive
 node_t *unused_drives() {
     DWORD drive_flags = GetLogicalDrives();
     node_t *drives = NULL;
@@ -78,50 +79,6 @@ node_t *unused_drives() {
 
     return drives;
 }
-
-char *get_windows_path() {
-    typedef UINT (WINAPI *get_dir)(LPTSTR lpBuffer, UINT uSize);
-    HMODULE k = LoadLibrary("Kernel32.dll");
-    if(!k)
-        return NULL;
-    get_dir fn = (get_dir)GetProcAddress(k, "GetSystemWindowsDirectoryA");
-    if(!fn) fn = (get_dir)GetProcAddress(k, "GetWindowsDirectoryA");
-    if(!fn) {
-        FreeLibrary(k);
-        return NULL;
-    }
-    TCHAR buf[256];
-    int len = fn(buf, 255);
-    if(len == 0) {
-        FreeLibrary(k);
-        return NULL;
-    }
-    if(len <= 255) {
-        FreeLibrary(k);
-        return TCHAR_to_char(buf, len, sizeof(TCHAR));
-    }
-
-    // not big enough
-    TCHAR buf2[len + 1];
-    len = fn(buf2, len + 1);
-    FreeLibrary(k);
-    if(len == 0)
-        return NULL;
-    return TCHAR_to_char(buf2, len, sizeof(TCHAR));
-}
-
-char *get_windows_drive_path() {
-    char *path = get_windows_path();
-    if(!path)
-        return NULL;
-
-    char *drv = malloc(3 + 1);
-    strcpy(drv, "?:/");
-    drv[0] = path[0];
-
-    free(path);
-    return drv;
-}
 #else
 drive_type_e drive_type(char *path) {
     return DRV_HDD;
@@ -133,12 +90,5 @@ node_t *all_drives() {
 
 node_t *unused_drives() {
     return new_node(new_drive("/", DRV_UNUSED), NULL);
-}
-
-char *get_windows_path() {
-    return strdup2("/");
-}
-char *get_windows_drive_path() {
-    return strdup2("/");
 }
 #endif

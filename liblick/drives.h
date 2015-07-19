@@ -70,16 +70,3 @@ void free_drive_list(node_t *lst);
  * @return 1 if the drive has LICK installed, otherwise 0
  */
 int is_lick_drive(drive_t *drive);
-/**
- * @brief get the path of the Windows folder
- * @return
- *   the path to the Windows folder. Must be freed using free
- */
-char *get_windows_path();
-/**
- * @brief get the path of the drive Windows is installed on
- * @return
- *   the drive structure corresponding to the drive Windows is installed on.
- *   must be freed using #free
- */
-char *get_windows_drive_path();

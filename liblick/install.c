@@ -139,12 +139,14 @@ int install_cb(const char *id, const char *name, const char *iso,
         return 0;
     }
 
+    make_dir_parents(lick->entry);
     FILE *info_f = fopen(info_path, "w");
     if(!info_f) {
         if(lick->err == NULL)
             lick->err = strdup2("Could not write to info file.");
         free(info_path);
         free(menu_path);
+        unlink_dir_parents(lick->entry);
         return 0;
     }
 
@@ -171,6 +173,7 @@ int install_cb(const char *id, const char *name, const char *iso,
     }
 
     // write menu entries
+    make_dir_parents(lick->menu);
     write_menu_frag(menu_path, name, status, install_dir);
 
     fprintf(info_f, "name %s\n", name);
@@ -239,5 +242,7 @@ int uninstall(const char *id, lickdir_t *lick, menu_t *menu) {
     int ret = uninstall_delete_files(info, menu_path);
     free(info);
     free(menu_path);
+    unlink_dir_parents(lick->entry);
+    unlink_dir_parents(lick->menu);
     return ret;
 }

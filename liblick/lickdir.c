@@ -9,32 +9,19 @@
 #include <windows.h>
 #endif
 
-lickdir_t *new_lickdir(char *lick, char drive, char *entry, char *menu, char *res) {
+lickdir_t *new_lickdir(char drive, char *entry, char *menu, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
-    l->lick = lick;
     l->drive = strdup2("?:/");
-    if(drive == '_') {
-        l->drive[0] = lick[0];
-        if(drive_type(l->drive) != DRV_HDD) {
-            char *win = get_windows_path();
-            l->drive[0] = win[0];
-            free(win);
-        }
-    } else
-        l->drive[0] = drive;
-    l->entry = entry;
-    l->menu = menu;
-    l->res = res;
+    l->drive[0] = drive;
+    l->entry = unix_path(entry);
+    l->menu = unix_path(menu);
+    l->res = unix_path(res);
     l->err = NULL;
 
-    // cmake doesn't include empty directories in zip files
-    make_dir_parents(l->entry);
-    make_dir_parents(l->menu);
     return l;
 }
 
 void free_lickdir(lickdir_t *l) {
-    free(l->lick);
     free(l->drive);
     free(l->entry);
     free(l->menu);
@@ -44,23 +31,34 @@ void free_lickdir(lickdir_t *l) {
     free(l);
 }
 
-lickdir_t *expand_lickdir(char *d) {
-    char *res = concat_strs(2, d, "/res");
-    if(!path_exists(res)) {
-        free(res);
-        return NULL;
-    }
-    return new_lickdir(strdup2(d), '_', concat_strs(2, d, "/entries"),
-            concat_strs(2, d, "/menu"), res);
-}
-
 lickdir_t *get_lickdir() {
 #ifdef _WIN32
-    char *name = get_program_path();
-    lickdir_t *lick = expand_lickdir(dirname(name));
-    free(name);
+    char *p = get_program_path();
+    char *c = get_config_path();
+    char *win = get_windows_path();
+    if(!p || !c || !win) {
+        if(p)
+            free(p);
+        if(c)
+            free(c);
+        if(win)
+            free(win);
+        return NULL;
+    }
+
+    lickdir_t *lick = NULL;
+    char *res = unix_path(concat_strs(2, p, "/res"));
+    if(path_exists(res))
+        lick = new_lickdir(win[0], concat_strs(2, c, "/entry"),
+                concat_strs(2, c, "/menu"), res);
+    else
+        free(res);
+    free(p);
+    free(c);
+    free(win);
     return lick;
 #else
-    return expand_lickdir("/lick");
+    return new_lickdir('c', strdup2("/lick/entry"), strdup2("/lick/menu"),
+            strdup2("/lick/res"));
 #endif
 }

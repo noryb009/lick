@@ -13,8 +13,6 @@
  * @brief Paths to the LICK directory and its components
  */
 typedef struct {
-    /// path to the lick directory
-    char *lick;
     /// path to the drive the lick directory is on
     char *drive;
     /// path to the directory to store information about installed distributions
@@ -33,32 +31,20 @@ typedef struct {
  * Each parameter must be allocated on the heap. The parameters are no longer
  * valid after the call, and must not be freed
  *
- * @param lick the root lick directory
- * @param drive the drive of the lick directory, or '_' to pick a fixed hard
- * drive, with preference to the drive the lick directory is in
+ * @param drive the drive to install the boot loader to
  * @param entry the entry subdirectory
  * @param menu the subdirectory for menu fragments
  * @param res the resource subdirectory
  * @return a new lickdir_t. Must be freed with #free_lickdir
  */
-lickdir_t *new_lickdir(char *lick, char drive, char *entry, char *menu,
-        char *res);
+lickdir_t *new_lickdir(char drive, char *entry, char *menu, char *res);
 /**
  * @brief free the memory a lickdir_t is using
  * @param l the lickdir_t to free
  */
 void free_lickdir(lickdir_t *l);
 /**
- * @brief
- *   given the path to a LICK directory, return a lickdir_t structure with
- *   default values for subdirectories
- * @param d path to the LICK directory
- * @return a lickdir_t with default subdirectory names
- */
-lickdir_t *expand_lickdir(char *d);
-/**
- * @brief returns the LICK directory, if the program running is in
- *   the root of the directory
+ * @brief returns a suitable LICK directory
  *
  * Looks at the path to the binary currently being run, and determines if a
  * res directory exists. If so, returns a lickdir_t corresponding to the

@@ -9,7 +9,6 @@ void free_nonnull(void *p) {
 
 lickdir_t *copy_lickdir_t(lickdir_t *src) {
     lickdir_t *dst = (lickdir_t *)malloc(sizeof(lickdir_t));
-    dst->lick = strdup2(src->lick);
     dst->drive = strdup2(src->drive);
     dst->entry = strdup2(src->entry);
     dst->menu = strdup2(src->menu);
@@ -22,7 +21,6 @@ void exchange_lick(ipc *p, lickdir_t *&lick) {
     if(lick == NULL)
         lick = (lickdir_t *)malloc(sizeof(lickdir_t));
     p
-        ->exchange_str(lick->lick)
         ->exchange_str(lick->drive)
         ->exchange_str(lick->entry)
         ->exchange_str(lick->menu)

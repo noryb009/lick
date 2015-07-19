@@ -47,6 +47,12 @@ int copy_file(const char *dst, const char *src);
  */
 int unlink_dir(const char *d);
 /**
+ * @brief delete a directory if it is empty, and repeat with each parent directory
+ * @param d the directory to delete
+ * @return true if at least one directory was deleted
+ */
+int unlink_dir_parents(const char *d);
+/**
  * @brief delete a file
  * @param f the file to delete
  * @return true on success
@@ -110,18 +116,33 @@ char *strstrr(const char *haystack, const char *needle);
  */
 char *concat_strs(int n, ...);
 /**
- * @brief convert a TCHAR string to a string
- * @param s the TCHAR string
- * @param len the length of the string
- * @param size the size of a TCHAR
- * @return a string. Must be freed using free
+ * @brief get the path of the Windows folder
+ * @return
+ *   the path to the Windows folder. Must be freed using free
  */
-char *TCHAR_to_char(void *s, int len, size_t size);
+char *get_windows_path();
+/**
+ * @brief get the path of the drive Windows is installed on
+ * @return
+ *   the drive structure corresponding to the drive Windows is installed on.
+ *   must be freed using #free
+ */
+char *get_windows_drive_path();
 /**
  * @brief find the path of this program
  * @return a string. Must be freed using free
  */
 char *get_program_path();
+/**
+ * @brief find the path of this ProgramData folder
+ *
+ * On Windows 95 - ME, and Vista+, this will be similar to
+ * 'C:/ProgramData'. On other systems, it will be similar to
+ * 'C:/Documets and Settings/All Users/Application Data'
+ *
+ * @return a string. Must be freed using free
+ */
+char *get_config_path();
 /**
  * @brief find the command line of this program
  * @return a string. Do not pass this to free
