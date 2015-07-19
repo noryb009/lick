@@ -34,9 +34,14 @@ void Frontend::reset() {
 }
 
 void Frontend::handle_error(const char *err) {
-    if(lick->err)
-        fl_alert("%s\n%s", err, lick->err);
-    else
+    if(lick->err) {
+        if(err)
+            fl_alert("%s\n%s", err, lick->err);
+        else
+            fl_alert("%s", lick->err);
+        free(lick->err);
+        lick->err = NULL;
+    } else if(err)
         fl_alert("%s", err);
 }
 
@@ -366,8 +371,13 @@ bool is_loader(ipc_lick *c, bool install) {
 }
 
 void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
-    if(s->err)
-        fl_alert("Error: %s", s->err);
+    if(s->err) {
+        if(lick->err)
+            free(lick->err);
+        lick->err = s->err;
+        s->err = NULL;
+    }
+
     switch(c->type()) {
     case IPC_INSTALL:
         if(!s->ret) {
@@ -448,6 +458,9 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
     default:
         return;
     }
+    // had error, but didn't message
+    if(lick->err)
+        handle_error(NULL);
 }
 
 int Frontend::handle_event(ipc_lick *c) {
