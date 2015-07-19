@@ -49,16 +49,12 @@ node_t *list_reverse(node_t *lst);
  */
 node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
 /**
- * @brief does nothing. Useful with free_list
- */
-void free_nothing(void *n);
-/**
  * @brief free a list, freeing all elements along the way
  * @param n the list to free
  * @param free_fn
  *   a function to free all the elements of the list. For example, if the
  *   linked list contains strings allocated using malloc(), free_fn would
- *   be free()
+ *   be free(). Can be NULL to not free the elements.
  */
 void free_list(node_t *n, void (*free_fn)(void *n));
 

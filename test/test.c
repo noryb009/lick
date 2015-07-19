@@ -105,7 +105,7 @@ void test_list() {
     lst = list_reverse(lst);
     assert(list_length(lst) == 5);
 
-    free_list(lst, free_nothing);
+    free_list(lst, NULL);
 }
 
 int compare_files(const char *a, const char *b) {

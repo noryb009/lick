@@ -29,8 +29,8 @@ void free_program_status(program_status_t *p) {
 }
 
 void free_program_args(program_args_t *a) {
-    free_list(a->install, free_nothing);
-    free_list(a->uninstall, free_nothing);
+    free_list(a->install, NULL);
+    free_list(a->uninstall, NULL);
     free(a);
 }
 
