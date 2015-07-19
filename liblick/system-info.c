@@ -21,31 +21,34 @@ void version(sys_info_t *v) {
     verInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     fn(&verInfo);
 
-    int M = verInfo.dwMajorVersion, m = verInfo.dwMinorVersion;
+    int M = verInfo.dwMajorVersion;
+    int m = verInfo.dwMinorVersion;
+    int p = verInfo.dwPlatformId;
 
-    if(M == 4 && m == 0) {
+    if(M == 4 && m == 0 && p != 2)
         v->version = V_WINDOWS_95;
-    } else if(M == 4 && m == 10) {
+    else if(M == 4 && m == 10)
         v->version = V_WINDOWS_98;
-    } else if(M == 4 && m == 90) {
+    else if(M == 4 && m == 90)
         v->version = V_WINDOWS_ME;
-    } else if(M == 5 && m == 0) {
+    else if(M == 4 && p == 2)
+        v->version = V_WINDOWS_NT;
+    else if(M == 5 && m == 0)
         v->version = V_WINDOWS_2000;
-    } else if(M == 5 && (m == 1 || m == 2)) {
+    else if(M == 5 && (m == 1 || m == 2))
         v->version = V_WINDOWS_XP;
-    } else if(M == 6 && m == 0) {
+    else if(M == 6 && m == 0)
         v->version = V_WINDOWS_VISTA;
-    } else if(M == 6 && m == 1) {
+    else if(M == 6 && m == 1)
         v->version = V_WINDOWS_7;
-    } else if(M == 6 && m == 2) {
+    else if(M == 6 && m == 2)
         v->version = V_WINDOWS_8;
-    } else if(M == 6 && m == 3) {
+    else if(M == 6 && m == 3)
         v->version = V_WINDOWS_8_1;
-    } else if(M == 10 && m == 0) {
+    else if(M == 10 && m == 0)
         v->version = V_WINDOWS_10;
-    } else {
+    else
         v->version = V_UNKNOWN;
-    }
     FreeLibrary(k);
 }
 
@@ -118,6 +121,7 @@ void family(sys_info_t *v) {
     case V_WINDOWS_ME:
         v->family = F_WINDOWS_9X;
         break;
+    case V_WINDOWS_NT:
     case V_WINDOWS_2000:
     case V_WINDOWS_XP:
         v->family = F_WINDOWS_NT;
@@ -141,6 +145,8 @@ char *version_name(version_e v) {
         return "Windows 98";
     case V_WINDOWS_ME:
         return "Windows ME";
+    case V_WINDOWS_NT:
+        return "Windows NT 4.0";
     case V_WINDOWS_2000:
         return "Windows 2000";
     case V_WINDOWS_XP:

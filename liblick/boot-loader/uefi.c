@@ -32,6 +32,7 @@ int supported_loader_uefi(sys_info_t *info) {
     case V_WINDOWS_95:
     case V_WINDOWS_98:
     case V_WINDOWS_ME:
+    case V_WINDOWS_NT:
     case V_WINDOWS_2000:
     case V_WINDOWS_XP:
         break;
@@ -72,6 +73,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_95:
     case V_WINDOWS_98:
     case V_WINDOWS_ME:
+    case V_WINDOWS_NT:
     case V_WINDOWS_2000:
     case V_WINDOWS_XP:
     case V_WINDOWS_VISTA:

@@ -17,6 +17,7 @@ typedef enum {
     V_WINDOWS_95,
     V_WINDOWS_98,
     V_WINDOWS_ME,
+    V_WINDOWS_NT,
     V_WINDOWS_2000,
     V_WINDOWS_XP,
     V_WINDOWS_VISTA,
