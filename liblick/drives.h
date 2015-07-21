@@ -47,10 +47,10 @@ drive_type_e drive_type(char *path);
  */
 node_t *all_drives();
 /**
- * @brief return a list of all drive paths not currently used
- * @return a linked list of all unused drives. Must be freed using #free_drive_list
+ * @brief return an unused drive path
+ * @return an unused drive path. Must be freed using #free
  */
-node_t *unused_drives();
+char *unused_drive();
 /**
  * @brief free a drive structure
  * @param drive the drive structure to free

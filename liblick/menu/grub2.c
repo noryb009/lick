@@ -18,13 +18,11 @@
 #define COMMAND_UMOUNT_UEFI  "mountvol %c: /D"
 
 char mount_uefi_partition() {
-    node_t *unused = unused_drives();
+    char *unused = unused_drive();
     if(unused == NULL)
         return '\0';
-    node_t *drv;
-    for(drv = unused; drv->next != NULL; drv = drv->next) {}
-    char drive = ((drive_t*)drv->val)->path[0];
-    free_drive_list(unused);
+    char drive = unused[0];
+    free(unused);
 
     char c[strlen(COMMAND_MOUNT_UEFI) + 1];
     sprintf(c, COMMAND_MOUNT_UEFI, drive);

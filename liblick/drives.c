@@ -60,24 +60,20 @@ node_t *all_drives() {
     return drives;
 }
 
-// TODO: unused_drive
-node_t *unused_drives() {
+char *unused_drive() {
     DWORD drive_flags = GetLogicalDrives();
-    node_t *drives = NULL;
-
     DWORD n = 1 << 25;
-    char path[4];
-    strcpy(path, "a:/");
 
     // go backwards, pushing to front of list, so returns in order
     for(int i = 25; i >= 0; --i, n = n >> 1) {
         if(0 == (n & drive_flags)) {
+            char *path = strdup2("?:/");
             path[0] = 'A' + i;
-            drives = new_node(new_drive(path, DRV_UNUSED), drives);
+            return path;
         }
     }
 
-    return drives;
+    return NULL;
 }
 #else
 drive_type_e drive_type(char *path) {
@@ -88,7 +84,7 @@ node_t *all_drives() {
     return new_node(new_drive("/", DRV_HDD), NULL);
 }
 
-node_t *unused_drives() {
-    return new_node(new_drive("/", DRV_UNUSED), NULL);
+char *unused_drive() {
+    return strdup2("/");
 }
 #endif
