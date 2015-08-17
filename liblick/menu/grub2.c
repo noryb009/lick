@@ -56,25 +56,19 @@ void grub2_write_entry(FILE *f, entry_t *e) {
 }
 
 int regenerate_grub2(lickdir_t *lick) {
-    char drive = mount_uefi_partition();
-    if(drive == '\0')
-        return 0;
-    char *grub_cfg = strdup2("?:/EFI/LICK/grub/grub.cfg");
-    grub_cfg[0] = drive;
+    char *grub_cfg = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
 
     FILE *menu = fopen(grub_cfg, "w");
     if(!menu) {
         if(lick->err == NULL)
-            lick->err = strdup2("Could not write to grub.cfg");
+            lick->err = strdup2("Could not write to lickgrub.cfg");
         free(grub_cfg);
-        unmount_uefi_partition(drive);
         return 0;
     }
     write_menu(lick, menu, grub2_write_entry);
 
     free(grub_cfg);
     fclose(menu);
-    unmount_uefi_partition(drive);
     return 1;
 }
 
@@ -89,7 +83,7 @@ int install_grub2(lickdir_t *lick) {
         return 0;
     }
 
-    char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/grub.cfg"));
+    char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/lickgrub.cfg"));
     FILE *src = fopen(grub_cfg_header, "r");
     free(grub_cfg_header);
     if(!src) {
@@ -108,6 +102,29 @@ int install_grub2(lickdir_t *lick) {
 
     fclose(src);
     fclose(f);
+
+    char drive = mount_uefi_partition();
+    if(drive == '\0')
+        return 0;
+    char *grub_cfg = strdup2("?:/EFI/LICK/grub/grub.cfg");
+    grub_cfg[0] = drive;
+
+    FILE *menu = fopen(grub_cfg, "w");
+    if(!menu) {
+        if(lick->err == NULL)
+            lick->err = strdup2("Could not write to grub.cfg");
+        free(grub_cfg);
+        unmount_uefi_partition(drive);
+        return 0;
+    }
+    fprintf(menu, "insmod part_gpt\n");
+    fprintf(menu, "insmod part_msdos\n");
+    fprintf(menu, "insmod ntfs\n\n");u
+    fprintf(menu, "search --set=root --file /lickgrub.cfg\n");
+    fprintf(menu, "configfile ($root)/lickgrub.cfg\n");
+    free(grub_cfg);
+    fclose(menu);
+    unmount_uefi_partition(drive);
     return 1;
 }
 
@@ -116,12 +133,18 @@ int uninstall_grub2(lickdir_t *lick) {
     unlink_file(header);
     free(header);
 
+    char *grub_cfg = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
+    unlink_file(grub_cfg);
+    free(grub_cfg);
+
     char drive = mount_uefi_partition();
+    if(drive == '\0')
+        return 0;
     char lick_dir[] = "?:/EFI/LICK";
     lick_dir[0] = drive;
     unlink_recursive(lick_dir);
-
     unmount_uefi_partition(drive);
+
     return 1;
 }
 
