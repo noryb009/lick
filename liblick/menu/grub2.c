@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "edit-flat-menu.h"
 #include "grub2.h"
 #include "utils.h"
 #include "../drives.h"
@@ -38,70 +39,16 @@ int unmount_uefi_partition(char drive) {
     return run_system(c);
 }
 
-void grub2_write_entry(FILE *f, entry_t *e) {
-    if(e->static_text != NULL) {
-        fprintf(f, "%s\n", e->static_text);
-        return;
-    }
-    if(e->title == NULL || e->kernel == NULL || e->options == NULL)
-        return;
-
-    fprintf(f, "\n");
-    fprintf(f, GRUB2_TITLE, e->title);
-    fprintf(f, GRUB2_SEARCH, e->kernel);
-    fprintf(f, GRUB2_KERNEL, e->kernel, e->options);
-    if(e->initrd != NULL)
-        fprintf(f, GRUB2_INITRD, e->initrd);
-    fprintf(f, GRUB2_END);
-}
-
-int regenerate_grub2(lickdir_t *lick) {
-    char *grub_cfg = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
-
-    FILE *menu = fopen(grub_cfg, "w");
-    if(!menu) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to lickgrub.cfg");
-        free(grub_cfg);
-        return 0;
-    }
-    write_menu(lick, menu, grub2_write_entry);
-
-    free(grub_cfg);
-    fclose(menu);
-    return 1;
-}
-
 int install_grub2(lickdir_t *lick) {
-    char *header = unix_path(concat_strs(2, lick->menu, "/00-header.conf"));
-    FILE *f = fopen(header, "w");
-    free(header);
-
-    if(!f) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to menu folder");
-        return 0;
-    }
-
+    char *grub_cfg_lick = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
     char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/lickgrub.cfg"));
-    FILE *src = fopen(grub_cfg_header, "r");
-    free(grub_cfg_header);
-    if(!src) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not read from resource directory");
-        fclose(f);
+    if(!copy_file(grub_cfg_lick, grub_cfg_header)) {
+        if(!lick->err)
+            lick->err = strdup2("Error writing to grub menu.");
         return 0;
     }
-    while(1) {
-        char *ln = read_line(src);
-        if(!ln)
-            break;
-        fprintf(f, "static %s\n", ln);
-        free(ln);
-    }
-
-    fclose(src);
-    fclose(f);
+    free(grub_cfg_lick);
+    free(grub_cfg_header);
 
     char drive = mount_uefi_partition();
     if(drive == '\0')
@@ -119,7 +66,7 @@ int install_grub2(lickdir_t *lick) {
     }
     fprintf(menu, "insmod part_gpt\n");
     fprintf(menu, "insmod part_msdos\n");
-    fprintf(menu, "insmod ntfs\n\n");u
+    fprintf(menu, "insmod ntfs\n\n");
     fprintf(menu, "search --set=root --file /lickgrub.cfg\n");
     fprintf(menu, "configfile ($root)/lickgrub.cfg\n");
     free(grub_cfg);
@@ -129,10 +76,6 @@ int install_grub2(lickdir_t *lick) {
 }
 
 int uninstall_grub2(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "/00-header.conf");
-    unlink_file(header);
-    free(header);
-
     char *grub_cfg = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
     unlink_file(grub_cfg);
     free(grub_cfg);
@@ -148,10 +91,31 @@ int uninstall_grub2(lickdir_t *lick) {
     return 1;
 }
 
+char *gen_grub2(distro_info_t *info) {
+    return concat_strs(12,
+            "menuentry '", (info->name?info->name:""), "' {\n",
+            "search --set=root --file ", info->kernel,
+            "\nlinux ", info->kernel, (info->options?" ":""),
+            (info->options?info->options:""),
+            (info->initrd?"\ninitrd ":""), (info->initrd?info->initrd:""),
+            "\n}\n");
+}
+
+int append_grub2(const char *id, const char *section, lickdir_t *lick) {
+    char *menu_path = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
+    int ret = flat_append_section(menu_path, id, section, lick);
+    free(menu_path);
+    return ret;
+}
+
+int remove_grub2(const char *id, lickdir_t *lick) {
+    char *menu_path = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
+    int ret = flat_remove_section(menu_path, id, lick);
+    free(menu_path);
+    return ret;
+}
+
 menu_t *get_grub2() {
-    menu_t *menu = malloc(sizeof(menu_t));
-    menu->regenerate = regenerate_grub2;
-    menu->install = install_grub2;
-    menu->uninstall = uninstall_grub2;
-    return menu;
+    return new_menu(install_grub2, uninstall_grub2, gen_grub2,
+            append_grub2, remove_grub2);
 }

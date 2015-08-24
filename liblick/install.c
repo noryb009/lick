@@ -4,9 +4,10 @@
 #include <string.h>
 
 #include "boot-loader.h"
+#include "distro.h"
+#include "distro/puppy.h" // TODO: dynamic
 #include "install.h"
 #include "scandir.h"
-#include "uniso.h"
 #include "utils.h"
 
 int is_conf_file(const char *e) {
@@ -120,11 +121,9 @@ int install_cb(const char *id, const char *name, const char *iso,
         const char *install_dir, lickdir_t *lick, menu_t *menu,
         uniso_progress_cb cb, void *cb_data) {
     char *info_path = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
-    char *menu_path = unix_path(concat_strs(4, lick->menu, "/50-", id, ".conf"));
 
-    if(path_exists(info_path) || path_exists(menu_path)) {
+    if(path_exists(info_path)) {
         free(info_path);
-        free(menu_path);
         if(lick->err == NULL)
             lick->err = strdup2("ID conflict.");
         return 0;
@@ -133,7 +132,6 @@ int install_cb(const char *id, const char *name, const char *iso,
     char iso_name[strlen(iso) + 1];
     if(!path_exists(unix_path(strcpy(iso_name, iso)))) {
         free(info_path);
-        free(menu_path);
         if(lick->err == NULL)
             lick->err = strdup2("Could not find ISO file.");
         return 0;
@@ -145,12 +143,14 @@ int install_cb(const char *id, const char *name, const char *iso,
         if(lick->err == NULL)
             lick->err = strdup2("Could not write to info file.");
         free(info_path);
-        free(menu_path);
         unlink_dir_parents(lick->entry);
         return 0;
     }
 
-    uniso_status_t *status = uniso(iso_name, install_dir, cb, cb_data);
+    // TODO: based on parameter
+    distro_t *distro = get_distro_puppy();
+
+    uniso_status_t *status = uniso(iso_name, install_dir, distro->filter, cb, cb_data);
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
@@ -168,13 +168,13 @@ int install_cb(const char *id, const char *name, const char *iso,
         fclose(info_f);
         unlink_file(info_path);
         free(info_path);
-        free(menu_path);
+        free_distro(distro);
         return 0;
     }
 
     // write menu entries
-    make_dir_parents(lick->menu);
-    write_menu_frag(menu_path, name, status, install_dir);
+    install_menu(status->files, install_dir, distro, id, name, lick, menu);
+    free_distro(distro);
 
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
@@ -190,7 +190,6 @@ int install_cb(const char *id, const char *name, const char *iso,
 
     free_uniso_status(status);
     free(info_path);
-    free(menu_path);
     return 1;
 }
 
@@ -199,7 +198,7 @@ int install(const char *id, const char *name, const char *iso,
     return install_cb(id, name, iso, install_dir, lick, menu, NULL, NULL);
 }
 
-int uninstall_delete_files(const char *info, const char *menu) {
+int uninstall_delete_files(const char *info) {
     FILE *f = fopen(info, "r");
     if(!f)
         return 0;
@@ -232,17 +231,16 @@ int uninstall_delete_files(const char *info, const char *menu) {
 
     fclose(f);
     unlink_file(info);
-    unlink_file(menu);
     return 1;
 }
 
 int uninstall(const char *id, lickdir_t *lick, menu_t *menu) {
     char *info = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
-    char *menu_path = unix_path(concat_strs(4, lick->menu, "/50-", id, ".conf"));
-    int ret = uninstall_delete_files(info, menu_path);
+    int ret = uninstall_delete_files(info);
     free(info);
-    free(menu_path);
+
+    uninstall_menu(id, lick, menu);
+
     unlink_dir_parents(lick->entry);
-    unlink_dir_parents(lick->menu);
     return ret;
 }

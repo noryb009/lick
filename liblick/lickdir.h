@@ -12,13 +12,12 @@
 /**
  * @brief Paths to the LICK directory and its components
  */
+// TODO: branding
 typedef struct {
     /// path to the drive the lick directory is on
     char *drive;
     /// path to the directory to store information about installed distributions
     char *entry;
-    /// path to the directory to store menu files
-    char *menu;
     /// path to the directory to store LICK's resource files
     char *res;
     /// error message
@@ -33,11 +32,10 @@ typedef struct {
  *
  * @param drive the drive to install the boot loader to
  * @param entry the entry subdirectory
- * @param menu the subdirectory for menu fragments
  * @param res the resource subdirectory
  * @return a new lickdir_t. Must be freed with #free_lickdir
  */
-lickdir_t *new_lickdir(char drive, char *entry, char *menu, char *res);
+lickdir_t *new_lickdir(char drive, char *entry, char *res);
 /**
  * @brief free the memory a lickdir_t is using
  * @param l the lickdir_t to free

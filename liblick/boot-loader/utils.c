@@ -112,23 +112,6 @@ char *check_timeout(char *f, char *key, char *sep) {
     return ret;
 }
 
-char *file_to_str(FILE *f) {
-    int len = 0;
-    rewind(f);
-    while(getc(f) != EOF)
-        len++;
-    rewind(f);
-
-    char *buf = malloc(len + 1);
-    if(fread(buf, 1, len, f) < len) {
-        free(buf);
-        return NULL;
-    }
-    buf[len] = '\0';
-
-    return buf;
-}
-
 char *file_to_str_no_rewind(FILE *f) {
     int len = 512;
     int cur = 0;

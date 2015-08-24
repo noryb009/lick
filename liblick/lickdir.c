@@ -9,12 +9,11 @@
 #include <windows.h>
 #endif
 
-lickdir_t *new_lickdir(char drive, char *entry, char *menu, char *res) {
+lickdir_t *new_lickdir(char drive, char *entry, char *res) {
     lickdir_t *l = malloc(sizeof(lickdir_t));
     l->drive = strdup2("?:/");
     l->drive[0] = drive;
     l->entry = unix_path(entry);
-    l->menu = unix_path(menu);
     l->res = unix_path(res);
     l->err = NULL;
 
@@ -24,7 +23,6 @@ lickdir_t *new_lickdir(char drive, char *entry, char *menu, char *res) {
 void free_lickdir(lickdir_t *l) {
     free(l->drive);
     free(l->entry);
-    free(l->menu);
     free(l->res);
     if(l->err != NULL)
         free(l->err);
@@ -47,10 +45,9 @@ lickdir_t *get_lickdir() {
     }
 
     lickdir_t *lick = NULL;
-    char *res = unix_path(concat_strs(2, p, "/res"));
+    char *res = unix_path(concat_strs(2, dirname(p), "/res"));
     if(path_exists(res))
-        lick = new_lickdir(win[0], concat_strs(2, c, "/entry"),
-                concat_strs(2, c, "/menu"), res);
+        lick = new_lickdir(win[0], concat_strs(2, c, "/entry"), res);
     else
         free(res);
     free(p);
@@ -58,7 +55,6 @@ lickdir_t *get_lickdir() {
     free(win);
     return lick;
 #else
-    return new_lickdir('c', strdup2("/lick/entry"), strdup2("/lick/menu"),
-            strdup2("/lick/res"));
+    return new_lickdir('c', strdup2("/lick/entry"), strdup2("/lick/res"));
 #endif
 }

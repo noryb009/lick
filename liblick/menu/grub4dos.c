@@ -2,60 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "edit-flat-menu.h"
 #include "grub4dos.h"
 #include "utils.h"
 #include "../drives.h"
 #include "../lickdir.h"
+#include "../menu.h"
 #include "../utils.h"
 
-#define GRUB4DOS_TITLE "title %s\n"
-#define GRUB4DOS_FIND INDENT "find --set-root --ignore-floppies %s\n"
-#define GRUB4DOS_KERNEL INDENT "kernel %s %s\n"
-#define GRUB4DOS_INITRD INDENT "initrd %s\n"
-#define GRUB4DOS_BOOT INDENT "boot\n"
-
-void grub4dos_write_entry(FILE *f, entry_t *e) {
-    if(e->static_text != NULL) {
-        fprintf(f, "%s\n", e->static_text);
-        return;
-    }
-    if(e->title == NULL || e->kernel == NULL || e->options == NULL)
-        return;
-
-    fprintf(f, "\n");
-    fprintf(f, GRUB4DOS_TITLE, e->title);
-    fprintf(f, GRUB4DOS_FIND, e->kernel);
-    fprintf(f, GRUB4DOS_KERNEL, e->kernel, e->options);
-    if(e->initrd != NULL)
-        fprintf(f, GRUB4DOS_INITRD, e->initrd);
-    fprintf(f, GRUB4DOS_BOOT);
-}
-
-int regenerate_grub4dos(lickdir_t *lick) {
-    char *win_drive = get_windows_drive_path();
-    if(!win_drive)
-        return 0;
-    char *menu_lst = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
-    free(win_drive);
-
-    FILE *menu = fopen(menu_lst, "w");
-    if(!menu) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to lickmenu.lst");
-        free(menu_lst);
-        return 0;
-    }
-    write_menu(lick, menu, grub4dos_write_entry);
-
-    free(menu_lst);
-    fclose(menu);
-    return 1;
-}
-
 int install_grub4dos(lickdir_t *lick) {
-    char *header = unix_path(concat_strs(2, lick->menu, "/00-header.conf"));
-    FILE *f = fopen(header, "w");
-    free(header);
+    char *win_drive = get_windows_drive_path();
+    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
+    free(win_drive);
+    FILE *f = fopen(menu, "w");
+    free(menu);
 
     if(!f) {
         if(lick->err == NULL)
@@ -63,8 +23,10 @@ int install_grub4dos(lickdir_t *lick) {
         return 0;
     }
 
+    fprintf(f, "## start header\n");
     fprintf(f, "static timeout=5\n");
     fprintf(f, "static default=0\n");
+    fprintf(f, "## end header\n");
     //fprintf(f, "static gfxmenu=/grub4dos-gui.gz\n");
 
     fclose(f);
@@ -78,10 +40,6 @@ int install_grub4dos(lickdir_t *lick) {
 }
 
 int uninstall_grub4dos(lickdir_t *lick) {
-    char *header = concat_strs(2, lick->menu, "/00-header.conf");
-    unlink_file(header);
-    free(header);
-
     char *win_drive = get_windows_drive_path();
     char *menu_lst = concat_strs(2, win_drive, "/lickmenu.lst");
     unlink_file(menu_lst);
@@ -94,10 +52,35 @@ int uninstall_grub4dos(lickdir_t *lick) {
     return 1;
 }
 
+char *gen_grub4dos(distro_info_t *info) {
+    return concat_strs(11,
+            "title ", (info->name?info->name:""),
+            "\nfind --set-root --ignore-floppies ", info->kernel,
+            "\nkernel ", info->kernel, (info->options?" ":""),
+            (info->options?info->options:""),
+            (info->initrd?"\ninitrd ":""), (info->initrd?info->initrd:""),
+            "\nboot\n");
+}
+
+int append_grub4dos(const char *id, const char *section, lickdir_t *lick) {
+    char *win_drive = get_windows_drive_path();
+    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
+    free(win_drive);
+    int ret = flat_append_section(menu, id, section, lick);
+    free(menu);
+    return ret;
+}
+
+int remove_grub4dos(const char *id, lickdir_t *lick) {
+    char *win_drive = get_windows_drive_path();
+    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
+    free(win_drive);
+    int ret = flat_remove_section(menu, id, lick);
+    free(menu);
+    return ret;
+}
+
 menu_t *get_grub4dos() {
-    menu_t *menu = malloc(sizeof(menu_t));
-    menu->regenerate = regenerate_grub4dos;
-    menu->install = install_grub4dos;
-    menu->uninstall = uninstall_grub4dos;
-    return menu;
+    return new_menu(install_grub4dos, uninstall_grub4dos, gen_grub4dos,
+            append_grub4dos, remove_grub4dos);
 }

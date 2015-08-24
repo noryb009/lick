@@ -58,9 +58,6 @@ int is_valid_id(const char *id, lickdir_t *lick, const char *install_path) {
     if(path_exists_free(concat_strs(4, lick->entry, "/", id, ".conf")))
         return 0;
 
-    if(path_exists_free(concat_strs(4, lick->menu, "/50-", id, ".conf")))
-        return 0;
-
     return 1;
 }
 

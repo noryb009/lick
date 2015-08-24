@@ -1,63 +1,74 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "menu.h"
-#include "menu/utils.h"
+#include "utils.h"
 
-#define MENU_TITLE   "title\t%s%s\n"
-#define MENU_KERNEL  "\tkernel\t%s\n"
-#define MENU_INITRD  "\tinitrd\t%s\n"
-#define MENU_OPTIONS "\toptions\t%s\n"
-
-void print_frag(FILE *f, const char *name, const char *suffix,
-        uniso_status_t *info, const char *ops) {
-    fprintf(f, MENU_TITLE, name, suffix);
-    if(info->kernel) {
-        char *kernel = to_menu_path(info->kernel);
-        fprintf(f, MENU_KERNEL, kernel);
-        free(kernel);
-    }
-    if(info->initrd) {
-        char *initrd = to_menu_path(info->initrd);
-        fprintf(f, MENU_INITRD, initrd);
-        free(initrd);
-    }
-    fprintf(f, MENU_OPTIONS, ops);
+menu_t *new_menu(menu_install_f i, menu_uninstall_f u, menu_gen_section_f g,
+        menu_append_section_f a, menu_remove_section_f r) {
+    menu_t *m = malloc(sizeof(menu_t));
+    m->install = i;
+    m->uninstall = u;
+    m->gen_section = g;
+    m->append_section = a;
+    m->remove_section = r;
+    return m;
 }
 
-int write_menu_frag(const char *dst, const char *name, uniso_status_t *info,
-        const char *subdir) {
-    FILE *f = fopen(dst, "w");
-    if(!f)
-        return 0;
+void free_menu(menu_t *m) {
+    free(m);
+}
 
-    int len = strlen("pfix=fsck psubdir=") + 1;
-    char *subdir_menu = NULL;
-    if(subdir != NULL) {
-        subdir_menu = to_menu_path(subdir);
+node_t *entries_to_sections(menu_t *menu, node_t *ents) {
+    node_t *secs = NULL;
+    for(node_t *n = ents; n != NULL; n = n->next) {
+        distro_info_t *info = (distro_info_t *)n->val;
 
-        len += strlen(subdir_menu);
+        if(info->full_text) {
+            secs = new_node(info->full_text, secs);
+            info->full_text = NULL;
+        } else
+            secs = new_node(menu->gen_section(info), secs);
+    }
+    return secs;
+}
+
+char *concat_sections(node_t *secs) {
+    if(secs == NULL)
+        return strdup2("");
+    size_t len = list_length(secs);
+    if(len > 1)
+        len += (len - 1);
+    char *strs[len];
+
+    size_t i = len - 1;
+    for(node_t *n = secs; n != NULL; n = n->next, --i) {
+        strs[i] = (char *)n->val;
+        if(i > 0) {
+            --i;
+            strs[i] = "\n";
+        }
     }
 
-    char options[len];
-    options[len-1] = '\0';
-    if(subdir != NULL)
-        snprintf(options, len - 1, "pfix=fsck psubdir=%s", subdir_menu);
-    else
-        strcpy(options, "pfix=fsck");
-    print_frag(f, name, "", info, options);
+    return concat_strs_arr(len, strs);
+}
 
-    fprintf(f, "\n");
+int install_menu(node_t *files, const char *dst, distro_t *distro,
+        const char *id, const char *name, lickdir_t *lick, menu_t *menu) {
+    // get type
+    node_t *entries = distro->info(files, dst, name);
+    if(entries == 0)
+        return 1;
+    node_t *sections = entries_to_sections(menu, entries);
+    char *section_text = concat_sections(sections);
 
-    if(subdir != NULL)
-        snprintf(options, len - 1, "pfix=ram psubdir=%s", subdir_menu);
-    else
-        strcpy(options, "pfix=ram");
-    print_frag(f, name, " (no save file)", info, options);
+    int ret = menu->append_section(id, section_text, lick);
 
-    fclose(f);
-    if(subdir_menu != NULL)
-        free(subdir_menu);
-    return 1;
+    free_list(sections, free);
+    free_distro_info_list(entries);
+
+    return ret;
+}
+
+int uninstall_menu(const char *id, lickdir_t *lick, menu_t *menu) {
+    return menu->remove_section(id, lick);
 }

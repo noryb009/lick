@@ -11,36 +11,8 @@ uniso_status_t *new_status() {
     uniso_status_t *s = malloc(sizeof(uniso_status_t));
     s->finished = 0;
     s->files = NULL;
-    s->initrd = NULL;
-    s->kernel = NULL;
     s->error = NULL;
     return s;
-}
-
-int filter_file(const char *f) {
-    if(strcmp(f, "boot.cat") == 0
-            || strcmp(f, "boot.msg") == 0
-            || strcmp(f, "help.msg") == 0
-            || strcmp(f, "help2.msg") == 0
-            || strcmp(f, "isolinux.bin") == 0
-            || strcmp(f, "isolinux.cfg") == 0
-            || strcmp(f, "logo.16") == 0
-            || strcmp(f, "README.HTM") == 0
-            || strstr(f, "/") != NULL) {
-        return 0;
-    }
-
-    return 1;
-}
-
-void find_if_special(uniso_status_t *s, const char *f, const char *dst) {
-    // check for kernel or initrd
-    if(s->kernel == NULL && (strstr(f, "vmlinu") || strstr(f, "VMLINU"))) {
-        s->kernel = concat_strs(3, dst, "/", f);
-    }
-    if(s->initrd == NULL && (strstr(f, "initr") || strstr(f, "INITR"))) {
-        s->initrd = concat_strs(3, dst, "/", f);
-    }
 }
 
 char *create_dest(const char *dst, const char *path, const char *f) {
@@ -74,14 +46,15 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     return 1;
 }
 
-uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso) {
+uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso,
+        distro_filter_f filter) {
     uniso_progress_t total = 0;
     struct archive_entry *e;
 
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
         char *name = strdup2(archive_entry_pathname(e));
         if(archive_entry_filetype(e) != AE_IFDIR
-                && filter_file(name))
+                && filter(name))
             ++total;
         free(name);
     }
@@ -90,7 +63,8 @@ uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso) {
 }
 
 int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
-        uniso_progress_t total, uniso_progress_cb cb, void *cb_data) {
+        distro_filter_f filter, uniso_progress_t total, uniso_progress_cb cb,
+        void *cb_data) {
     struct archive_entry *e;
     uniso_progress_t current = 0;
 
@@ -100,9 +74,9 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
         cb(current, total, cb_data);
 
     while(archive_read_next_header(iso, &e) == ARCHIVE_OK) {
-        char *name = strdup2(archive_entry_pathname(e));
+        char *name = unix_path(strdup2(archive_entry_pathname(e)));
         if(archive_entry_filetype(e) == AE_IFDIR
-                || !filter_file(name)) {
+                || !filter(name)) {
             free(name);
             continue;
         }
@@ -114,7 +88,6 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
             return 0;
         }
         ++current;
-        find_if_special(s, name, dst);
         if(cb)
             cb(current, total, cb_data);
         free(dest);
@@ -133,14 +106,14 @@ struct archive *uniso_open(uniso_status_t *s, const char *src) {
     return iso;
 }
 
-uniso_status_t *uniso(const char *src, const char *dst,
+uniso_status_t *uniso(const char *src, const char *dst, distro_filter_f filter,
         uniso_progress_cb cb, void *cb_data) {
     uniso_status_t *s = new_status();
 
     struct archive *iso = uniso_open(s, src);
     if(!iso)
         return s;
-    uniso_progress_t total = count_in_iso(s, iso);
+    uniso_progress_t total = count_in_iso(s, iso, filter);
     archive_read_free(iso);
     if(total == 0)
         return s;
@@ -148,7 +121,7 @@ uniso_status_t *uniso(const char *src, const char *dst,
     iso = uniso_open(s, src);
     if(!iso)
         return s;
-    if(extract_iso(s, iso, dst, total, cb, cb_data))
+    if(extract_iso(s, iso, dst, filter, total, cb, cb_data))
         s->finished = 1;
     archive_read_free(iso);
 
@@ -156,12 +129,6 @@ uniso_status_t *uniso(const char *src, const char *dst,
 }
 
 void free_uniso_status(uniso_status_t *s) {
-    if(s->initrd != NULL) {
-        free(s->initrd);
-    }
-    if(s->kernel != NULL) {
-        free(s->kernel);
-    }
     if(s->error != NULL) {
         free(s->error);
     }

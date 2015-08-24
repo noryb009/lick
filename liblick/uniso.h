@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "distro.h"
 #include "llist.h"
 
 /**
@@ -17,10 +18,6 @@ typedef struct {
     node_t *files;
     /// an error message, if applicable
     char *error;
-    /// the relative path to the initrd file
-    char *initrd;
-    /// the relative path to the kernel
-    char *kernel;
 } uniso_status_t;
 
 typedef size_t uniso_progress_t;
@@ -35,7 +32,7 @@ typedef void (*uniso_progress_cb)(uniso_progress_t cur,
  * @param cb_data data to call the callback with
  * @return information about the extraction
  */
-uniso_status_t *uniso(const char *src, const char *dst,
+uniso_status_t *uniso(const char *src, const char *dst, distro_filter_f filter,
         uniso_progress_cb cb, void *cb_data);
 /**
  * @brief free the memory used by an uniso_status_t

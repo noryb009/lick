@@ -58,7 +58,6 @@ int install_loader(loader_t *l, sys_info_t *info,
             return 0;
         menu_t *m = get_menu(l);
         m->install(lick);
-        m->regenerate(lick);
         free(m);
         return 1;
     }
@@ -83,8 +82,4 @@ menu_t *get_menu(loader_t *l) {
         return NULL;
     else
         return l->get_menu();
-}
-
-void free_menu(menu_t *menu) {
-    free(menu);
 }

@@ -60,12 +60,6 @@ char *after_last_entry(char *sec, char *sec_end, const char *needle);
  */
 char *check_timeout(char *f, char *key, char *sep);
 /**
- * @brief read a file into a string
- * @param f the file to read
- * @return the contents of the file, in a string
- */
-char *file_to_str(FILE *f);
-/**
  * @brief get the attributes of a file, and set the file attributes for writing
  * @param file the file
  * @return the old attributes of the file

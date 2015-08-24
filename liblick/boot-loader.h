@@ -67,7 +67,3 @@ int uninstall_loader(loader_t *l, sys_info_t *info,
  * @return the corresponding menu plugin
  */
 menu_t *get_menu(loader_t *l);
-/**
- * @brief frees memory used by a menu_t
- */
-void free_menu(menu_t *menu);

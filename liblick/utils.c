@@ -412,30 +412,38 @@ char *strstrr(const char *haystack, const char *needle) {
         return (char *)last;
 }
 
-char *concat_strs(int n, ...) {
-    va_list args;
-    int str_len = 1;
-    int lens[n];
+char *concat_strs_arr(size_t n, char **strs) {
+    size_t str_len = 1;
+    size_t lens[n];
 
-    va_start(args, n);
-    for(int i = 0; i < n; ++i) {
-        lens[i] = strlen(va_arg(args, char*));
+    for(size_t i = 0; i < n; ++i) {
+        lens[i] = strlen(strs[i]);
         str_len += lens[i];
     }
-    va_end(args);
 
     char *s = malloc(str_len);
     s[0] = '\0';
 
     str_len = 0;
+    for(size_t i = 0; i < n; ++i) {
+        strcpy(s + str_len, strs[i]);
+        str_len += lens[i];
+    }
+
+    return s;
+}
+
+char *concat_strs(size_t n, ...) {
+    va_list args;
+    char *strs[n];
+
     va_start(args, n);
     for(int i = 0; i < n; ++i) {
-        strcpy(s + str_len, va_arg(args, char*));
-        str_len += lens[i];
+        strs[i] = va_arg(args, char *);
     }
     va_end(args);
 
-    return s;
+    return concat_strs_arr(n, strs);
 }
 
 #ifdef _WIN32
@@ -509,15 +517,15 @@ char *get_config_path() {
 
     typedef HRESULT (WINAPI *getFolder)(HWND hwndOwner, int nFolder,
             HANDLE hToken, DWORD dwFlags, LPTSTR pszPath);
-    getFolder fn = (getFolder)GetProcAddress(s, "SHGetFolderPath");
+    getFolder fn = (getFolder)GetProcAddress(s, "SHGetFolderPathA");
 
-    if(fn) {
+    if(!fn) {
         FreeLibrary(s);
 
         char *path = get_windows_drive_path();
         if(!path)
             return NULL;
-        char *config = concat_strs(2, path, "ProgramData");
+        char *config = concat_strs(2, path, "ProgramData/lick");
         free(path);
         return config;
     }
@@ -528,11 +536,12 @@ char *get_config_path() {
     HRESULT ret = fn(NULL, CSIDL_COMMON_APPDATA, NULL, 0, str);
     FreeLibrary(s);
 
+    char *ret_str = NULL;
     if(ret == S_OK)
-        return str;
+        ret_str = unix_path(concat_strs(2, str, "/lick"));
 
     free(str);
-    return NULL;
+    return ret_str;
 }
 
 const char *get_command_line() {
@@ -621,6 +630,23 @@ char *read_line(FILE *f) {
 
         s[i] = c;
     }
+}
+
+char *file_to_str(FILE *f) {
+    int len = 0;
+    rewind(f);
+    while(getc(f) != EOF)
+        len++;
+    rewind(f);
+
+    char *buf = malloc(len + 1);
+    if(fread(buf, 1, len, f) < len) {
+        free(buf);
+        return NULL;
+    }
+    buf[len] = '\0';
+
+    return buf;
 }
 
 int is_conf_path(const char *name) {

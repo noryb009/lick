@@ -111,10 +111,17 @@ char *strstrr(const char *haystack, const char *needle);
 /**
  * @brief concatenate strings together
  * @param n the number of strings
+ * @param strs the strings to concatenate, in order
+ * @return the resulting string. Free using free()
+ */
+char *concat_strs_arr(size_t n, char **strs);
+/**
+ * @brief concatenate strings together
+ * @param n the number of strings
  * @param ... the strings to concatenate, in order
  * @return the resulting string. Free using free()
  */
-char *concat_strs(int n, ...);
+char *concat_strs(size_t n, ...);
 /**
  * @brief get the path of the Windows folder
  * @return
@@ -178,6 +185,12 @@ int path_exists(const char *path);
  * @return the line. Free with free().
  */
 char *read_line(FILE *f);
+/**
+ * @brief read a file into a string
+ * @param f the file to read
+ * @return the contents of the file, in a string
+ */
+char *file_to_str(FILE *f);
 /**
  * @brief determine if a file is a configuration file, from the file name
  * @param name the file name

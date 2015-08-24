@@ -8,6 +8,7 @@
 #include "lickdir.h"
 #include "llist.h"
 #include "menu.h"
+#include "uniso.h"
 
 /**
  * @brief information about an installed distribution
