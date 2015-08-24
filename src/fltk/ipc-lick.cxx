@@ -11,7 +11,6 @@ lickdir_t *copy_lickdir_t(lickdir_t *src) {
     lickdir_t *dst = (lickdir_t *)malloc(sizeof(lickdir_t));
     dst->drive = strdup2(src->drive);
     dst->entry = strdup2(src->entry);
-    dst->menu = strdup2(src->menu);
     dst->res = strdup2(src->res);
     dst->err = strdup2(src->err);
     return dst;
@@ -23,7 +22,6 @@ void exchange_lick(ipc *p, lickdir_t *&lick) {
     p
         ->exchange_str(lick->drive)
         ->exchange_str(lick->entry)
-        ->exchange_str(lick->menu)
         ->exchange_str(lick->res)
         ->exchange_str(lick->err)
     ;
@@ -88,18 +86,6 @@ void ipc_loader::exchange(ipc *p) {
     p
         ->exchange(install)
     ;
-    exchange_lick(p, lick);
-}
-
-// IPC_REGEN
-
-ipc_regen::ipc_regen(lickdir_t *lick) {
-    this->lick = copy_lickdir_t(lick);
-}
-ipc_regen::~ipc_regen() {
-    free_lickdir(lick);
-}
-void ipc_regen::exchange(ipc *p) {
     exchange_lick(p, lick);
 }
 
@@ -180,9 +166,6 @@ ipc_lick *recv_command(ipc *p) {
         break;
     case IPC_LOADER:
         c = new ipc_loader();
-        break;
-    case IPC_REGEN:
-        c = new ipc_regen();
         break;
     case IPC_STATUS:
         c = new ipc_status();

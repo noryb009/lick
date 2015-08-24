@@ -51,15 +51,11 @@ int Backend::event_loop() {
                         in->install_dir, in->lick, menu, inner_progress_cb,
                         this);
             send_status(send, ret, in->lick->err);
-            if(check_loader(loader, info))
-                menu->regenerate(in->lick);
             }break;
         case IPC_UNINSTALL: {
             ipc_uninstall *un = (ipc_uninstall *)c;
             int ret = uninstall(un->id, un->lick, menu);
             send_status(send, ret, un->lick->err);
-            if(check_loader(loader, info))
-                menu->regenerate(un->lick);
             }break;
         case IPC_CHECK_LOADER:
             send_status(send, check_loader(loader, info), NULL);
@@ -72,14 +68,6 @@ int Backend::event_loop() {
             } else
                 ret = uninstall_loader(loader, info, l->lick);
             send_status(send, ret, l->lick->err);
-            }break;
-        case IPC_REGEN: {
-            ipc_regen *r = (ipc_regen *)c;
-            if(check_loader(loader, info)) {
-                int ret = menu->regenerate(r->lick);
-                send_status(send, ret, r->lick->err);
-            } else
-                send_status(send, -1, r->lick->err);
             }break;
         case IPC_READY:
         case IPC_STATUS:

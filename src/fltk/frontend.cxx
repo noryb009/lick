@@ -205,16 +205,6 @@ void Frontend::on_loader_inst() {
     progress_set_size();
 }
 
-void Frontend::on_regen() {
-    if(!commands_queue.empty()) {
-        fl_alert("Please wait until the current operation finishes.");
-        return;
-    }
-
-    commands_queue.push(new ipc_regen(lick));
-    progress_set_size();
-}
-
 void Frontend::on_quit() {
     if(!commands_queue.empty()) {
         fl_alert("Please wait until the current operation finishes before exiting.");
@@ -317,8 +307,6 @@ const char *command_name(ipc_lick *c) {
             return "Installing bootloader";
         else
             return "Uninstalling bootloader";
-    case IPC_REGEN:
-        return "Regenerating bootloader menu";
     case IPC_READY:
     case IPC_STATUS:
     case IPC_PROGRESS:
@@ -443,16 +431,6 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
                 handle_error("Error uninstalling loader!");
             clear_commands_queue();
             return;
-        }
-        break;
-    case IPC_REGEN:
-        if(s->ret == -1)
-            fl_alert("Boot loader is not installed!");
-        else if(s->ret)
-            fl_alert("Menu regenerated!");
-        else {
-            fl_alert("Error regenerating menu!");
-            clear_commands_queue();
         }
         break;
     default:

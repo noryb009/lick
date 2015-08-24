@@ -18,7 +18,7 @@ class lick_fltk {open
         xywh {5 23 260 237}
       } {
         Fl_Group {} {
-          label {Install ISO} selected
+          label {Install ISO}
           xywh {5 45 260 215}
         } {
           Fl_Box drop_area_iso {
@@ -62,18 +62,13 @@ class lick_fltk {open
         xywh {0 0 270 20}
       } {
         Submenu {} {
-          label File open
+          label File open selected
           xywh {0 0 100 20}
         } {
           MenuItem {} {
             label {Install/Uninstall Bootloader}
             callback {frontend->on_loader_inst();}
             xywh {10 10 100 20}
-          }
-          MenuItem {} {
-            label {Regenerate Menu}
-            callback {frontend->on_regen();}
-            xywh {20 20 100 20}
           }
           MenuItem {} {
             label Quit

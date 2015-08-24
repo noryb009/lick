@@ -129,12 +129,6 @@ char *ask_iso(program_status_t *p) {
     return c;
 }
 
-int regen_menu(program_status_t *p, int regen) {
-    if(regen && check_loader(p->loader, p->info))
-        return p->menu->regenerate(p->lick);
-    return 1;
-}
-
 int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
         iso = ask_iso(p);
@@ -149,7 +143,7 @@ int install_iso(program_status_t *p, char *iso) {
     char *drive;
     char *id;
     char *name;
-    char *auto_name = gen_name(iso);
+    char *auto_name;
 
     if(p->volume > VOLUME_NO_QUESTIONS) {
         printf("Install to drive:\n");
@@ -173,6 +167,7 @@ int install_iso(program_status_t *p, char *iso) {
                 break;
             }
         }
+        auto_name = gen_name(id);
 
         printf("Enter Name [%s]:\n", auto_name);
         name = read_line(stdin);
@@ -185,7 +180,7 @@ int install_iso(program_status_t *p, char *iso) {
     } else {
         drive = strdup2(p->lick->drive);
         id = gen_id(iso, p->lick, drive);
-        name = auto_name;
+        name = gen_name(id);
     }
 
     char *install_to = concat_strs(3, drive, "/", id);
@@ -292,7 +287,6 @@ int ask_uninstall(program_status_t *p) {
 
     int ret = uninstall_id(p, install->id);
     free_list_installed(entries);
-    regen_menu(p, 1);
     return ret;
 }
 
@@ -330,15 +324,13 @@ int main_menu(program_status_t *p) {
         printf("1) Install ISO\n");
         printf("2) Entry submenu (view/delete)\n");
         printf("3) Install/uninstall boot loader\n");
-        printf("4) Regenerate boot loader menu\n");
-        printf("5) Quit\n");
+        printf("4) Quit\n");
 
         printf("Choice: ");
 
         switch(ask_int()) {
         case 1:
             install_iso(p, NULL);
-            regen_menu(p, 1);
             break;
         case 2:
             entry_submenu(p);
@@ -355,14 +347,6 @@ int main_menu(program_status_t *p) {
             }
             break;
         case 4:
-            if(!check_loader(p->loader, p->info))
-                printf("Loader isn't installed, not loader to regenerate\n");
-            else if(p->menu->regenerate(p->lick))
-                printf("Done.\n");
-            else
-                handle_error(p);
-            break;
-        case 5:
             free_program_status(p);
             exit(0);
             break;
@@ -377,7 +361,7 @@ int auto_install(program_status_t *p, char *iso) {
         return install_iso(p, strdup2(iso));
 
     char *id = gen_id(iso, p->lick, p->lick->drive);
-    char *name = gen_name(iso);
+    char *name = gen_name(id);
     char *path = unix_path(concat_strs(3, p->lick->drive, "/", id));
 
     printf("Auto install:\n");
@@ -512,7 +496,6 @@ int main(int argc, char **argv) {
     program_status_t *p = new_program_status();
     program_args_t *a = handle_args(p, argc, argv);
     int ret = 0;
-    int regen = 0;
 
     p->info = get_system_info();
     p->lick = get_lickdir();
@@ -649,7 +632,6 @@ int main(int argc, char **argv) {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Could not uninstall %s\n", install->id);
                 if(!a->ignore_errors) {
-                    regen_menu(p, 1);
                     return 1;
                 }
                 ret = 1;
@@ -657,7 +639,6 @@ int main(int argc, char **argv) {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Uninstalled %s\n", install->id);
             }
-            regen = 1;
         }
         free_list_installed(entries);
     } else if(a->uninstall) {
@@ -669,13 +650,11 @@ int main(int argc, char **argv) {
                 if(p->volume > VOLUME_SILENCE)
                     printf("Could not uninstall %s\n", (char *)n->val);
                 if(!a->ignore_errors) {
-                    regen_menu(p, 1);
                     return 1;
                 }
                 ret = 1;
             }
         }
-        regen = 1;
     }
 
     for(node_t *n = a->install; n != NULL; n = n->next) {
@@ -685,14 +664,11 @@ int main(int argc, char **argv) {
         } else {
             if(p->volume > VOLUME_SILENCE)
                 printf("Could not install %s\n", (char *)n->val);
-                regen = 1;
                 if(!a->ignore_errors) {
-                    regen_menu(p, 1);
                     return 1;
                 }
                 ret = 1;
         }
-        regen = 1;
     }
 
     if((a->install_loader == 0)
@@ -712,11 +688,6 @@ int main(int argc, char **argv) {
     }
 
     free_program_args(a);
-
-    if(!regen_menu(p, regen)) {
-        printf("Could not regenerate menu\n");
-        return 1;
-    }
 
     if(p->volume > VOLUME_NO_MENU && ret == 0)
         return main_menu(p);
