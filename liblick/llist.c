@@ -9,8 +9,8 @@ node_t *new_node(void *val, node_t *next) {
     return n;
 }
 
-int list_length(node_t *lst) {
-    int len = 0;
+size_t list_length(node_t *lst) {
+    size_t len = 0;
     while(lst != NULL) {
         len++;
         lst = lst->next;

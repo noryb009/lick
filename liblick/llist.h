@@ -32,7 +32,7 @@ node_t *new_node(void *val, node_t *next);
  * @param lst the list to count
  * @return the length of the list
  */
-int list_length(node_t *lst);
+size_t list_length(node_t *lst);
 /**
  * @brief reverse a list
  * @param lst
