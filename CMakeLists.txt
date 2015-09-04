@@ -7,6 +7,8 @@ set(VERSION_PATCH "1")
 
 project(${proj_name})
 
+# TODO: branding
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 
 if(WIN32)
@@ -16,6 +18,9 @@ endif()
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 endif()
 
 include(ExternalProject)

@@ -12,7 +12,6 @@
 /**
  * @brief Paths to the LICK directory and its components
  */
-// TODO: branding
 typedef struct {
     /// path to the drive the lick directory is on
     char *drive;
