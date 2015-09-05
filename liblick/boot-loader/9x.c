@@ -27,7 +27,7 @@ int supported_loader_9x(sys_info_t *info) {
     return info->family == F_WINDOWS_9X && info->version != V_WINDOWS_ME;
 }
 
-int check_loader_9x(sys_info_t *info) {
+int check_loader_9x() {
     // load config.sys into a string
     char *config_sys = config_sys_path();
     if(!config_sys)
@@ -82,6 +82,7 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
 
 char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
     char *item, *item_end, *menu_sec, *menu_sec_end;
+    (void)lick;
     // find the LICK menu item, in the menu section
     if(find_section(config, "[menu]", &menu_sec, &menu_sec_end)
             && (item = strstr(menu_sec, MENU_ITEM_KEY)) != NULL) {
@@ -130,6 +131,7 @@ char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
 // create [PUPPYLINUX] ~> add shell="/path/to/grub.exe"
 // save, with attributes
 int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
+    (void)info;
     // add to config.sys
     char *config_sys = config_sys_path();
     int ret = apply_fn_to_file(config_sys, install_to_config_sys, 1, lick);
@@ -146,6 +148,7 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
 }
 
 int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
+    (void)info;
     // remove from config.sys
     char *config_sys = config_sys_path();
     int ret = apply_fn_to_file(config_sys, uninstall_from_config_sys, 0, lick);

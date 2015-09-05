@@ -57,9 +57,6 @@ int check_loader_uefi(sys_info_t *info) {
 }
 
 int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_uefi(info))
-        return 0;
-
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
 
@@ -132,22 +129,26 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
 }
 
 int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_uefi(info)) {
-        return 0;
-    }
-
+    (void)info;
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
-    if(!bcdedit)
+    if(!bcdedit) {
+        if(!lick->err)
+            lick->err = strdup2("Could not find bcdedit!");
         return 0;
+    }
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
     get_id_from_command_range(c, id, "----------", "EFI\\LICK\\");
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
     free(bcdedit);
-    if(!run_system(c)) {return 0;}
+    if(!run_system(c)) {
+        if(!lick->err)
+            lick->err = strdup2("Could not delete entry from boot loader!");
+        return 0;
+    }
 
     return 1;
 }

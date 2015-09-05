@@ -243,8 +243,11 @@ int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
 
     char *new_contents = fn(contents, lick);
     free(contents);
-    if(!new_contents)
+    if(!new_contents) {
+        if(!lick->err)
+            lick->err = strdup2("Could not modify boot loader file.");
         return 0;
+    }
 
     if(backup)
         backup_file(file);

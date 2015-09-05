@@ -56,13 +56,13 @@ void loud_test_install(char *iso) {
     loader_t *loader = get_loader(info);
     lickdir_t *lick = test_lick("C:\\lick");
 
-    printf("check: %d\n", check_loader(loader, info));
+    printf("check: %d\n", check_loader(loader));
     printf("install: %d\n", install_loader(loader, info, lick));
-    printf("check: %d\n", check_loader(loader, info));
+    printf("check: %d\n", check_loader(loader));
     getchar(); // to modify file
-    install_iso("puppy_cli.iso", "C:\\CLI");
+    install_iso(iso, "C:\\CLI");
     printf("uninstall:%d\n", uninstall_loader(loader, info, lick));
-    printf("check: %d\n", check_loader(loader, info));
+    printf("check: %d\n", check_loader(loader));
 
     free(lick);
     free(loader);
@@ -214,6 +214,8 @@ void test_bootloader() {
 }
 
 int main(int argc, char* argv[]) {
+    (void)argc;
+    (void)argv;
     sys_info_t *info = get_system_info();
     print_info(info);
     free_sys_info(info);

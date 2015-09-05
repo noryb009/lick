@@ -26,7 +26,7 @@ class ipc_lick : public ipc_command {
 class ipc_exit : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_EXIT;}
-        void exchange(ipc *p) {}
+        void exchange(ipc *p) {(void)p;}
 };
 
 class ipc_install : public ipc_lick {
@@ -60,7 +60,7 @@ class ipc_uninstall : public ipc_lick {
 class ipc_check_loader : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_CHECK_LOADER;}
-        void exchange(ipc *p) {}
+        void exchange(ipc *p) {(void)p;}
 };
 
 class ipc_loader : public ipc_lick {
@@ -78,7 +78,7 @@ class ipc_loader : public ipc_lick {
 class ipc_ready : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_READY;}
-        void exchange(ipc *p) {}
+        void exchange(ipc *p) {(void)p;}
 };
 
 class ipc_status : public ipc_lick {

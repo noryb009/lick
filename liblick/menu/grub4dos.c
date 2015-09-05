@@ -11,9 +11,7 @@
 #include "../utils.h"
 
 int install_grub4dos(lickdir_t *lick) {
-    char *win_drive = get_windows_drive_path();
-    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
-    free(win_drive);
+    char *menu = unix_path(concat_strs(2, lick->drive, "/lickmenu.lst"));
     FILE *f = fopen(menu, "w");
     free(menu);
 
@@ -40,11 +38,10 @@ int install_grub4dos(lickdir_t *lick) {
 }
 
 int uninstall_grub4dos(lickdir_t *lick) {
-    char *win_drive = get_windows_drive_path();
-    char *menu_lst = concat_strs(2, win_drive, "/lickmenu.lst");
+    (void)lick;
+    char *menu_lst = concat_strs(2, lick->drive, "/lickmenu.lst");
     unlink_file(menu_lst);
     free(menu_lst);
-    free(win_drive);
 
     //char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");
     //unlink_file(gfxmenu);
@@ -63,18 +60,14 @@ char *gen_grub4dos(distro_info_t *info) {
 }
 
 int append_grub4dos(const char *id, const char *section, lickdir_t *lick) {
-    char *win_drive = get_windows_drive_path();
-    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
-    free(win_drive);
+    char *menu = unix_path(concat_strs(2, lick->drive, "/lickmenu.lst"));
     int ret = flat_append_section(menu, id, section, lick);
     free(menu);
     return ret;
 }
 
 int remove_grub4dos(const char *id, lickdir_t *lick) {
-    char *win_drive = get_windows_drive_path();
-    char *menu = unix_path(concat_strs(2, win_drive, "/lickmenu.lst"));
-    free(win_drive);
+    char *menu = unix_path(concat_strs(2, lick->drive, "/lickmenu.lst"));
     int ret = flat_remove_section(menu, id, lick);
     free(menu);
     return ret;

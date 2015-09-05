@@ -119,7 +119,7 @@ char *ask_drive(node_t *drives) {
     }
 }
 
-char *ask_iso(program_status_t *p) {
+char *ask_iso() {
     printf("ISO file: ");
     char *c = read_line(stdin);
     if(strcmp(c, "") == 0 && strcmp(c, "\n") == 0) {
@@ -131,7 +131,7 @@ char *ask_iso(program_status_t *p) {
 
 int install_iso(program_status_t *p, char *iso) {
     if(iso == NULL)
-        iso = ask_iso(p);
+        iso = ask_iso();
     if(iso == NULL)
         return 0;
 
@@ -189,7 +189,7 @@ int install_iso(program_status_t *p, char *iso) {
     // install
     int ret = 0;
     do {
-        if(!check_loader(p->loader, p->info))
+        if(!check_loader(p->loader))
             if(!install_loader(p->loader, p->info, p->lick))
                 break;
 
@@ -234,7 +234,7 @@ int uninstall_id(program_status_t *p, char *id) {
     // check if last entry
     node_t *entries = list_installed(p->lick);
     if(entries == NULL)
-        if(check_loader(p->loader, p->info))
+        if(check_loader(p->loader))
             if(ask_uninstall_loader(p))
                 if(!uninstall_loader(p->loader, p->info, p->lick)) {
                     handle_error(p);
@@ -336,7 +336,7 @@ int main_menu(program_status_t *p) {
             entry_submenu(p);
             break;
         case 3:
-            if(check_loader(p->loader, p->info)) {
+            if(check_loader(p->loader)) {
                 if(ask_uninstall_loader(p))
                     if(!uninstall_loader(p->loader, p->info, p->lick))
                         printf("Error uninstalling loader!\n");
@@ -549,7 +549,7 @@ int main(int argc, char **argv) {
             free_program_args(a);
             return 1;
         }
-        int ret = check_loader(p->loader, p->info);
+        int ret = check_loader(p->loader);
         if(p->volume > VOLUME_SILENCE) {
             printf("Boot loader is ");
             if(!ret)
@@ -614,7 +614,7 @@ int main(int argc, char **argv) {
     }
 
     if(a->install_loader == 1) {
-        if(check_loader(p->loader, p->info)) {
+        if(check_loader(p->loader)) {
             if(p->volume > VOLUME_SILENCE)
                 printf("Loader already installed\n");
         } else if(!install_loader(p->loader, p->info, p->lick)) {
@@ -674,7 +674,7 @@ int main(int argc, char **argv) {
     if((a->install_loader == 0)
             || (a->uninstall_all && a->install == NULL
                 && a->install_loader == -1)) {
-        if(!check_loader(p->loader, p->info)) {
+        if(!check_loader(p->loader)) {
             if(p->volume > VOLUME_SILENCE)
                 printf("Loader not installed\n");
         } else if(!uninstall_loader(p->loader, p->info, p->lick)) {

@@ -23,11 +23,7 @@ int supported_loader_nt(sys_info_t *info) {
     return info->family == F_WINDOWS_NT;
 }
 
-int check_loader_nt(sys_info_t *info) {
-    if(!supported_loader_nt(info)) {
-        return 0;
-    }
-
+int check_loader_nt() {
     // load boot.ini into a string
     char *boot_ini = boot_ini_path();
     FILE *f = fopen(boot_ini, "r");
@@ -66,6 +62,7 @@ char *install_to_boot_ini(char *boot, lickdir_t *lick) {
 }
 
 char *uninstall_from_boot_ini(char *boot, lickdir_t *lick) {
+    (void)lick;
     // find ="Start Puppy Linux"
     char *bootitem = strstr(boot, "pupldr=");
     if(!bootitem)
@@ -93,10 +90,7 @@ char *uninstall_from_boot_ini(char *boot, lickdir_t *lick) {
 // make sure good timeout
 // [operating systems] ~> /path/to/grldr="Puppy Linux"
 int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_nt(info)) {
-        return 0;
-    }
-
+    (void)info;
     // add to boot.ini
     char *boot_ini = boot_ini_path();
     int ret = apply_fn_to_file(boot_ini, install_to_boot_ini, 1, lick);
@@ -114,10 +108,7 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
 }
 
 int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
-    if(!supported_loader_nt(info)) {
-        return 0;
-    }
-
+    (void)info;
     // remove from boot.ini
     char *boot_ini = boot_ini_path();
     int ret = apply_fn_to_file(boot_ini, uninstall_from_boot_ini, 0, lick);

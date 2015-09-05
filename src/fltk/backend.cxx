@@ -58,7 +58,7 @@ int Backend::event_loop() {
             send_status(send, ret, un->lick->err);
             }break;
         case IPC_CHECK_LOADER:
-            send_status(send, check_loader(loader, info), NULL);
+            send_status(send, check_loader(loader), NULL);
             break;
         case IPC_LOADER: {
             ipc_loader *l = (ipc_loader *)c;

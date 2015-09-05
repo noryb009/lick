@@ -46,7 +46,7 @@ int extract_file(uniso_status_t *s, struct archive *iso, const char *dst) {
     return 1;
 }
 
-uniso_progress_t count_in_iso(uniso_status_t *s, struct archive *iso,
+uniso_progress_t count_in_iso(struct archive *iso,
         distro_filter_f filter) {
     uniso_progress_t total = 0;
     struct archive_entry *e;
@@ -113,7 +113,7 @@ uniso_status_t *uniso(const char *src, const char *dst, distro_filter_f filter,
     struct archive *iso = uniso_open(s, src);
     if(!iso)
         return s;
-    uniso_progress_t total = count_in_iso(s, iso, filter);
+    uniso_progress_t total = count_in_iso(iso, filter);
     archive_read_free(iso);
     if(total == 0)
         return s;

@@ -72,7 +72,7 @@ int copy_file(const char *dst, const char *src) {
 #define BUFFER_SIZE 512
     char buf[BUFFER_SIZE];
     while(1) {
-        int c = fread(buf, 1, BUFFER_SIZE, s);
+        size_t c = fread(buf, 1, BUFFER_SIZE, s);
         if(c <= 0)
             break;
         if(fwrite(buf, 1, c, d) != c) {
@@ -438,7 +438,7 @@ char *concat_strs(size_t n, ...) {
     char *strs[n];
 
     va_start(args, n);
-    for(int i = 0; i < n; ++i) {
+    for(size_t i = 0; i < n; ++i) {
         strs[i] = va_arg(args, char *);
     }
     va_end(args);
@@ -633,7 +633,7 @@ char *read_line(FILE *f) {
 }
 
 char *file_to_str(FILE *f) {
-    int len = 0;
+    size_t len = 0;
     rewind(f);
     while(getc(f) != EOF)
         len++;

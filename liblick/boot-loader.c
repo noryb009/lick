@@ -25,7 +25,7 @@ loader_t *get_loader(sys_info_t *info) {
     loader_t *ret = NULL;
     for(int i = 0; i < NUM_LOADERS; ++i) {
         if(loaders[i].supported(info)) {
-            if(loaders[i].check(info)) {
+            if(loaders[i].check()) {
                 // if installed, return this
                 if(ret == NULL)
                     ret = malloc(sizeof(loader_t));
@@ -47,8 +47,8 @@ void free_loader(loader_t *loader) {
 }
 
 // consistency
-int check_loader(loader_t *l, sys_info_t *info) {
-    return l->check(info);
+int check_loader(loader_t *l) {
+    return l->check();
 }
 
 int install_loader(loader_t *l, sys_info_t *info,

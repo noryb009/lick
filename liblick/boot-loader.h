@@ -15,9 +15,9 @@
  */
 typedef struct {
     /// determines if the plugin supports the system
-    int (*supported)(sys_info_t *info);
+    int (*supported)();
     /// determines if the plugin is currently installed
-    int (*check)(sys_info_t *info);
+    int (*check)();
     /// installs LICK, using the plugin
     int (*install)(sys_info_t *info, lickdir_t *lick);
     /// uninstall LICK, using the plugin
@@ -39,10 +39,9 @@ void free_loader(loader_t *loader);
 /**
  * @brief determine if the boot loader is already installed
  * @param l a supported plugin
- * @param info a sys_info_t, filled with info from the current system
  * @return 1 if the loader is installed; 0 if not
  */
-int check_loader(loader_t *l, sys_info_t *info);
+int check_loader(loader_t *l);
 /**
  * @brief installs the loader
  * @param l a supported plugin

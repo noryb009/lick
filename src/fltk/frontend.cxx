@@ -531,6 +531,8 @@ int Frontend::event_loop() {
 }
 
 int Frontend::main(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
     waiting_for_backend = true;
     reset();
 

@@ -33,6 +33,7 @@ node_t *get_conf_files(const char *path) {
 }
 
 installed_t *get_installed(lickdir_t *lick, const char *filename) {
+    (void)lick;
     FILE *f = fopen(filename, "r");
     if(!f)
         return NULL;
