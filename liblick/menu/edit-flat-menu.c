@@ -160,7 +160,7 @@ section_t *new_part_section(const char *c) {
 section_t *new_section(type_e type, const char *id, const char *content) {
     section_t *s = malloc(sizeof(section_t));
     s->type = type;
-    if(id) s->id = strdup(id); else s->id = NULL; // TODO: s->id = strdup2(id);
+    s->id = strdup2(id);
     s->content = content;
     s->content_len = strlen(content);
     return s;
@@ -197,7 +197,6 @@ node_t *get_sections(const char *f) {
     // while not done reading file
     while(*c != '\0') {
         // read a token
-        // TODO: stuff before token itself? "\t\t## start"
         get_double_comment(c, &t);
         if(t.type == T_DOUBLE_COMMENT) {
             c = read_double_comment(c + t.len, &tc);

@@ -9,8 +9,6 @@
 
 #include "llist.h"
 
-typedef int(*distro_filter_f)(const char *);
-
 /**
  * @brief Information taken from a list of files
  */
