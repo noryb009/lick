@@ -80,7 +80,7 @@ if(WIN32 AND NOT UNIX)
     set(CPACK_NSIS_MENU_LINKS
         "lick-cli.exe" "LICK Command Line Interface"
         "lick-fltk.exe" "LICK")
-    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "lick-fltk.exe")
+    set(CPACK_NSIS_MUI_FINISHPAGE_RUN "..\\\\lick-fltk.exe")
 
     # on reinstall, uninstall boot loader, then install overtop
     set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
