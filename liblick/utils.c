@@ -149,7 +149,7 @@ void read_from_pipe(HANDLE pipe, char **out) {
     size_t size = PIPE_BUF_SIZE * 4;
     size_t used = 0;
     *out = malloc(size + 1);
-    (*out)[0] = '\0';
+    (*out)[used] = '\0';
 
     DWORD c_read;
     char buf[PIPE_BUF_SIZE];
@@ -158,11 +158,11 @@ void read_from_pipe(HANDLE pipe, char **out) {
         success = ReadFile(pipe, buf, PIPE_BUF_SIZE, &c_read, NULL);
         if(!success || c_read == 0)
             break;
-        while(used + c_read > size) {
+        if(used + c_read > size) {
             size *= 2;
             *out = realloc(*out, size + 1);
         }
-        strncat(*out, buf, c_read);
+        strncpy((*out) + used, buf, c_read);
         used += c_read;
         (*out)[used] = '\0';
     }
@@ -434,6 +434,8 @@ char *concat_strs_arr(size_t n, char **strs) {
 }
 
 char *concat_strs(size_t n, ...) {
+    if(n == 0)
+        return strdup2("");
     va_list args;
     char *strs[n];
 

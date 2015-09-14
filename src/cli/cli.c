@@ -662,12 +662,13 @@ int main(int argc, char **argv) {
             if(p->volume > VOLUME_SILENCE)
                 printf("Installed %s\n", (char *)n->val);
         } else {
-            if(p->volume > VOLUME_SILENCE)
+            if(p->volume > VOLUME_SILENCE) {
                 printf("Could not install %s\n", (char *)n->val);
                 if(!a->ignore_errors) {
                     return 1;
                 }
                 ret = 1;
+            }
         }
     }
 
