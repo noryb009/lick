@@ -50,10 +50,9 @@ add_subdirectory(src)
 
 install(DIRECTORY res
     DESTINATION .)
-install(DIRECTORY
-    DESTINATION menu)
-install(DIRECTORY
-    DESTINATION entries)
+install(FILES README.md
+    DESTINATION .
+    RENAME README.txt)
 install(FILES LICENSE
     DESTINATION .
     RENAME LICENSE.txt)
