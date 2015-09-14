@@ -53,7 +53,7 @@ int check_loader(loader_t *l) {
 
 int install_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
-    if(!l->check(info)) {
+    if(!l->check()) {
         if(!l->install(info, lick))
             return 0;
         menu_t *m = get_menu(l);
@@ -66,7 +66,7 @@ int install_loader(loader_t *l, sys_info_t *info,
 
 int uninstall_loader(loader_t *l, int reinstall, sys_info_t *info,
         lickdir_t *lick) {
-    if(l->check(info)) {
+    if(l->check()) {
         if(!l->uninstall(info, lick))
             return 0;
         if(!reinstall) {

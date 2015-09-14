@@ -44,11 +44,7 @@ int supported_loader_vista(sys_info_t *info) {
     return 0;
 }
 
-int check_loader_vista(sys_info_t *info) {
-    if(!supported_loader_vista(info)) {
-        return 0;
-    }
-
+int check_loader_vista() {
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
