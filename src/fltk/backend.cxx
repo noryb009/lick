@@ -66,7 +66,7 @@ int Backend::event_loop() {
             if(l->install) {
                 ret = install_loader(loader, info, l->lick);
             } else
-                ret = uninstall_loader(loader, info, l->lick);
+                ret = uninstall_loader(loader, 0, info, l->lick);
             send_status(send, ret, l->lick->err);
             }break;
         case IPC_READY:

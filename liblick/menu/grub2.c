@@ -41,16 +41,18 @@ int unmount_uefi_partition(char drive) {
 
 int install_grub2(lickdir_t *lick) {
     char *grub_cfg_lick = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
-    char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/lickgrub.cfg"));
-    if(!copy_file(grub_cfg_lick, grub_cfg_header)) {
-        free(grub_cfg_lick);
+    if(!path_exists(grub_cfg_lick)) {
+        char *grub_cfg_header = unix_path(concat_strs(2, lick->res, "/lickgrub.cfg"));
+        if(!copy_file(grub_cfg_lick, grub_cfg_header)) {
+            free(grub_cfg_lick);
+            free(grub_cfg_header);
+            if(!lick->err)
+                lick->err = strdup2("Error writing to grub menu.");
+            return 0;
+        }
         free(grub_cfg_header);
-        if(!lick->err)
-            lick->err = strdup2("Error writing to grub menu.");
-        return 0;
     }
     free(grub_cfg_lick);
-    free(grub_cfg_header);
 
     char drive = mount_uefi_partition();
     if(drive == '\0')

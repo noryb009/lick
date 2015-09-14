@@ -54,11 +54,12 @@ int install_loader(loader_t *l, sys_info_t *info,
 /**
  * @brief uninstalls the loader
  * @param l a supported plugin
+ * @param reinstall 1 if LICK is being reinstalled
  * @param info a sys_info_t, filled with info from the current system
  * @param lick the LICK directory
  * @return 1 on success, 0 on error, -1 if not installed
  */
-int uninstall_loader(loader_t *l, sys_info_t *info,
+int uninstall_loader(loader_t *l, int reinstall, sys_info_t *info,
         lickdir_t *lick);
 /**
  * @brief get the menu corresponding to the plugin

@@ -12,6 +12,11 @@
 
 int install_grub4dos(lickdir_t *lick) {
     char *menu = unix_path(concat_strs(2, lick->drive, "/lickmenu.lst"));
+    if(path_exists(menu)) {
+        free(menu);
+        return 1;
+    }
+
     FILE *f = fopen(menu, "w");
     free(menu);
 

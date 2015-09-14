@@ -61,7 +61,7 @@ void loud_test_install(char *iso) {
     printf("check: %d\n", check_loader(loader));
     getchar(); // to modify file
     install_iso(iso, "C:\\CLI");
-    printf("uninstall:%d\n", uninstall_loader(loader, info, lick));
+    printf("uninstall:%d\n", uninstall_loader(loader, 0, info, lick));
     printf("check: %d\n", check_loader(loader));
 
     free(lick);
@@ -75,7 +75,7 @@ void test_install() {
     lickdir_t *lick = test_lick("C:\\lick");
 
     install_loader(loader, info, lick);
-    uninstall_loader(loader, info, lick);
+    uninstall_loader(loader, 0, info, lick);
 
     free(lick);
     free(loader);

@@ -64,14 +64,16 @@ int install_loader(loader_t *l, sys_info_t *info,
     return -1; // already installed
 }
 
-int uninstall_loader(loader_t *l, sys_info_t *info,
+int uninstall_loader(loader_t *l, int reinstall, sys_info_t *info,
         lickdir_t *lick) {
     if(l->check(info)) {
         if(!l->uninstall(info, lick))
             return 0;
-        menu_t *m = get_menu(l);
-        m->uninstall(lick);
-        free(m);
+        if(!reinstall) {
+            menu_t *m = get_menu(l);
+            m->uninstall(lick);
+            free(m);
+        }
         return 1;
     }
     return -1; // already uninstalled

@@ -236,7 +236,7 @@ int uninstall_id(program_status_t *p, char *id) {
     if(entries == NULL)
         if(check_loader(p->loader))
             if(ask_uninstall_loader(p))
-                if(!uninstall_loader(p->loader, p->info, p->lick)) {
+                if(!uninstall_loader(p->loader, 0, p->info, p->lick)) {
                     handle_error(p);
                     // don't return error - still uninstalled entry
                 }
@@ -338,7 +338,7 @@ int main_menu(program_status_t *p) {
         case 3:
             if(check_loader(p->loader)) {
                 if(ask_uninstall_loader(p))
-                    if(!uninstall_loader(p->loader, p->info, p->lick))
+                    if(!uninstall_loader(p->loader, 0, p->info, p->lick))
                         printf("Error uninstalling loader!\n");
             } else {
                 if(ask_install_loader(p))
@@ -417,6 +417,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
     a->install = NULL;
     a->uninstall = NULL;
     a->uninstall_all = 0;
+    a->reinstall = 0;
 
     struct option ops[] = {
         // meta
@@ -437,6 +438,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         {"install", required_argument, 0, 'i'},
         {"uninstall", required_argument, 0, 'u'},
         {"uninstall-all", no_argument, &a->uninstall_all, 1},
+        {"reinstall", no_argument, &a->reinstall, 1},
         {0, 0, 0, 0}
     };
     int c;
@@ -678,7 +680,7 @@ int main(int argc, char **argv) {
         if(!check_loader(p->loader)) {
             if(p->volume > VOLUME_SILENCE)
                 printf("Loader not installed\n");
-        } else if(!uninstall_loader(p->loader, p->info, p->lick)) {
+        } else if(!uninstall_loader(p->loader, a->reinstall, p->info, p->lick)) {
             if(p->volume > VOLUME_SILENCE)
                 printf("Error uninstalling loader\n");
             if(!a->ignore_errors)

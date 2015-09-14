@@ -75,9 +75,9 @@ int install_cb(const char *id, const char *name, const char *iso,
         uniso_progress_cb cb, void *cb_data);
 
 /**
- * @brief install a distribution
- * @param lick the LICK directory
+ * @brief uninstall a distribution
  * @param id the id
+ * @param lick the LICK directory
  * @param menu the menu plugin
  * @return 1 on success, 0 on error
  */

@@ -27,4 +27,5 @@ typedef struct {
     node_t *install;
     node_t *uninstall;
     int uninstall_all;
+    int reinstall;
 } program_args_t;

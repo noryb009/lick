@@ -99,7 +99,7 @@ if(WIN32 AND NOT UNIX)
           Pop $lick_exit_code
           StrCmp '$lick_exit_code' '1' 0 lick_after_preinstall
           ; uninstall loader
-          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-loader'
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-loader --reinstall'
           StrCpy $lick_reinstall_boot 1
         lick_after_preinstall:")
 
