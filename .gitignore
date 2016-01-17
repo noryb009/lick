@@ -1,5 +1,6 @@
 build*
 doc/*
 !doc/Doxyfile
+!doc/pages
 res/*
 !res/lickgrub.cfg
