@@ -122,7 +122,7 @@ char *ask_drive(node_t *drives) {
 char *ask_iso() {
     printf("ISO file: ");
     char *c = read_line(stdin);
-    if(strcmp(c, "") == 0 && strcmp(c, "\n") == 0) {
+    if(strcmp(c, "") == 0 || strcmp(c, "\n") == 0) {
         free(c);
         return NULL;
     }

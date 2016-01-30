@@ -575,7 +575,10 @@ char *normalize_path(char *str, char slash) {
             break;
         } else if(is_slash(str[i])) {
             if(!last_was_slash) {
-                last_was_slash = 1;
+                // Windows can have network paths, which start with '\\'
+                //   (two backslashes, not an escaped backslash)
+                if(i != 0)
+                    last_was_slash = 1;
                 str[j++] = slash;
             }
         } else {
