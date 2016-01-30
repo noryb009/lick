@@ -28,7 +28,10 @@ node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
     if(i->kernel) {
         distro_info_t *i2 = copy_distro_info(i);
         i->options = concat_strs(2, "pfix=fsck psubdir=", dst_menu);
-        i2->options = concat_strs(2, "pfix=ram psubdir=", dst_menu);
+        // TODO: savefile=none is for fatdog.
+        //   Fatdog should probably be its own distro
+        i2->options = concat_strs(2,
+                "pfix=ram savefile=none psubdir=", dst_menu);
         i2->name = concat_strs(2, name, " (no save file)");
         ret = new_node(i2, ret);
     }
