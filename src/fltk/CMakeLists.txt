@@ -8,10 +8,28 @@ set(sources
     ipc-lick.cxx)
 
 find_package(FLTK REQUIRED)
-FLTK_WRAP_UI(${exe_name} gui.fl)
+
+# TODO: swap when cmake fixes fltk_wrap_ui
+#fltk_wrap_ui(${exe_name} gui.fl)
+#set(sources
+#    ${sources}
+#    ${${exe_name}_FLTK_UI_SRCS})
+set(gui_header ${CMAKE_CURRENT_BINARY_DIR}/gui.h)
+set(gui_source ${CMAKE_CURRENT_BINARY_DIR}/gui.cxx)
+set(gui_fl ${CMAKE_CURRENT_LIST_DIR}/gui.fl)
+message("${CMAKE_CURRENT_LIST_DIR}/gui.fl")
+add_custom_command(
+    OUTPUT ${gui_source}
+    COMMAND ${FLTK_FLUID_EXECUTABLE} -h ${gui_header} -o ${gui_source} -c ${gui_fl}
+    DEPENDS ${gui_fl})
 set(sources
     ${sources}
-    ${${exe_name}_FLTK_UI_SRCS})
+#    ${${exe_name}_FLTK_UI_SRCS})
+    ${gui_source})
+set(inc_dirs
+    ${inc_dirs}
+    ${CMAKE_CURRENT_BINARY_DIR})
+
 
 set(inc_dirs
     ${inc_dirs}
