@@ -320,6 +320,10 @@ const char *command_name(ipc_lick *c) {
 void Frontend::progress_reset() {
     w->progress_window->hide();
 }
+void Frontend::progress_reset_if_done() {
+    if(commands_queue.empty())
+        progress_reset();
+}
 void Frontend::progress_set_size() {
     bar->maximum(commands_queue.size());
     bar->value(0);
@@ -374,6 +378,7 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
             return;
         }
         refresh_window();
+        progress_reset_if_done();
         fl_message("Installed successfully!");
         break;
     case IPC_UNINSTALL: {
@@ -394,6 +399,8 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
             if(fl_choice("Uninstalled successfully!\nDo you wish to uninstall the boot loader? If you are not sure, answer 'YES'.", "No", "Yes", NULL) == 1)
                 remove_next = 0;
         } else {
+            if(remove_next && commands_queue.size() == 1)
+                progress_reset();
             fl_message("Uninstalled successfully!");
         }
 
@@ -479,8 +486,7 @@ int Frontend::handle_event(ipc_lick *c) {
         ipc_lick *command = commands_queue.front();
         commands_queue.pop();
         handle_status(command, (ipc_status *)c);
-        if(commands_queue.empty())
-            progress_reset();
+        progress_reset_if_done();
         delete command;
         }break;
     case IPC_PROGRESS: {

@@ -35,6 +35,7 @@ class Frontend {
         void clear_commands_queue();
 
         void progress_reset();
+        void progress_reset_if_done();
         void progress_set_size();
         void progress_set();
         void progress_set_sub(uniso_progress_t cur, uniso_progress_t total);
