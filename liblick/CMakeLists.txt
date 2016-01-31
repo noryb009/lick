@@ -10,6 +10,7 @@ set(sources
     "boot-loader/utils.c"
     "boot-loader/vista.c"
     "distro.c"
+    "distro/fatdog.c"
     "distro/puppy.c"
     "distro/utils.c"
     "drives.c"

@@ -109,6 +109,15 @@ char *strdup2(const char *s);
  */
 char *strstrr(const char *haystack, const char *needle);
 /**
+ * @brief returns a new string with a string replaced
+ * @param haystack the string to look through
+ * @param needle the string to look for
+ * @param replacement the string to replace the needle with
+ * @return a pointer to a string. Free using free()
+ */
+char *strrep(const char *haystack, const char *needle,
+        const char *replacement);
+/**
  * @brief concatenate strings together
  * @param n the number of strings
  * @param strs the strings to concatenate, in order

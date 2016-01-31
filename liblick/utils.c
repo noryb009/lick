@@ -412,6 +412,28 @@ char *strstrr(const char *haystack, const char *needle) {
         return (char *)last;
 }
 
+char *strrep(const char *haystack, const char *needle,
+        const char *replacement) {
+    size_t h_size = strlen(haystack);
+    size_t n_size = strlen(needle);
+    size_t rep_size = strlen(replacement);
+    assert(h_size > 0);
+
+    char *needle_loc = strstr(haystack, needle);
+    if(!needle_loc)
+        return strdup2(haystack);
+    size_t prefix = needle_loc - haystack;
+
+    // need to create a string:
+    // [before needle] + [replacement] + [after needle]
+    char *ret = malloc(1 + h_size - n_size + rep_size);
+    strncpy(ret, haystack, prefix);
+    strcpy(ret + prefix, replacement);
+    strcpy(ret + prefix + rep_size, needle_loc + n_size);
+
+    return ret;
+}
+
 char *concat_strs_arr(size_t n, char **strs) {
     size_t str_len = 1;
     size_t lens[n];
