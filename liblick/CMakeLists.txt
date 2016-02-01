@@ -14,7 +14,6 @@ set(sources
     "distro/puppy.c"
     "distro/utils.c"
     "drives.c"
-    "id-utils.c"
     "install.c"
     "lickdir.c"
     "llist.c"
@@ -25,7 +24,11 @@ set(sources
     "scandir.c"
     "system-info.c"
     "uniso.c"
-    "utils.c")
+    "utils/file-utils.c"
+    "utils/fs-utils.c"
+    "utils/id-utils.c"
+    "utils/string-utils.c"
+    "utils/system-utils.c")
 
 set(inc_dirs
     ${inc_dirs}

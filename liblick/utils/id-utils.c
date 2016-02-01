@@ -1,8 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "id-utils.h"
-#include "utils.h"
+#include "fs-utils.h"
+#include "string-utils.h"
 
 char *gen_name_base(const char *iso) {
     char id_arr[strlen(iso) + 1];
