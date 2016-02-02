@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -120,76 +121,96 @@ void free_list_installed(node_t *n) {
 int install_cb(const char *id, const char *name, distro_e distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu, uniso_progress_cb cb, void *cb_data) {
-    char *info_path = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
+    int ret = 0;
+    char *info_path = NULL;
+    bool entry_dir_created = false;
+    FILE *info_f = NULL;
+    distro_t *dist = NULL;
+    uniso_status_t *status = NULL;
 
-    if(path_exists(info_path)) {
-        free(info_path);
-        if(lick->err == NULL)
-            lick->err = strdup2("ID conflict.");
-        return 0;
-    }
+    for(;;) {
+        info_path = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
+        if(path_exists(info_path)) {
+            if(lick->err == NULL)
+                lick->err = strdup2("ID conflict.");
+            break;
+        }
 
-    char iso_name[strlen(iso) + 1];
-    if(!path_exists(unix_path(strcpy(iso_name, iso)))) {
-        free(info_path);
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not find ISO file.");
-        return 0;
-    }
+        char iso_name[strlen(iso) + 1];
+        if(!path_exists(unix_path(strcpy(iso_name, iso)))) {
+            if(lick->err == NULL)
+                lick->err = strdup2("Could not find ISO file.");
+            break;
+        }
 
-    make_dir_parents(lick->entry);
-    FILE *info_f = fopen(info_path, "w");
-    if(!info_f) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to info file.");
-        free(info_path);
-        unlink_dir_parents(lick->entry);
-        return 0;
-    }
+        make_dir_parents(lick->entry);
+        entry_dir_created = true;
 
-    distro_t *dist = get_distro(distro);
+        info_f = fopen(info_path, "w");
+        if(!info_f) {
+            if(lick->err == NULL)
+                lick->err = strdup2("Could not write to info file.");
+            break;
+        }
 
-    uniso_status_t *status = uniso(iso_name, install_dir, dist->filter, cb, cb_data);
-    if(status->finished == 0) {
-        if(lick->err == NULL)
-            lick->err = strdup2(status->error);
+        dist = get_distro(distro);
 
-        // delete files
+        status = uniso(iso_name, install_dir, dist->filter, cb, cb_data);
+        if(status->finished == 0) {
+            if(lick->err == NULL)
+                lick->err = strdup2(status->error);
+            break;
+        }
+
+        // write menu entries
+        install_menu(status->files, install_dir, dist, id, name, lick, menu);
+        free_distro(dist);
+
+        fprintf(info_f, "name %s\n", name);
+        fprintf(info_f, "-----\n");
         for(node_t *n = status->files; n != NULL; n = n->next) {
             char *s = concat_strs(3, install_dir, "/", n->val);
-            unlink_file(unix_path(s));
+            fprintf(info_f, "%s\n", unix_path(s));
             free(s);
         }
-        char install_dir_copy[strlen(install_dir) + 1];
-        unlink_dir(unix_path(strcpy(install_dir_copy, install_dir)));
+        char install_dir_unix[strlen(install_dir) + 1];
+        strcpy(install_dir_unix, install_dir);
+        fprintf(info_f, "%s\n", unix_path(install_dir_unix));
+
+        // success
+        ret = 1;
+        break;
+    }
+
+    if(status) {
+        if(ret != 1) {
+            // delete files
+            for(node_t *n = status->files; n != NULL; n = n->next) {
+                char *s = concat_strs(3, install_dir, "/", n->val);
+                unlink_file(unix_path(s));
+                free(s);
+            }
+
+            // unlink directory
+            char install_dir_copy[strlen(install_dir) + 1];
+            unlink_dir(unix_path(strcpy(install_dir_copy, install_dir)));
+        }
 
         free_uniso_status(status);
-        fclose(info_f);
-        unlink_file(info_path);
-        free(info_path);
+    }
+    if(dist)
         free_distro(dist);
-        return 0;
+    if(info_f) {
+        fclose(info_f);
+        if(ret != 1)
+            unlink_file(info_path);
     }
+    if(entry_dir_created && ret != 1)
+        unlink_dir_parents(lick->entry);
+    if(info_path)
+        free(info_path);
 
-    // write menu entries
-    install_menu(status->files, install_dir, dist, id, name, lick, menu);
-    free_distro(dist);
-
-    fprintf(info_f, "name %s\n", name);
-    fprintf(info_f, "-----\n");
-    for(node_t *n = status->files; n != NULL; n = n->next) {
-        char *s = concat_strs(3, install_dir, "/", n->val);
-        fprintf(info_f, "%s\n", unix_path(s));
-        free(s);
-    }
-    char install_dir_unix[strlen(install_dir) + 1];
-    strcpy(install_dir_unix, install_dir);
-    fprintf(info_f, "%s\n", unix_path(install_dir_unix));
-    fclose(info_f);
-
-    free_uniso_status(status);
-    free(info_path);
-    return 1;
+    return ret;
 }
 
 int install(const char *id, const char *name, distro_e distro,
