@@ -4,6 +4,20 @@
 #include "distro.h"
 #include "utils.h"
 
+#include "distro/fatdog.h"
+#include "distro/puppy.h"
+
+distro_t *get_distro(distro_e distro) {
+    switch(distro) {
+    case DISTRO_PUPPY:
+        return get_distro_fatdog();
+    case DISTRO_FATDOG:
+        return get_distro_puppy();
+    }
+
+    return NULL;
+}
+
 void free_distro(distro_t *d) {
     free(d);
 }

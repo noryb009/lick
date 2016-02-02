@@ -52,14 +52,16 @@ void free_list_installed(node_t *n);
  * @param name
  *   the human-friendly name. Note the user may have multiple installations of
  *   the same distribution
+ * @param distro the Linux distribution the ISO is
  * @param iso the ISO file to extract from
  * @param lick the LICK directory
  * @param install_dir the directory to install to
  * @param menu the menu plugin
  * @return 1 on success, 0 on error
  */
-int install(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick, menu_t *menu);
+int install(const char *id, const char *name, distro_e distro,
+        const char *iso, const char *install_dir, lickdir_t *lick,
+        menu_t *menu);
 
 /**
  * @brief install a distribution
@@ -70,9 +72,9 @@ int install(const char *id, const char *name, const char *iso,
  * @param cb_data extra data to call the callback with
  * @return 1 on success, 0 on error
  */
-int install_cb(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick, menu_t *menu,
-        uniso_progress_cb cb, void *cb_data);
+int install_cb(const char *id, const char *name, distro_e distro,
+        const char *iso, const char *install_dir, lickdir_t *lick,
+        menu_t *menu, uniso_progress_cb cb, void *cb_data);
 
 /**
  * @brief uninstall a distribution

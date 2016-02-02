@@ -9,6 +9,11 @@
 
 #include "llist.h"
 
+typedef enum {
+    DISTRO_PUPPY = 1,
+    DISTRO_FATDOG = 2,
+} distro_e;
+
 /**
  * @brief Information taken from a list of files
  */
@@ -36,6 +41,8 @@ typedef struct {
     distro_info_f info;
     distro_filter_f filter;
 } distro_t;
+
+distro_t *get_distro(distro_e distro);
 
 void free_distro(distro_t *d);
 void free_distro_info(distro_info_t *d);

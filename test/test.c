@@ -37,7 +37,7 @@ void install_iso(char *iso, char *to) {
 
     printf("Before install:\n");
     print_installed(lick);
-    install("myID", "myNAME", iso, to, lick, menu);
+    install("myID", "myNAME", DISTRO_PUPPY, iso, to, lick, menu);
     print_installed(lick);
     printf("After install:\n");
     getchar();

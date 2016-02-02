@@ -5,7 +5,6 @@
 
 #include "boot-loader.h"
 #include "distro.h"
-#include "distro/puppy.h" // TODO: dynamic
 #include "install.h"
 #include "scandir.h"
 #include "utils.h"
@@ -118,9 +117,9 @@ void free_list_installed(node_t *n) {
     free_list(n, (void (*)(void *))free_installed);
 }
 
-int install_cb(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick, menu_t *menu,
-        uniso_progress_cb cb, void *cb_data) {
+int install_cb(const char *id, const char *name, distro_e distro,
+        const char *iso, const char *install_dir, lickdir_t *lick,
+        menu_t *menu, uniso_progress_cb cb, void *cb_data) {
     char *info_path = unix_path(concat_strs(4, lick->entry, "/", id, ".conf"));
 
     if(path_exists(info_path)) {
@@ -148,10 +147,9 @@ int install_cb(const char *id, const char *name, const char *iso,
         return 0;
     }
 
-    // TODO: based on parameter
-    distro_t *distro = get_distro_puppy();
+    distro_t *dist = get_distro(distro);
 
-    uniso_status_t *status = uniso(iso_name, install_dir, distro->filter, cb, cb_data);
+    uniso_status_t *status = uniso(iso_name, install_dir, dist->filter, cb, cb_data);
     if(status->finished == 0) {
         if(lick->err == NULL)
             lick->err = strdup2(status->error);
@@ -169,13 +167,13 @@ int install_cb(const char *id, const char *name, const char *iso,
         fclose(info_f);
         unlink_file(info_path);
         free(info_path);
-        free_distro(distro);
+        free_distro(dist);
         return 0;
     }
 
     // write menu entries
-    install_menu(status->files, install_dir, distro, id, name, lick, menu);
-    free_distro(distro);
+    install_menu(status->files, install_dir, dist, id, name, lick, menu);
+    free_distro(dist);
 
     fprintf(info_f, "name %s\n", name);
     fprintf(info_f, "-----\n");
@@ -194,9 +192,11 @@ int install_cb(const char *id, const char *name, const char *iso,
     return 1;
 }
 
-int install(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick, menu_t *menu) {
-    return install_cb(id, name, iso, install_dir, lick, menu, NULL, NULL);
+int install(const char *id, const char *name, distro_e distro,
+        const char *iso, const char *install_dir, lickdir_t *lick,
+        menu_t *menu) {
+    return install_cb(id, name, distro, iso, install_dir, lick, menu,
+            NULL, NULL);
 }
 
 int uninstall_delete_files(const char *info) {

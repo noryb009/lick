@@ -193,7 +193,7 @@ int install_iso(program_status_t *p, char *iso) {
             if(!install_loader(p->loader, p->info, p->lick))
                 break;
 
-        if(!install(id, name, iso, install_to, p->lick, p->menu))
+        if(!install(id, name, DISTRO_PUPPY, iso, install_to, p->lick, p->menu))
             break;
 
         ret = 1;
