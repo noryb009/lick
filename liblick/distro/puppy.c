@@ -59,5 +59,11 @@ int distro_puppy_filter(const char *f) {
 }
 
 distro_t *get_distro_puppy() {
-    return new_distro(distro_puppy, distro_puppy_filter);
+    return new_distro(
+        DISTRO_PUPPY,
+        DISTRO_PUPPY_KEY,
+        "Puppy Linux",
+        distro_puppy,
+        distro_puppy_filter
+    );
 }

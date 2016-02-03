@@ -27,8 +27,12 @@ distro_info_t *copy_distro_info(distro_info_t *s) {
 }
 
 
-distro_t *new_distro(distro_info_f info, distro_filter_f filter) {
+distro_t *new_distro(distro_e id, const char *key, const char *name,
+        distro_info_f info, distro_filter_f filter) {
     distro_t *d = malloc(sizeof(distro_t));
+    d->id = id;
+    d->key = key;
+    d->name = name;
     d->info = info;
     d->filter = filter;
     return d;

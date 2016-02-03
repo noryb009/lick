@@ -24,5 +24,11 @@ node_t *distro_fatdog(node_t *files, const char *dst, const char *name) {
 }
 
 distro_t *get_distro_fatdog() {
-    return new_distro(distro_fatdog, distro_puppy_filter);
+    return new_distro(
+        DISTRO_FATDOG,
+        DISTRO_FATDOG_KEY,
+        "FatDog",
+        distro_fatdog,
+        distro_puppy_filter
+    );
 }

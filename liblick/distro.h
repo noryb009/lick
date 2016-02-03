@@ -35,14 +35,23 @@ typedef node_t *(*distro_info_f)(node_t *files, const char *dst,
 typedef int (*distro_filter_f)(const char *f);
 
 /**
- * @brief Hooks for distro-specific code
+ * @brief Information about a distribution
  */
 typedef struct {
+    /// a numeric identifier
+    distro_e id;
+    /// a string identifier
+    const char *key;
+    /// a human-readable name
+    const char *name;
+    /// hook for getting menu entry information
     distro_info_f info;
+    /// hook for filtering files
     distro_filter_f filter;
 } distro_t;
 
 distro_t *get_distro(distro_e distro);
+distro_t *get_distro_by_key(const char *key);
 
 void free_distro(distro_t *d);
 void free_distro_info(distro_info_t *d);

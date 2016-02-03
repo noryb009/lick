@@ -7,6 +7,8 @@
 
 #include "../distro.h"
 
+#define DISTRO_PUPPY_KEY "puppy"
+
 distro_t *get_distro_puppy();
 
 // used within Fatdog

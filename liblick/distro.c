@@ -7,6 +7,16 @@
 #include "distro/fatdog.h"
 #include "distro/puppy.h"
 
+node_t *get_all_distros() {
+    node_t *lst = NULL;
+
+    lst = new_node(get_distro_puppy(), lst);
+    lst = new_node(get_distro_fatdog(), lst);
+
+    return list_reverse(lst);
+}
+
+// TODO: is this needed?
 distro_t *get_distro(distro_e distro) {
     switch(distro) {
     case DISTRO_PUPPY:
@@ -14,6 +24,15 @@ distro_t *get_distro(distro_e distro) {
     case DISTRO_FATDOG:
         return get_distro_puppy();
     }
+
+    return NULL;
+}
+
+distro_t *get_distro_by_key(const char *key) {
+    if(!strcmp(key, DISTRO_PUPPY_KEY))
+        return get_distro_puppy();
+    if(!strcmp(key, DISTRO_FATDOG_KEY))
+        return get_distro_fatdog();
 
     return NULL;
 }
