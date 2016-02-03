@@ -187,18 +187,20 @@ int install_iso(program_status_t *p, char *iso) {
     free(drive);
 
     // install
+    distro_t *distro = get_distro_by_key("puppy");
     int ret = 0;
     do {
         if(!check_loader(p->loader))
             if(!install_loader(p->loader, p->info, p->lick))
                 break;
 
-        if(!install(id, name, DISTRO_PUPPY, iso, install_to, p->lick, p->menu))
+        if(!install(id, name, distro, iso, install_to, p->lick, p->menu))
             break;
 
         ret = 1;
     } while(0);
 
+    free(distro);
     free(id);
     free(name);
     free(iso);

@@ -59,7 +59,7 @@ void free_list_installed(node_t *n);
  * @param menu the menu plugin
  * @return 1 on success, 0 on error
  */
-int install(const char *id, const char *name, distro_e distro,
+int install(const char *id, const char *name, distro_t *distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu);
 
@@ -72,7 +72,7 @@ int install(const char *id, const char *name, distro_e distro,
  * @param cb_data extra data to call the callback with
  * @return 1 on success, 0 on error
  */
-int install_cb(const char *id, const char *name, distro_e distro,
+int install_cb(const char *id, const char *name, distro_t *distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu, uniso_progress_cb cb, void *cb_data);
 

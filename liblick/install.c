@@ -118,14 +118,13 @@ void free_list_installed(node_t *n) {
     free_list(n, (free_list_item_f)free_installed);
 }
 
-int install_cb(const char *id, const char *name, distro_e distro,
+int install_cb(const char *id, const char *name, distro_t *distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu, uniso_progress_cb cb, void *cb_data) {
     int ret = 0;
     char *info_path = NULL;
     bool entry_dir_created = false;
     FILE *info_f = NULL;
-    distro_t *dist = NULL;
     uniso_status_t *status = NULL;
 
     for(;;) {
@@ -153,9 +152,7 @@ int install_cb(const char *id, const char *name, distro_e distro,
             break;
         }
 
-        dist = get_distro(distro);
-
-        status = uniso(iso_name, install_dir, dist->filter, cb, cb_data);
+        status = uniso(iso_name, install_dir, distro->filter, cb, cb_data);
         if(status->finished == 0) {
             if(lick->err == NULL)
                 lick->err = strdup2(status->error);
@@ -163,8 +160,8 @@ int install_cb(const char *id, const char *name, distro_e distro,
         }
 
         // write menu entries
-        install_menu(status->files, install_dir, dist, id, name, lick, menu);
-        free_distro(dist);
+        install_menu(status->files, install_dir, distro, id, name, lick, menu);
+        free_distro(distro);
 
         fprintf(info_f, "name %s\n", name);
         fprintf(info_f, "-----\n");
@@ -198,8 +195,6 @@ int install_cb(const char *id, const char *name, distro_e distro,
 
         free_uniso_status(status);
     }
-    if(dist)
-        free_distro(dist);
     if(info_f) {
         fclose(info_f);
         if(ret != 1)
@@ -213,7 +208,7 @@ int install_cb(const char *id, const char *name, distro_e distro,
     return ret;
 }
 
-int install(const char *id, const char *name, distro_e distro,
+int install(const char *id, const char *name, distro_t *distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu) {
     return install_cb(id, name, distro, iso, install_dir, lick, menu,
