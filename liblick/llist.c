@@ -62,7 +62,7 @@ node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b)) {
     return lst;
 }
 
-void free_list(node_t *n, void (*free_fn)(void *n)) {
+void free_list(node_t *n, free_list_item_f free_fn) {
     node_t *next;
     while(n != NULL) {
         next = n->next;

@@ -16,7 +16,7 @@ void free_drive(drive_t *drive) {
 }
 
 void free_drive_list(node_t *lst) {
-    free_list(lst, (void (*)(void *))free_drive);
+    free_list(lst, (free_list_item_f)free_drive);
 }
 
 #ifdef _WIN32

@@ -115,7 +115,7 @@ void free_installed(installed_t *i) {
 }
 
 void free_list_installed(node_t *n) {
-    free_list(n, (void (*)(void *))free_installed);
+    free_list(n, (free_list_item_f)free_installed);
 }
 
 int install_cb(const char *id, const char *name, distro_e distro,

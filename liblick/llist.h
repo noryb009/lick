@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 typedef struct node_t node_t;
+typedef void (*free_list_item_f)(void *);
 
 /**
  * @brief A linked list node
@@ -56,7 +57,7 @@ node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
  *   linked list contains strings allocated using malloc(), free_fn would
  *   be free(). Can be NULL to not free the elements.
  */
-void free_list(node_t *n, void (*free_fn)(void *n));
+void free_list(node_t *n, free_list_item_f free_fn);
 
 #ifdef __cplusplus
 }

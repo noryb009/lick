@@ -54,7 +54,7 @@ void free_distro_info(distro_info_t *i) {
 }
 
 void free_distro_info_list(node_t *n) {
-    free_list(n, (void(*)(void *))free_distro_info);
+    free_list(n, (free_list_item_f)free_distro_info);
 }
 
 char *menu_path(char *path) {

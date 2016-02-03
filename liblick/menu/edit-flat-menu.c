@@ -174,7 +174,7 @@ void free_section(section_t *s) {
 
 
 void free_sections(node_t *s) {
-    free_list(s, (void (*)(void *))free_section);
+    free_list(s, (free_list_item_f)free_section);
 }
 
 int is_valuable_section(section_t *s) {
