@@ -47,12 +47,16 @@ int Backend::event_loop() {
             return 0;
         case IPC_INSTALL: {
             ipc_install *in = (ipc_install *)c;
-            distro_t *distro = get_distro_by_key("puppy");
-            int ret = install_cb(in->id, in->name, distro, in->iso,
-                        in->install_dir, in->lick, menu, inner_progress_cb,
-                        this);
-            free_distro(distro);
-            send_status(send, ret, in->lick->err);
+            distro_t *distro = get_distro_by_key(in->distro);
+            if(!distro) {
+                send_status(send, 0, "Invalid distribution");
+            } else {
+                int ret = install_cb(in->id, in->name, distro, in->iso,
+                            in->install_dir, in->lick, menu, inner_progress_cb,
+                            this);
+                free_distro(distro);
+                send_status(send, ret, in->lick->err);
+            }
             }break;
         case IPC_UNINSTALL: {
             ipc_uninstall *un = (ipc_uninstall *)c;

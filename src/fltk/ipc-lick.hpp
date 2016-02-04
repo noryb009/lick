@@ -32,14 +32,18 @@ class ipc_exit : public ipc_lick {
 class ipc_install : public ipc_lick {
     public:
         IPC_COMMANDS type() {return IPC_INSTALL;}
-        ipc_install() {id = name = iso = install_dir = NULL;lick = NULL;}
-        ipc_install(const char *id, const char *name, const char *iso,
-                const char *install_dir, lickdir_t *lick);
+        ipc_install() {
+            id = name = distro = iso = install_dir = NULL;
+            lick = NULL;
+        }
+        ipc_install(const char *id, const char *name, const char *distro,
+                const char *iso, const char *install_dir, lickdir_t *lick);
         ~ipc_install();
         void exchange(ipc *p);
 
         char *id;
         char *name;
+        char *distro;
         char *iso;
         char *install_dir;
         lickdir_t *lick;

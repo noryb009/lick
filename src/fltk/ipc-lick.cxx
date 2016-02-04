@@ -29,10 +29,11 @@ void exchange_lick(ipc *p, lickdir_t *&lick) {
 
 // IPC_INSTALL
 
-ipc_install::ipc_install(const char *id, const char *name, const char *iso,
-        const char *install_dir, lickdir_t *lick) {
+ipc_install::ipc_install(const char *id, const char *name, const char *distro,
+        const char *iso, const char *install_dir, lickdir_t *lick) {
     this->id = strdup2(id);
     this->name = strdup2(name);
+    this->distro = strdup2(distro);
     this->iso = strdup2(iso);
     this->install_dir = strdup2(install_dir);
     this->lick = copy_lickdir_t(lick);
@@ -41,6 +42,7 @@ ipc_install::ipc_install(const char *id, const char *name, const char *iso,
 ipc_install::~ipc_install() {
     free_nonnull(id);
     free_nonnull(name);
+    free_nonnull(distro);
     free_nonnull(iso);
     free_nonnull(install_dir);
     free_lickdir(lick);
@@ -50,6 +52,7 @@ void ipc_install::exchange(ipc *p) {
     p
         ->exchange_str(id)
         ->exchange_str(name)
+        ->exchange_str(distro)
         ->exchange_str(iso)
         ->exchange_str(install_dir)
     ;

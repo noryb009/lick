@@ -159,7 +159,8 @@ void Frontend::on_install() {
     char *install_to = concat_strs(3, w->choice_install_drive->text(), "/", w->text_id->value());
     commands_queue.push(new ipc_check_loader());
     commands_queue.push(new ipc_loader(1, lick));
-    commands_queue.push(new ipc_install(w->text_id->value(), w->text_name->value(), iso, install_to, lick));
+    commands_queue.push(new ipc_install(w->text_id->value(),
+                w->text_name->value(), "puppy", iso, install_to, lick));
     free(install_to);
     progress_set_size();
 }
