@@ -161,7 +161,6 @@ int install_cb(const char *id, const char *name, distro_t *distro,
 
         // write menu entries
         install_menu(status->files, install_dir, distro, id, name, lick, menu);
-        free_distro(distro);
 
         fprintf(info_f, "name %s\n", name);
         fprintf(info_f, "-----\n");
