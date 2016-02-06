@@ -163,6 +163,7 @@ int install_cb(const char *id, const char *name, distro_t *distro,
         install_menu(status->files, install_dir, distro, id, name, lick, menu);
 
         fprintf(info_f, "name %s\n", name);
+        fprintf(info_f, "distribution %s\n", distro->key);
         fprintf(info_f, "-----\n");
         for(node_t *n = status->files; n != NULL; n = n->next) {
             char *s = concat_strs(3, install_dir, "/", n->val);
