@@ -41,6 +41,10 @@ void free_distro(distro_t *d) {
     free(d);
 }
 
+void free_distro_list(node_t *n) {
+    free_list(n, (free_list_item_f)free_distro);
+}
+
 void free_distro_info(distro_info_t *i) {
     if(i->kernel)
         free(i->kernel);

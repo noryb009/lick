@@ -9,6 +9,9 @@
 
 #include "llist.h"
 
+/**
+ * @brief Distribuion IDs
+ */
 typedef enum {
     DISTRO_PUPPY = 1,
     DISTRO_FATDOG = 2,
@@ -50,11 +53,45 @@ typedef struct {
     distro_filter_f filter;
 } distro_t;
 
+/**
+ * @brief Get all distributions
+ *
+ * @return a list of distro_t
+ */
+node_t *get_all_distros();
+/**
+ * @brief Get a distro_t from its numberic id
+ *
+ * @return the corresponding distro_t if found, or NULL
+ */
 distro_t *get_distro(distro_e distro);
+/**
+ * @brief Get a distro_t from its string identifier
+ *
+ * @return the corresponding distro_t if found, or NULL
+ */
 distro_t *get_distro_by_key(const char *key);
 
+/**
+ * @brief Free a distro_t and all resources associated with it
+ */
 void free_distro(distro_t *d);
+/**
+ * @brief Free all distro_t in a list
+ */
+void free_distro_list(node_t *n);
+/**
+ * @brief Free a distro_info_t and all resources associated with it
+ */
 void free_distro_info(distro_info_t *d);
+/**
+ * @brief Free all distro_info_t in a list
+ */
 void free_distro_info_list(node_t *n);
-
+/**
+ * @brief converts path to a grub-friendly path
+ *
+ * @param path The path to convert. This parameter is mutated
+ * @return A pointer to the mutated path
+ */
 char *menu_path(char *path);
