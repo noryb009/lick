@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#include <stdlib.h>
+
 typedef struct node_t node_t;
 typedef void (*free_list_item_f)(void *);
 

@@ -1,7 +1,11 @@
 set(exe_name "lick-cli")
 
 set(sources
-    "cli.c")
+    "arguments.c"
+    "commands.c"
+    "main.c"
+    "program-status.c"
+    "user-interface.c")
 
 set(inc_dirs
     ${inc_dirs}

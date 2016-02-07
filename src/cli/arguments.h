@@ -1,21 +1,7 @@
 #pragma once
 
 #include <lick.h>
-
-enum VOLUME {
-    VOLUME_SILENCE,
-    VOLUME_NO_QUESTIONS,
-    VOLUME_NO_MENU,
-    VOLUME_NORMAL,
-};
-
-typedef struct {
-    enum VOLUME volume;
-    lickdir_t *lick;
-    loader_t *loader;
-    menu_t *menu;
-    sys_info_t *info;
-} program_status_t;
+#include "program-status.h"
 
 typedef struct {
     int check_program;
@@ -29,3 +15,8 @@ typedef struct {
     int uninstall_all;
     int reinstall;
 } program_args_t;
+
+void free_program_args(program_args_t *a);
+
+void print_help();
+program_args_t *handle_args(program_status_t *p, int argc, char **argv);
