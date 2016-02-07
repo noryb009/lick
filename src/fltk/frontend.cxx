@@ -97,48 +97,48 @@ void Frontend::on_drop() {
     drop_area *drop = w->drop_area_iso;
     Fl_Native_File_Chooser *chooser;
     switch(drop->event()) {
-        case FL_RELEASE:
-            chooser = new Fl_Native_File_Chooser();
-            switch(chooser->show()) {
-                case -1:
-                    fl_alert("Error:\n%s", chooser->errmsg());
-                    break;
-                case 1:
-                    break;
-                default:
-                    handle_file(chooser->filename());
-                    break;
-            }
+    case FL_RELEASE:
+        chooser = new Fl_Native_File_Chooser();
+        switch(chooser->show()) {
+        case -1:
+            fl_alert("Error:\n%s", chooser->errmsg());
             break;
-        case FL_PASTE:
-            const char *text = drop->event_text();
-            // get number of files
-            int i = 1;
-            for(const char *c = text; c[0] != '\0'; ++c) {
-                if(c[0] == '\n' && c[0] + 1 != '\0')
-                    ++i;
-            }
-            if(i > 1 || strlen(text) == 0) {
-                fl_alert("Only 1 ISO may be used.");
-                return;
-            }
-
-            char *file = new char [strlen(text) + 1];
-            char *file_to_delete = file;
-            strcpy(file, text);
-            fl_decode_uri(file);
-
-            for(char *c = file; c[0] != '\0'; ++c)
-                if(c[0] == '\n' || c[0] == '\r') {
-                    c[0] = '\0';
-                    break;
-                }
-            if(strncmp(file, "file://", 7) == 0)
-                file += 7;
-            handle_file(file);
-            delete [] file_to_delete;
-
+        case 1:
             break;
+        default:
+            handle_file(chooser->filename());
+            break;
+        }
+        break;
+    case FL_PASTE:
+        const char *text = drop->event_text();
+        // get number of files
+        int i = 1;
+        for(const char *c = text; c[0] != '\0'; ++c) {
+            if(c[0] == '\n' && c[0] + 1 != '\0')
+                ++i;
+        }
+        if(i > 1 || strlen(text) == 0) {
+            fl_alert("Only 1 ISO may be used.");
+            return;
+        }
+
+        char *file = new char [strlen(text) + 1];
+        char *file_to_delete = file;
+        strcpy(file, text);
+        fl_decode_uri(file);
+
+        for(char *c = file; c[0] != '\0'; ++c)
+            if(c[0] == '\n' || c[0] == '\r') {
+                c[0] = '\0';
+                break;
+            }
+        if(strncmp(file, "file://", 7) == 0)
+            file += 7;
+        handle_file(file);
+        delete [] file_to_delete;
+
+        break;
     }
 }
 
