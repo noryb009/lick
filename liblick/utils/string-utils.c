@@ -85,3 +85,18 @@ char *concat_strs(size_t n, ...) {
 
     return concat_strs_arr(n, strs);
 }
+
+int is_slash(char c) {
+    return (c == '/' || c == '\\');
+}
+
+char *remove_prefix(char *str, size_t n) {
+    if(n == 0)
+        return str;
+    for(char *from = str + n, *to = str;; ++from, ++to) {
+        *to = *from;
+        if(*from == '\0')
+            break;
+    }
+    return str;
+}

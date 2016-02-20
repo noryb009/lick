@@ -62,15 +62,16 @@ void free_distro_info_list(node_t *n) {
 }
 
 char *menu_path(char *path) {
+    size_t remove = 0;
+
+    // remove the drive, if path includes one
     char *colon = strchr(path, ':');
-    if(colon == NULL)
-        return unix_path(path);
+    if(colon)
+        remove += (colon - path) + 1;
 
-    for(char *from = colon + 1, *to = path;; ++from, ++to) {
-        *to = *from;
-        if(*from == '\0')
-            break;
-    }
+    // remove any extra leading slashes
+    while(is_slash(path[remove]) && is_slash(path[remove+1]))
+        ++remove;
 
-    return unix_path(path);
+    return unix_path(remove_prefix(path, remove));
 }

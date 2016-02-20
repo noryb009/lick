@@ -8,10 +8,6 @@
 #include "../scandir.h"
 #include "string-utils.h"
 
-int is_slash(char c) {
-    return (c == '/' || c == '\\');
-}
-
 char *normalize_path(char *str, char slash) {
     int last_was_slash = 0;
     for(int i = 0, j = 0;; ++i) {

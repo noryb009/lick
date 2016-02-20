@@ -41,3 +41,16 @@ char *concat_strs_arr(size_t n, char **strs);
  * @return the resulting string. Free using free()
  */
 char *concat_strs(size_t n, ...);
+/**
+ * @brief determines if a character is a slash
+ * @param c the character to check
+ * @return 1 if c is a slash, 0 otherwise
+ */
+int is_slash(char c);
+/**
+ * @brief remove the first n letters from a string, in place
+ * @param str the string. This is mutated
+ * @param n the number of characters to remove
+ * @return a reference to str
+ */
+char *remove_prefix(char *str, size_t n);
