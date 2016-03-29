@@ -117,3 +117,14 @@ char *get_bcdedit();
  */
 int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
         int backup, lickdir_t *lick);
+/**
+ * @brief look through all drives to find a file
+ *
+ * Given a file, such as 'path/to/boot.ini', finds a drive where the file
+ * exists. If suggested_drive is given, that drive is checked first.
+ *
+ * @param suggested_drive the drive to first look at. Can be NULL
+ * @param file the file to find
+ * @return a path that must be freed using free on success, NULL on failure
+ */
+char *find_file(const char *suggested_drive, const char *file);

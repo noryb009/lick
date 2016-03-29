@@ -9,13 +9,13 @@
 #include "../utils.h"
 
 #define BOOT_ITEM "=\"" START_LOADER_DESC "\""
+#define BOOT_FILE "boot.ini"
 
 char *boot_ini_path() {
     char *drive = get_windows_drive_path();
-    if(!drive)
-        return NULL;
-    char *loc = concat_strs(2, drive, "/boot.ini");
-    free(drive);
+    char *loc = find_file(drive, BOOT_FILE);
+    if(drive)
+        free(drive);
     return loc;
 }
 
@@ -26,6 +26,8 @@ int supported_loader_nt(sys_info_t *info) {
 int check_loader_nt() {
     // load boot.ini into a string
     char *boot_ini = boot_ini_path();
+    if(!boot_ini)
+        return 0;
     FILE *f = fopen(boot_ini, "r");
     free(boot_ini);
     if(!f)
@@ -93,6 +95,11 @@ int install_loader_nt(sys_info_t *info, lickdir_t *lick) {
     (void)info;
     // add to boot.ini
     char *boot_ini = boot_ini_path();
+    if(!boot_ini) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
     int ret = apply_fn_to_file(boot_ini, install_to_boot_ini, 1, lick);
     free(boot_ini);
     if(!ret)
@@ -111,6 +118,11 @@ int uninstall_loader_nt(sys_info_t *info, lickdir_t *lick) {
     (void)info;
     // remove from boot.ini
     char *boot_ini = boot_ini_path();
+    if(!boot_ini) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
     int ret = apply_fn_to_file(boot_ini, uninstall_from_boot_ini, 0, lick);
     free(boot_ini);
     if(!ret)

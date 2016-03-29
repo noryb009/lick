@@ -13,13 +13,13 @@
 #define LICK_SECTION_1 "[LICK]\ndevice="
 #define LICK_SECTION_2 "\ninstall="
 #define LICK_SECTION_3 "\nshell="
+#define BOOT_FILE "config.sys"
 
 char *config_sys_path() {
     char *drive = get_windows_drive_path();
-    if(!drive)
-        return NULL;
-    char *loc = unix_path(concat_strs(2, drive, "/config.sys"));
-    free(drive);
+    char *loc = find_file(drive, BOOT_FILE);
+    if(drive)
+        free(drive);
     return loc;
 }
 
@@ -134,6 +134,11 @@ int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     (void)info;
     // add to config.sys
     char *config_sys = config_sys_path();
+    if(!config_sys) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
     int ret = apply_fn_to_file(config_sys, install_to_config_sys, 1, lick);
     free(config_sys);
     if(!ret)
@@ -151,6 +156,11 @@ int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
     (void)info;
     // remove from config.sys
     char *config_sys = config_sys_path();
+    if(!config_sys) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
     int ret = apply_fn_to_file(config_sys, uninstall_from_config_sys, 0, lick);
     free(config_sys);
     if(!ret)
