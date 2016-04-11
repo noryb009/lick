@@ -270,12 +270,13 @@ int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
     return 1;
 }
 
-char *find_file(const char *suggested_drive, const char *file) {
+char *find_drive_with_file(const char *suggested_drive, const char *file) {
     if(suggested_drive) {
         char *loc = unix_path(concat_strs(3, suggested_drive, "/", file));
-        if(path_exists(loc))
-            return loc;
+        int exists = path_exists(loc);
         free(loc);
+        if(exists)
+            return strdup2(suggested_drive);
     }
 
     node_t *drives = all_drives();
@@ -283,13 +284,24 @@ char *find_file(const char *suggested_drive, const char *file) {
     for(node_t *drive = drives; drive; drive = drive->next) {
         char *loc = unix_path(concat_strs(3, ((drive_t *)drive->val)->path,
                     "/", file));
-        if(path_exists(loc)) {
-            free_drive_list(drives);
-            return loc;
-        }
+        int exists = path_exists(loc);
         free(loc);
+        if(exists) {
+            char *ret = strdup2(((drive_t *)drive->val)->path);
+            free_drive_list(drives);
+            return ret;
+        }
     }
 
     free_drive_list(drives);
     return NULL;
+}
+
+// TODO: Use boot flag as well.
+char *boot_drive(const char *boot_file) {
+    char *suggested_drive = get_windows_drive_path();
+    char *boot_drive = find_drive_with_file(suggested_drive, boot_file);
+    if(suggested_drive)
+        free(suggested_drive);
+    return boot_drive;
 }
