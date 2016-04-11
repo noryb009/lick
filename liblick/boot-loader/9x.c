@@ -56,11 +56,13 @@ int check_loader_9x() {
 }
 
 char *install_to_config_sys(char *config, lickdir_t *lick) {
+    (void)lick;
+    const char *grub_exe = "C:\\pupl.exe";
+
     // find [menu] section
     char *start, *end;
     if(!find_section(config, "[menu]", &start, &end)) {
         // config.sys doesn't have sections
-        char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
         char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
                 MENU_ITEM,
@@ -69,12 +71,10 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
                 LICK_SECTION_2, grub_exe,
                 LICK_SECTION_3, grub_exe,
                 "\n\n[WINDOWS]\n", config);
-        free(grub_exe);
         return ret;
     }
 
     char *after = after_last_entry(start, end, "menuitem=");
-    char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
 
     char *ret = concat_strs(12,
             config,
@@ -83,8 +83,6 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
             LICK_SECTION_2, grub_exe,
             LICK_SECTION_3, grub_exe,
             "\n");
-
-    free(grub_exe);
 
     return check_timeout(ret, "menudefault", ",");
 }

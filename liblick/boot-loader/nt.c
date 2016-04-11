@@ -59,7 +59,7 @@ char *install_to_boot_ini(char *boot, lickdir_t *lick) {
     }
 
     char *after = after_last_entry(start, end, "=");
-    char *pupldr = win_path(concat_strs(2, lick->drive, "/pupldr"));
+    const char *pupldr = "C:\\pupldr";
 
     // print start of file, newline,
     //   C:\pupldr="Start Puppy Linux", rest of file
@@ -67,7 +67,6 @@ char *install_to_boot_ini(char *boot, lickdir_t *lick) {
             boot,
             "\n", pupldr, BOOT_ITEM, "\n",
             after);
-    free(pupldr);
 
     return check_timeout(ret, "timeout", "=");
 }
