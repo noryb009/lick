@@ -117,3 +117,25 @@ char *get_bcdedit();
  */
 int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
         int backup, lickdir_t *lick);
+/**
+ * @brief find a drive which contains a file
+ *
+ * Given a file, such as 'path/to/boot.ini', finds a drive where the file
+ * exists. If suggested_drive is given, that drive is checked first.
+ *
+ * @param suggested_drive the drive to first look at. Can be NULL
+ * @param file the file to find
+ * @return a path that must be freed using free on success, NULL on failure
+ */
+char *find_drive_with_file(const char *suggested_drive, const char *file);
+/**
+ * @brief find the boot drive
+ *
+ * Finds the boot drive of the computer. To help in the search, a path of a
+ * file that is expected to be found on the root of the drive should be given.
+ *
+ * @param boot_file a path to a file that is expected to be on the boot
+ * partition
+ * @return a path that must be freed using free on success, NULL on failure
+ */
+char *boot_drive(const char *boot_file);

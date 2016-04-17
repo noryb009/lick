@@ -13,14 +13,23 @@
 #define LICK_SECTION_1 "[LICK]\ndevice="
 #define LICK_SECTION_2 "\ninstall="
 #define LICK_SECTION_3 "\nshell="
+#define BOOT_FILE "config.sys"
+
+char *boot_drive_9x() {
+    return boot_drive(BOOT_FILE);
+}
+
+char *config_sys_path_with_drive(const char *boot_drive) {
+    return unix_path(concat_strs(3, boot_drive, "/", BOOT_FILE));
+}
 
 char *config_sys_path() {
-    char *drive = get_windows_drive_path();
-    if(!drive)
+    char *boot_drive = boot_drive_9x();
+    if(!boot_drive)
         return NULL;
-    char *loc = unix_path(concat_strs(2, drive, "/config.sys"));
-    free(drive);
-    return loc;
+    char *path = config_sys_path_with_drive(boot_drive);
+    free(boot_drive);
+    return path;
 }
 
 int supported_loader_9x(sys_info_t *info) {
@@ -47,11 +56,13 @@ int check_loader_9x() {
 }
 
 char *install_to_config_sys(char *config, lickdir_t *lick) {
+    (void)lick;
+    const char *grub_exe = "C:\\pupl.exe";
+
     // find [menu] section
     char *start, *end;
     if(!find_section(config, "[menu]", &start, &end)) {
         // config.sys doesn't have sections
-        char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
         char *ret = concat_strs(11,
                 "[menu]\nmenuitem=WINDOWS,Start Windows\n",
                 MENU_ITEM,
@@ -60,12 +71,10 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
                 LICK_SECTION_2, grub_exe,
                 LICK_SECTION_3, grub_exe,
                 "\n\n[WINDOWS]\n", config);
-        free(grub_exe);
         return ret;
     }
 
     char *after = after_last_entry(start, end, "menuitem=");
-    char *grub_exe = win_path(concat_strs(2, lick->drive, "/pupl.exe"));
 
     char *ret = concat_strs(12,
             config,
@@ -74,8 +83,6 @@ char *install_to_config_sys(char *config, lickdir_t *lick) {
             LICK_SECTION_2, grub_exe,
             LICK_SECTION_3, grub_exe,
             "\n");
-
-    free(grub_exe);
 
     return check_timeout(ret, "menudefault", ",");
 }
@@ -132,33 +139,54 @@ char *uninstall_from_config_sys(char *config, lickdir_t *lick) {
 // save, with attributes
 int install_loader_9x(sys_info_t *info, lickdir_t *lick) {
     (void)info;
+
     // add to config.sys
-    char *config_sys = config_sys_path();
+    char *boot_drive = boot_drive_9x();
+    if(!boot_drive) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
+    char *config_sys = config_sys_path_with_drive(boot_drive);
+
     int ret = apply_fn_to_file(config_sys, install_to_config_sys, 1, lick);
     free(config_sys);
-    if(!ret)
+    if(!ret) {
+        free(boot_drive);
         return 0;
+    }
 
-    char *grub_exe = concat_strs(2, lick->drive, "/pupl.exe");
+    char *grub_exe = concat_strs(2, boot_drive, "/pupl.exe");
     char *res_grub_exe = concat_strs(2, lick->res, "/pupl.exe");
     copy_file(grub_exe, res_grub_exe);
     free(grub_exe);
     free(res_grub_exe);
+    free(boot_drive);
     return 1;
 }
 
 int uninstall_loader_9x(sys_info_t *info, lickdir_t *lick) {
     (void)info;
+
     // remove from config.sys
-    char *config_sys = config_sys_path();
+    char *boot_drive = boot_drive_9x();
+    if(!boot_drive) {
+        if(!lick->err)
+            lick->err = concat_strs(2, "Could not load boot loader file: ", BOOT_FILE);
+        return 0;
+    }
+    char *config_sys = config_sys_path_with_drive(boot_drive);
     int ret = apply_fn_to_file(config_sys, uninstall_from_config_sys, 0, lick);
     free(config_sys);
-    if(!ret)
+    if(!ret) {
+        free(boot_drive);
         return 0;
+    }
 
-    char *grub_exe = concat_strs(2, lick->drive, "/pupl.exe");
+    char *grub_exe = concat_strs(2, boot_drive, "/pupl.exe");
     unlink_file(grub_exe);
     free(grub_exe);
+    free(boot_drive);
     return 1;
 }
 

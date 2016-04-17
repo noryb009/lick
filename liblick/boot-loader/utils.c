@@ -41,7 +41,7 @@ int find_section(const char *haystack, const char *needle, char **start, char **
 char *after_last_entry(char *sec, char *sec_end, const char *needle) {
     // isolate section
     char old_end = sec_end[0];
-    sec_end[0]= '\0';
+    sec_end[0] = '\0';
     // find line after last menuitem=
     char *item = strstrr(sec, needle);
     sec_end[0] = old_end;
@@ -268,4 +268,40 @@ int apply_fn_to_file(const char *file, char *(*fn)(char *, lickdir_t *),
     attrib_save(file, attrib);
 
     return 1;
+}
+
+char *find_drive_with_file(const char *suggested_drive, const char *file) {
+    if(suggested_drive) {
+        char *loc = unix_path(concat_strs(3, suggested_drive, "/", file));
+        int exists = path_exists(loc);
+        free(loc);
+        if(exists)
+            return strdup2(suggested_drive);
+    }
+
+    node_t *drives = all_drives();
+
+    for(node_t *drive = drives; drive; drive = drive->next) {
+        char *loc = unix_path(concat_strs(3, ((drive_t *)drive->val)->path,
+                    "/", file));
+        int exists = path_exists(loc);
+        free(loc);
+        if(exists) {
+            char *ret = strdup2(((drive_t *)drive->val)->path);
+            free_drive_list(drives);
+            return ret;
+        }
+    }
+
+    free_drive_list(drives);
+    return NULL;
+}
+
+// TODO: Use boot flag as well.
+char *boot_drive(const char *boot_file) {
+    char *suggested_drive = get_windows_drive_path();
+    char *boot_drive = find_drive_with_file(suggested_drive, boot_file);
+    if(suggested_drive)
+        free(suggested_drive);
+    return boot_drive;
 }
