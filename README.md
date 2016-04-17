@@ -9,7 +9,7 @@ for any special notes on your Windows version type.
 
 # Windows Version Notes
 ## Windows 8, 8.1 and 10
-Windows 8.1 and up have a feature called 'Fast Startup'. This **cannot** be
+Windows 8 and up have a feature called 'Fast Startup'. This **cannot** be
 enabled if LICK is installed. LICK disables Fast Startup upon insallation.
 
 ## UEFI Systems with Secure Boot
