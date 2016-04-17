@@ -26,6 +26,7 @@ set(sources
     "menu/grub2.c"
     "menu/grub4dos.c"
     "menu/edit-flat-menu.c"
+    "menu/utils.c"
     "scandir.c"
     "system-info.c"
     "uniso.c"

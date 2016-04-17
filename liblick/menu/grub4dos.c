@@ -45,7 +45,9 @@ int install_grub4dos(lickdir_t *lick) {
 int uninstall_grub4dos(lickdir_t *lick) {
     (void)lick;
     char *menu_lst = concat_strs(2, lick->drive, "/lickmenu.lst");
-    unlink_file(menu_lst);
+    if(!has_valuable_info(menu_lst)) {
+        unlink_file(menu_lst);
+    }
     free(menu_lst);
 
     //char *gfxmenu = concat_strs(2, lick->drive, "/grub4dos-gui.gz");

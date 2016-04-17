@@ -81,7 +81,9 @@ int install_grub2(lickdir_t *lick) {
 
 int uninstall_grub2(lickdir_t *lick) {
     char *grub_cfg = unix_path(concat_strs(2, lick->drive, "/lickgrub.cfg"));
-    unlink_file(grub_cfg);
+    if(!has_valuable_info(grub_cfg)) {
+        unlink_file(grub_cfg);
+    }
     free(grub_cfg);
 
     char drive = mount_uefi_partition();
