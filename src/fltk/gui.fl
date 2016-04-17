@@ -62,7 +62,7 @@ class lick_fltk {open
         xywh {0 0 270 20}
       } {
         Submenu {} {
-          label File open selected
+          label File open
           xywh {0 0 100 20}
         } {
           MenuItem {} {
@@ -74,6 +74,16 @@ class lick_fltk {open
             label Quit
             callback {frontend->on_quit();}
             xywh {30 30 100 20}
+          }
+        }
+        Submenu {} {
+          label Help open
+          xywh {0 0 100 20}
+        } {
+          MenuItem {} {
+            label About
+            callback {frontend->on_about();} selected
+            xywh {0 0 100 20}
           }
         }
       }

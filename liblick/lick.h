@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 #include "boot-loader.h"
+#include "config.h"
 #include "drives.h"
 #include "install.h"
 #include "lickdir.h"

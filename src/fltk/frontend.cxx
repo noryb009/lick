@@ -206,6 +206,10 @@ void Frontend::on_loader_inst() {
     progress_set_size();
 }
 
+void Frontend::on_about() {
+    fl_message("LICK Version %s\nBy Luke Lorimer (noryb009)", LIBLICK_VERSION);
+}
+
 void Frontend::on_quit() {
     if(!commands_queue.empty()) {
         fl_alert("Please wait until the current operation finishes before exiting.");

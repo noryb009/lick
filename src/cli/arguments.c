@@ -30,6 +30,7 @@ void print_help() {
     printf("      --ignore-errors    If errors occur, continue\n");
     printf("      --no-try-uac       Do not ask to elevate process\n");
     printf("      --no-me-check      Ignore possible ME incompatibilities\n");
+    printf("  -v  --version          Show the version\n");
     printf("  -h, --help             Show this help\n");
 }
 
@@ -49,6 +50,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
     struct option ops[] = {
         // meta
         {"help", no_argument, 0, 'h'},
+        {"version", no_argument, 0, 'v'},
         {"check-program", no_argument, &a->check_program, 1},
         {"no-try-uac", no_argument, &a->try_uac, 0},
         {"ignore-errors", no_argument, &a->ignore_errors, 1},
@@ -69,12 +71,9 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         {0, 0, 0, 0}
     };
     int c;
-    while((c = getopt_long(argc, argv, "chi:msu:", ops, NULL)) != -1) {
+    while((c = getopt_long(argc, argv, "chi:msu:v", ops, NULL)) != -1) {
         switch(c) {
         case 0: // set flag
-            break;
-        case 'v':
-            p->volume = VOLUME_NORMAL;
             break;
         case 'm':
             p->volume = VOLUME_NO_MENU;
@@ -104,6 +103,11 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         case 'c':
             a->check_loader = 1;
             break;
+        case 'v':
+            printf("%s\n", LIBLICK_VERSION);
+            free_program_status(p);
+            free_program_args(a);
+            exit(0);
         case 'h':
         case '?':
         default:

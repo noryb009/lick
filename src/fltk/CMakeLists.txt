@@ -35,7 +35,8 @@ set(inc_dirs
     ${inc_dirs}
     ${CMAKE_CURRENT_LIST_DIR}
     ${PROJECT_BINARY_DIR}/libarchive/include
-    ${PROJECT_SOURCE_DIR}/liblick)
+    ${PROJECT_SOURCE_DIR}/liblick
+    ${PROJECT_BINARY_DIR}/liblick)
 set(link_dirs
     ${link_dirs}
     ${PROJECT_BINARY_DIR}/libarchive/lib

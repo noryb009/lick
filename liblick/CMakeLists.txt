@@ -1,6 +1,11 @@
 set(lib_name "lick")
 set(lib_static_name "lick_static")
 
+configure_file(
+    "${PROJECT_SOURCE_DIR}/liblick/config.h.in"
+    "${PROJECT_BINARY_DIR}/liblick/config.h")
+
+
 set(sources
     "boot-loader.c"
     "boot-loader/9x.c"
@@ -32,12 +37,12 @@ set(sources
 
 set(inc_dirs
     ${inc_dirs}
-    ${CMAKE_BINARY_DIR}/libarchive/include)
+    ${CMAKE_BINARY_DIR}/libarchive/include
+    ${PROJECT_BINARY_DIR}/liblick)
 
 set(link_dirs
     ${link_dirs}
-    ${CMAKE_BINARY_DIR}/libarchive/lib
-    ${CMAKE_BINARY_DIR}/libarchive/bin)
+    ${CMAKE_BINARY_DIR}/libarchive/lib)
 
 set(libs
     ${libs}

@@ -19,6 +19,7 @@ class Frontend {
         void on_install();
         void on_uninstall();
         void on_loader_inst();
+        void on_about();
         void on_quit();
 
         int check_id(int ok);
