@@ -23,7 +23,10 @@ node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
         }
     }
 
-    char *dst_menu = menu_path(strdup2(dst));
+    char *dst_menu_full = menu_path(strdup2(dst));
+    char *dst_menu = dst_menu_full;
+    while(*dst_menu == '/')
+        ++dst_menu;
     node_t *ret = NULL;
     if(i->kernel) {
         distro_info_t *i2 = copy_distro_info(i);
@@ -38,7 +41,7 @@ node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
     i->name = strdup2(name);
     ret = new_node(i, ret);
 
-    free(dst_menu);
+    free(dst_menu_full);
     return ret;
 }
 
