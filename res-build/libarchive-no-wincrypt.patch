@@ -1,60 +1,48 @@
---- a/libarchive/archive_crypto.c
-+++ b/libarchive/archive_crypto.c
-@@ -51,8 +51,8 @@
- static int
+--- a/libarchive/archive_digest.c
++++ b/libarchive/archive_digest.c
+@@ -52,6 +52,7 @@ static int
  win_crypto_init(Digest_CTX *ctx, ALG_ID algId)
  {
--
--	ctx->valid = 0;
-+	return ARCHIVE_FAILED;
-+	/*ctx->valid = 0;
+ 
++	return (ARCHIVE_FAILED);
+ 	ctx->valid = 0;
  	if (!CryptAcquireContext(&ctx->cryptProv, NULL, NULL,
  	    PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
- 		if (GetLastError() != (DWORD)NTE_BAD_KEYSET)
-@@ -68,7 +68,7 @@ win_crypto_init(Digest_CTX *ctx, ALG_ID algId)
- 	}
- 
- 	ctx->valid = 1;
--	return (ARCHIVE_OK);
-+	return (ARCHIVE_OK);*/
- }
- 
- /*
-@@ -90,7 +90,8 @@ win_crypto_Update(Digest_CTX *ctx, const unsigned char *buf, size_t len)
+@@ -90,6 +91,7 @@ win_crypto_Update(Digest_CTX *ctx, const unsigned char *buf, size_t len)
  static int
  win_crypto_Final(unsigned char *buf, size_t bufsize, Digest_CTX *ctx)
  {
--	DWORD siglen = (DWORD)bufsize;
-+	return ARCHIVE_FAILED;
-+	/*DWORD siglen = (DWORD)bufsize;
++	return (ARCHIVE_FAILED);
+ 	DWORD siglen = (DWORD)bufsize;
  
  	if (!ctx->valid)
- 		return (ARCHIVE_FAILED);
-@@ -99,7 +100,7 @@ win_crypto_Final(unsigned char *buf, size_t bufsize, Digest_CTX *ctx)
- 	CryptDestroyHash(ctx->hash);
- 	CryptReleaseContext(ctx->cryptProv, 0);
- 	ctx->valid = 0;
--	return (ARCHIVE_OK);
-+	return (ARCHIVE_OK);*/
- }
- 
- #endif /* defined(ARCHIVE_CRYPTO_*_WIN) */
+--- a/libarchive/archive_random.c
++++ b/libarchive/archive_random.c
+@@ -74,6 +74,7 @@ static void arc4random_buf(void *, size_t);
+ int
+ archive_random(void *buf, size_t nbytes)
+ {
++	return ARCHIVE_FAILED;
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ 	HCRYPTPROV hProv;
+ 	BOOL success;
 --- a/libarchive/archive_util.c
 +++ b/libarchive/archive_util.c
-@@ -206,6 +206,8 @@ __archive_errx(int retvalue, const char *msg)
- int
- __archive_mktemp(const char *tmpdir)
- {
-+    return -1;
-+#if 0
- 	static const wchar_t num[] = {
- 		L'0', L'1', L'2', L'3', L'4', L'5', L'6', L'7',
- 		L'8', L'9', L'A', L'B', L'C', L'D', L'E', L'F',
-@@ -343,6 +345,7 @@ exit_tmpfile:
+@@ -384,6 +384,8 @@ __archive_mktemp(const char *tmpdir)
+ 	ep = temp_name.s + archive_strlen(&temp_name);
+ 	xp = ep - wcslen(suffix);
+ 
++	errno = EINVAL;
++	goto exit_tmpfile;
+ 	if (!CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL,
+ 		CRYPT_VERIFYCONTEXT)) {
+ 		la_dosmaperr(GetLastError());
+@@ -437,8 +439,6 @@ __archive_mktemp(const char *tmpdir)
+ 			break;/* success! */
+ 	}
+ exit_tmpfile:
+-	if (hProv != (HCRYPTPROV)NULL)
+-		CryptReleaseContext(hProv, 0);
  	free(ws);
  	archive_wstring_free(&temp_name);
  	return (fd);
-+#endif
- }
- 
- #else
