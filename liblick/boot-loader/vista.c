@@ -94,7 +94,7 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
             lick->err = strdup2("Error adding to bcd menu");
         return 0;
     }
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, bcdedit, id);
+    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_TIME_OUT, bcdedit);
     if(!run_system(c)) {
         free(bcdedit);
         if(!lick->err)
@@ -106,14 +106,14 @@ int install_loader_vista(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_8:
     case V_WINDOWS_8_1:
     case V_WINDOWS_10:
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit, id);
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_BOOT_MENU, bcdedit);
         if(!run_system(c)) {
             free(bcdedit);
             if(!lick->err)
                 lick->err = strdup2("Error changing boot menu to legacy");
             return 0;
         }
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT);
         if(!run_system(c)) {
             free(bcdedit);
             if(!lick->err)

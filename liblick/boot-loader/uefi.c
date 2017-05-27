@@ -60,7 +60,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_8:
     case V_WINDOWS_8_1:
     case V_WINDOWS_10:
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT, id);
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT);
         if(!run_system(c)) {return 0;}
     case V_UNKNOWN:
     case V_WINDOWS_95:
@@ -126,6 +126,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
 
 int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     (void)info;
+
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
