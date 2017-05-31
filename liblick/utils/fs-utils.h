@@ -49,6 +49,20 @@ int make_dir_parents(const char *d);
  */
 int copy_file(const char *dst, const char *src);
 /**
+ * @brief rename a file or directory
+ * @param dst the absolute path of the new name
+ * @param src the path of what is being renamed
+ * @return true on success
+ */
+int rename_file(const char *dst, const char *src);
+/**
+ * @brief replace a file or directory
+ * @param dst the absolute path of the new name
+ * @param src the path of what is being replaced
+ * @return true on success
+ */
+int replace_file(const char *dst, const char *src);
+/**
  * @brief delete a directory
  * @param d the directory to delete
  * @return true on success
@@ -84,3 +98,30 @@ file_type_e file_type(const char *path);
  * @return 1 if the file exists, otherwise 0
  */
 int path_exists(const char *path);
+
+
+#ifdef _WIN32
+#include <stdint.h>
+typedef uint32_t attrib_t;
+#else
+typedef char attrib_t;
+#endif
+
+/**
+ * @brief get the attributes of a file
+ * @param file the file
+ * @return the attributes of the file
+ */
+attrib_t attrib_get(const char *file);
+/**
+ * @brief get the attributes of a file, and set the file attributes for writing
+ * @param file the file
+ * @return the old attributes of the file
+ */
+attrib_t attrib_open(const char *file);
+/**
+ * @brief restore the attributes of a file
+ * @param file the file
+ * @param attrib the old attributes
+ */
+void attrib_save(const char *file, attrib_t attrib);

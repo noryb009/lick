@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,6 +98,14 @@ char *remove_prefix(char *str, size_t n) {
         *to = *from;
         if(*from == '\0')
             break;
+    }
+    return str;
+}
+
+char *lower_str(char *str) {
+    for(char *c = str; *c; ++c) {
+        if(*c >= 'A' && *c <= 'Z')
+            *c = *c - 'A' + 'a';
     }
     return str;
 }

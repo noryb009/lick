@@ -81,6 +81,6 @@ int remove_grub4dos(const char *id, lickdir_t *lick) {
 }
 
 menu_t *get_grub4dos() {
-    return new_menu(install_grub4dos, uninstall_grub4dos, gen_grub4dos,
-            append_grub4dos, remove_grub4dos);
+    return new_menu(install_grub4dos, uninstall_grub4dos, NULL,
+            gen_grub4dos, append_grub4dos, remove_grub4dos);
 }

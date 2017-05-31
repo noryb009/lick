@@ -14,14 +14,6 @@
 #define ID_LEN 37
 #define COMMAND_BUFFER_LEN 1024
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define attrib_t DWORD
-#else
-#define attrib_t char
-#endif
-
 /**
  * @brief returns a pointer to the next newline in a string
  * @param s the beginning of the string to search in
@@ -59,18 +51,6 @@ char *after_last_entry(char *sec, char *sec_end, const char *needle);
  * @return the INI file. Must be freed using free
  */
 char *check_timeout(char *f, char *key, char *sep);
-/**
- * @brief get the attributes of a file, and set the file attributes for writing
- * @param file the file
- * @return the old attributes of the file
- */
-attrib_t attrib_open(const char *file);
-/**
- * @brief restore the attributes of a file
- * @param file the file
- * @param attrib the old attributes
- */
-void attrib_save(const char *file, attrib_t attrib);
 /**
  * @brief create a backup of a file
  * @param f the file to backup

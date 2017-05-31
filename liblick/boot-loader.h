@@ -67,3 +67,16 @@ int uninstall_loader(loader_t *l, int reinstall, sys_info_t *info,
  * @return the corresponding menu plugin
  */
 menu_t *get_menu(loader_t *l);
+/**
+ * @brief completely replace the Windows EFI loader
+ *
+ * Some systems don't follow the UEFI spec, instead opting to boot
+ * `/EFI/boot/bootx64.efi` and/or `/EFI/Microsoft/Boot/bootmgfw.efi`.
+ * This function backs up both of these, then replaces the former.
+ *
+ * This requires the bootloader to be installed. This is automatically reversed
+ * when uninstalling.
+ *
+ * @return 1 on success, 0 on error, -1 if not installed
+ */
+int fix_loader(loader_t *l, menu_t *m, lickdir_t *lick);

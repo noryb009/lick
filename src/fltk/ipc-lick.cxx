@@ -92,6 +92,18 @@ void ipc_loader::exchange(ipc *p) {
     exchange_lick(p, lick);
 }
 
+// IPC_FIX
+
+ipc_fix::ipc_fix(lickdir_t *lick) {
+    this->lick = copy_lickdir_t(lick);
+}
+ipc_fix::~ipc_fix() {
+    free_lickdir(lick);
+}
+void ipc_fix::exchange(ipc *p) {
+    exchange_lick(p, lick);
+}
+
 // IPC_STATUS
 
 ipc_status::ipc_status(int ret, const char *err) {
@@ -169,6 +181,9 @@ ipc_lick *recv_command(ipc *p) {
         break;
     case IPC_LOADER:
         c = new ipc_loader();
+        break;
+    case IPC_FIX:
+        c = new ipc_fix();
         break;
     case IPC_STATUS:
         c = new ipc_status();

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,6 +8,11 @@
 #include "fs-utils.h"
 #include "../scandir.h"
 #include "string-utils.h"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 char *normalize_path(char *str, char slash) {
     int last_was_slash = 0;
@@ -105,6 +111,19 @@ int copy_file(const char *dst, const char *src) {
     return 1;
 }
 
+int rename_file(const char *dst, const char *src) {
+    return !rename(src, dst);
+}
+
+int replace_file(const char *dst, const char *src) {
+#ifdef _WIN32
+    static_assert(sizeof(char) == sizeof(TCHAR), "Unicode is not supported");
+    return ReplaceFile(dst, src, NULL, 0, NULL, NULL);
+#else
+    return rename_file(dst, src);
+#endif
+}
+
 int unlink_dir(const char *d) {
     char d_name[strlen(d) + 1];
     return !rmdir(unix_path(strcpy(d_name, d)));
@@ -175,3 +194,28 @@ int path_exists(const char *path) {
     struct stat s;
     return stat(unix_path(strcpy(path2, path)), &s) == 0;
 }
+
+#ifdef _WIN32
+attrib_t attrib_get(const char *file) {
+    return GetFileAttributes(file);
+}
+
+attrib_t attrib_open(const char *file) {
+    attrib_t attrib = attrib_get(file);
+    SetFileAttributes(file, FILE_ATTRIBUTE_NORMAL);
+    return attrib;
+}
+void attrib_save(const char *file, attrib_t attrib) {
+    SetFileAttributes(file, attrib);
+}
+#else
+attrib_t attrib_get(const char *file) {
+    return 0;
+}
+attrib_t attrib_open(const char *file) {
+    return 0;
+}
+void attrib_save(const char *file, attrib_t attrib) {
+    return;
+}
+#endif

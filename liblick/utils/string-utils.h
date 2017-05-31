@@ -54,3 +54,10 @@ int is_slash(char c);
  * @return a reference to str
  */
 char *remove_prefix(char *str, size_t n);
+/**
+ * @brief make a string lower case, in place
+ * @param str the string. This is mutated
+ * @param n the number of characters to remove
+ * @return a reference to str
+ */
+char *lower_str(char *str);

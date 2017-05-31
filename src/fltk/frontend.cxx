@@ -210,6 +210,39 @@ void Frontend::on_about() {
     fl_message("LICK Version %s\nBy Luke Lorimer (noryb009)", LIBLICK_VERSION);
 }
 
+void Frontend::on_nothing_happens() {
+    if(!commands_queue.empty()) {
+        fl_alert("Please wait until the current operation finishes.");
+        return;
+    }
+
+    int ans = fl_choice(
+            "If you are on UEFI, and have rebooted,\n"
+            "but Windows immediately boots, there is another\n"
+            "step that can be taken. This is risky, so it is\n"
+            "recommended that you have a live CD and make a backup\n"
+            "of your EFI drive before you begin.\n"
+            "Do you want to start?",
+            "Yes",
+            "No",
+            NULL
+    );
+    if(ans != 0)
+        return;
+
+    ans = fl_choice(
+            "Do you have a live CD and have backed up your EFI drive?",
+            "Yes",
+            "No",
+            NULL
+    );
+    if(ans != 0)
+        return;
+
+    commands_queue.push(new ipc_fix(lick));
+    progress_set_size();
+}
+
 void Frontend::on_quit() {
     if(!commands_queue.empty()) {
         fl_alert("Please wait until the current operation finishes before exiting.");
@@ -312,6 +345,8 @@ const char *command_name(ipc_lick *c) {
             return "Installing bootloader";
         else
             return "Uninstalling bootloader";
+    case IPC_FIX:
+        return "Fixing bootloader.";
     case IPC_READY:
     case IPC_STATUS:
     case IPC_PROGRESS:
@@ -444,6 +479,18 @@ void Frontend::handle_status(ipc_lick *c, ipc_status *s) {
             clear_commands_queue();
             return;
         }
+        break;
+    case IPC_FIX:
+        if(s->ret == -1) {
+            handle_error("Install the bootloader first.");
+            clear_commands_queue();
+            return;
+        } else if(!s->ret) {
+            handle_error("Error fixing the bootloader!");
+            clear_commands_queue();
+            return;
+        }
+        fl_message("Fix complete!");
         break;
     default:
         return;

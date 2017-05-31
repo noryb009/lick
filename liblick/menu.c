@@ -3,11 +3,21 @@
 #include "menu.h"
 #include "utils.h"
 
-menu_t *new_menu(menu_install_f i, menu_uninstall_f u, menu_gen_section_f g,
-        menu_append_section_f a, menu_remove_section_f r) {
+int dummy_fix(lickdir_t *lick) {
+    if(!lick->err)
+        lick->err = strdup2("This function is not needed on your system.");
+    return 1;
+}
+
+menu_t *new_menu(menu_install_f i, menu_uninstall_f u, menu_fix_f f,
+        menu_gen_section_f g, menu_append_section_f a, menu_remove_section_f r) {
     menu_t *m = malloc(sizeof(menu_t));
     m->install = i;
     m->uninstall = u;
+    if(f)
+        m->fix_loader = f;
+    else
+        m->fix_loader = dummy_fix;
     m->gen_section = g;
     m->append_section = a;
     m->remove_section = r;

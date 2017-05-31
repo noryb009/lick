@@ -1,9 +1,9 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0303 
-header_name {.h} 
+version 1.0304
+header_name {.h}
 code_name {.cxx}
 decl {class Frontend;} {public global
-} 
+}
 
 class lick_fltk {open
 } {
@@ -81,9 +81,14 @@ class lick_fltk {open
           xywh {0 0 100 20}
         } {
           MenuItem {} {
+            label {Nothing happens on reboot}
+            callback {frontend->on_nothing_happens();}
+            xywh {0 0 36 20}
+          }
+          MenuItem {} {
             label About
             callback {frontend->on_about();} selected
-            xywh {0 0 100 20}
+            xywh {5 5 100 20}
           }
         }
       }
@@ -103,9 +108,9 @@ class lick_fltk {open
   }
   decl {Frontend *frontend;} {private local
   }
-} 
+}
 
 Function {} {open
 } {
   code {return main2(argc, argv);} {}
-} 
+}

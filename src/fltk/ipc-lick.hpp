@@ -9,6 +9,7 @@ typedef enum {
     IPC_EXIT,
     IPC_INSTALL,
     IPC_UNINSTALL,
+    IPC_FIX,
     IPC_CHECK_LOADER,
     IPC_LOADER,
     // responses, backend -> frontend
@@ -76,6 +77,17 @@ class ipc_loader : public ipc_lick {
         void exchange(ipc *p);
 
         int install;
+        lickdir_t *lick;
+};
+
+class ipc_fix : public ipc_lick {
+    public:
+        IPC_COMMANDS type() {return IPC_FIX;}
+        ipc_fix() {lick = NULL;}
+        ipc_fix(lickdir_t *lick);
+        ~ipc_fix();
+        void exchange(ipc *p);
+
         lickdir_t *lick;
 };
 

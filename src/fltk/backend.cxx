@@ -75,6 +75,11 @@ int Backend::event_loop() {
                 ret = uninstall_loader(loader, 0, info, l->lick);
             send_status(send, ret, l->lick->err);
             }break;
+        case IPC_FIX: {
+            ipc_fix *fix = (ipc_fix *)c;
+            int ret = fix_loader(loader, menu, fix->lick);
+            send_status(send, ret, fix->lick->err);
+            }break;
         case IPC_READY:
         case IPC_STATUS:
         case IPC_PROGRESS:
