@@ -52,7 +52,7 @@ Frontend::Frontend() {
 
     bar = NULL;
     waiting_for_backend = 0;
-    id_bg = NULL;
+    id_bg = 0;
 
     clear();
 }
