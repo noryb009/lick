@@ -2,5 +2,7 @@ build*
 doc/*
 !doc/Doxyfile
 !doc/pages
+keys/*
 res/*
+!res/lick.cer
 !res/lickgrub.cfg
