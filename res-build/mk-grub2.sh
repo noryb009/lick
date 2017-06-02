@@ -15,7 +15,7 @@ grub-mkstandalone \
     -o "$unsigned" \
     --locales= \
     --compress=gz \
-    /boot/grub/grub.cfg=./grub.cfg
+    /boot/grub/grub.cfg="$res_build/grub2.cfg"
 
 sbsign \
     --key "$key" --cert "$crt" \
