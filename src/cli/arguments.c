@@ -42,6 +42,8 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
     a->me_check = 1;
     a->check_loader = 0;
     a->install_loader = -1;
+    a->fix_loader = 0;
+    a->check_fix_loader = 0;
     a->install = NULL;
     a->uninstall = NULL;
     a->uninstall_all = 0;
@@ -64,6 +66,8 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         {"check-loader", no_argument, 0, 'c'},
         {"install-loader", no_argument, &a->install_loader, 1},
         {"uninstall-loader", no_argument, &a->install_loader, 0},
+        {"fix-loader", no_argument, &a->fix_loader, 1},
+        {"check-fix-loader", no_argument, &a->check_fix_loader, 1},
         {"install", required_argument, 0, 'i'},
         {"uninstall", required_argument, 0, 'u'},
         {"uninstall-all", no_argument, &a->uninstall_all, 1},

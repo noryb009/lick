@@ -79,6 +79,12 @@ int uninstall_loader(loader_t *l, int reinstall, sys_info_t *info,
     return -1; // already uninstalled
 }
 
+int check_fix_loader(loader_t *l, menu_t *m, lickdir_t *lick) {
+    if(l->check())
+        return m->check_fix_loader(lick);
+    return -1; // not installed
+}
+
 int fix_loader(loader_t *l, menu_t *m, lickdir_t *lick) {
     if(l->check())
         return m->fix_loader(lick);

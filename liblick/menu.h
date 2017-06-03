@@ -39,6 +39,7 @@
 typedef int (*menu_install_f)(lickdir_t *lick);
 typedef int (*menu_uninstall_f)(lickdir_t *lick);
 typedef int (*menu_fix_f)(lickdir_t *lick);
+typedef int (*menu_check_fix_f)(lickdir_t *lick);
 typedef char *(*menu_gen_section_f)(distro_info_t *info);
 typedef int (*menu_append_section_f)(const char *id, const char *section,
         lickdir_t *lick);
@@ -54,6 +55,8 @@ typedef struct {
     menu_uninstall_f uninstall;
     /// fix the bootloader when the system does not boot LICK
     menu_fix_f fix_loader;
+    /// check if the bootloader fix has been applied
+    menu_check_fix_f check_fix_loader;
     // TODO: header hook
     /// generate section for the given distro info
     menu_gen_section_f gen_section;
@@ -68,7 +71,8 @@ typedef struct {
  * @return a new menu_t, with the given info filled in. Must be freed using
  * free_menu
  */
-menu_t *new_menu(menu_install_f i, menu_uninstall_f u, menu_fix_f f,
+menu_t *new_menu(menu_install_f i, menu_uninstall_f u,
+        menu_fix_f f, menu_check_fix_f c,
         menu_gen_section_f g, menu_append_section_f a, menu_remove_section_f r);
 
 /**

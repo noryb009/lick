@@ -10,6 +10,8 @@ typedef struct {
     int me_check;
     int check_loader;
     int install_loader;
+    int fix_loader;
+    int check_fix_loader;
     node_t *install;
     node_t *uninstall;
     int uninstall_all;

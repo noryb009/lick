@@ -77,6 +77,36 @@ int main(int argc, char **argv) {
         return ret;
     }
 
+    if(a->check_fix_loader) {
+        p->loader = get_loader(p->info);
+        if(!p->loader) {
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
+        p->menu = get_menu(p->loader);
+        if(!p->menu) {
+            free_program_status(p);
+            free_program_args(a);
+            return 1;
+        }
+        int ret = check_fix_loader(p->loader, p->menu, p->lick);
+        if(p->volume > VOLUME_SILENCE) {
+            printf("Boot loader fix is ");
+            if(ret != 1)
+                printf("not ");
+            printf("installed\n");
+        }
+        free_program_status(p);
+        free_program_args(a);
+        switch(ret) {
+        case 1:
+            return 2; // Installed.
+        default:
+            return 3; // Not installed.
+        }
+    }
+
     p->loader = get_loader(p->info);
     if(p->loader)
         p->menu = get_menu(p->loader);
@@ -170,6 +200,24 @@ int main(int argc, char **argv) {
                 }
                 ret = 1;
             }
+        }
+    }
+
+    if(a->fix_loader == 1) {
+        int ret = fix_loader(p->loader, p->menu, p->lick);
+        switch(ret) {
+        case -1:
+            if(p->volume > VOLUME_SILENCE)
+                printf("Boot loader not installed\n");
+            return 1;
+        case 0:
+            if(p->volume > VOLUME_SILENCE)
+                printf("Error installing loader fix\n");
+            return 1;
+        case 1:
+            if(p->volume > VOLUME_SILENCE)
+                printf("Installed loader fix\n");
+            break;
         }
     }
 

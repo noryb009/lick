@@ -80,3 +80,10 @@ menu_t *get_menu(loader_t *l);
  * @return 1 on success, 0 on error, -1 if not installed
  */
 int fix_loader(loader_t *l, menu_t *m, lickdir_t *lick);
+/**
+ * @brief determine if the loader has been fixed
+ *
+ * @return 1 if the loader fix is installed, 0 if it is not, and
+ * -1 if the boot loader not installed
+ */
+int check_fix_loader(loader_t *l, menu_t *m, lickdir_t *lick);
