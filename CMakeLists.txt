@@ -88,6 +88,7 @@ if(WIN32 AND NOT UNIX)
     set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
         "
         Var /GLOBAL lick_reinstall_boot
+        Var /GLOBAL lick_refix_boot
         Var /GLOBAL lick_exit_code
         StrCpy $lick_reinstall_boot 0
         ; if old install exists
@@ -100,6 +101,9 @@ if(WIN32 AND NOT UNIX)
           nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -sc'
           Pop $lick_exit_code
           StrCmp '$lick_exit_code' '1' 0 lick_after_preinstall
+          ; if the fix has been applied to the bootloader
+          nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --check-fix-loader'
+          Pop $lick_refix_boot
           ; uninstall loader
           nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --uninstall-loader --reinstall'
           StrCpy $lick_reinstall_boot 1
@@ -109,6 +113,8 @@ if(WIN32 AND NOT UNIX)
         "
         StrCmp '$lick_reinstall_boot' '0' lick_after_install
           nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --install-loader'
+          StrCmp '$lick_refix_boot' '2' 0 lick_after_install
+            nsExec::Exec '\\\"$INSTDIR\\\\lick-cli.exe\\\" -s --fix-loader'
         lick_after_install:")
 
     # offer to uninstall all on uninstall
