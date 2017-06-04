@@ -66,29 +66,6 @@ int install_grub2(lickdir_t *lick) {
         free(grub_cfg_header);
     }
     free(grub_cfg_lick);
-
-    char drive = mount_uefi_partition();
-    if(drive == '\0')
-        return 0;
-    char *grub_cfg = strdup2("?:/EFI/LICK/grub/grub.cfg");
-    grub_cfg[0] = drive;
-
-    FILE *menu = fopen(grub_cfg, "w");
-    if(!menu) {
-        if(lick->err == NULL)
-            lick->err = strdup2("Could not write to grub.cfg");
-        free(grub_cfg);
-        unmount_uefi_partition(drive);
-        return 0;
-    }
-    fprintf(menu, "insmod part_gpt\n");
-    fprintf(menu, "insmod part_msdos\n");
-    fprintf(menu, "insmod ntfs\n\n");
-    fprintf(menu, "search --set=root --file /lickgrub.cfg\n");
-    fprintf(menu, "configfile ($root)/lickgrub.cfg\n");
-    free(grub_cfg);
-    fclose(menu);
-    unmount_uefi_partition(drive);
     return 1;
 }
 
@@ -103,11 +80,11 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
     }
 
     char *lick_grub = strdup2("?:/efi/lick/grubx64.efi");
-    char *lick_loader = strdup2("?:/efi/lick/loader.efi");
-    char *lick_hashtool = strdup2("?:/efi/lick/hashtool.efi");
+    char *lick_shim = strdup2("?:/efi/lick/shim.efi");
+    char *lick_mokmanager = strdup2("?:/efi/lick/MokManager.efi");
     char *boot_grub = strdup2("?:/efi/boot/grubx64.efi");
-    char *boot_loader = strdup2("?:/efi/boot/loader.efi");
-    char *boot_hashtool = strdup2("?:/efi/boot/hashtool.efi");
+    char *boot_shim = strdup2("?:/efi/boot/shim.efi");
+    char *boot_mokmanager = strdup2("?:/efi/boot/MokManager.efi");
     char *boot_file = strdup("?:/efi/boot/bootx64.efi");
     char *boot_file_backup = strdup2("?:/efi/boot/bootx64-orig.efi");
     char *ms_loader = strdup2("?:/efi/microsoft/boot/bootmgfw.efi");
@@ -116,11 +93,11 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
     char *grub_menu = NULL;
 
     lick_grub[0] = drive;
-    lick_loader[0] = drive;
-    lick_hashtool[0] = drive;
+    lick_shim[0] = drive;
+    lick_mokmanager[0] = drive;
     boot_grub[0] = drive;
-    boot_loader[0] = drive;
-    boot_hashtool[0] = drive;
+    boot_shim[0] = drive;
+    boot_mokmanager[0] = drive;
     ms_loader[0] = drive;
     ms_loader_backup[0] = drive;
     boot_file[0] = drive;
@@ -134,10 +111,10 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
 
     grub2_fix_status status = GRUB2_FIX_UNINSTALLED;
 
-    if(path_exists(boot_loader) || path_exists(boot_hashtool)
+    if(path_exists(boot_grub) || path_exists(boot_mokmanager)
             || path_exists(ms_loader_backup)
             || path_exists(boot_file_backup)) {
-        if(path_exists(boot_loader) && path_exists(boot_hashtool)
+        if(path_exists(boot_grub) && path_exists(boot_mokmanager)
                 && path_exists(ms_loader_backup)
                 && path_exists(boot_file_backup))
             status = GRUB2_FIX_INSTALLED;
@@ -158,9 +135,9 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
         ret = 1;
     else if(function == GRUB2_FIX_INSTALL) {
         /* Steps:
-         * 1) Copy `/EFI/LICK/{grubx64,HashTool,loader}.efi` to `/EFI/Boot/`
+         * 1) Copy `/EFI/LICK/{grubx64,shim,MokManager}.efi` to `/EFI/Boot/`
          * 2) Rename `/EFI/Boot/bootx64.efi` to `bootx64-orig.efi`
-         * 3) Move `/EFI/LICK/grubx64.efi` to `/EFI/Boot/bootx64.efi`
+         * 3) Rename `/EFI/Boot/shim.efi` to `bootx64.efi`
          * 4) Rename `/EFI/Microsoft/Boot/bootmgfw.efi` to `bootmgfw-backup.efi`
          */
         do {
@@ -168,15 +145,15 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
             do {
                 if(!copy_file(boot_grub, lick_grub))
                     break;
-                if(!copy_file(boot_hashtool, lick_hashtool))
+                if(!copy_file(boot_shim, lick_shim))
                     break;
-                if(!copy_file(boot_loader, lick_loader))
+                if(!copy_file(boot_mokmanager, lick_mokmanager))
                     break;
                 if(!copy_file(boot_file_backup, boot_file))
                     break;
 
                 attrib_t boot_attrs = attrib_open(boot_file);
-                if(!replace_file(boot_file, boot_grub)) {
+                if(!replace_file(boot_file, boot_shim)) {
                     attrib_save(boot_file, boot_attrs);
                     lick->err = strdup2("Could not overwrite boot file.");
                     break;
@@ -201,8 +178,8 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
 
             if(fail) {
                 unlink_file(boot_grub);
-                unlink_file(boot_hashtool);
-                unlink_file(boot_loader);
+                unlink_file(boot_shim);
+                unlink_file(boot_mokmanager);
                 unlink_file(boot_file_backup);
                 if(!lick->err)
                     lick->err = strdup2("Could not copy files on EFI partition.");
@@ -287,7 +264,7 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
         /* Steps:
          * 1) Rename `/EFI/Microsoft/Boot/bootmgfw-backup.efi` to `bootmgfw.efi`
          * 2) Rename `/EFI/Boot/bootx64-orig.efi` to `bootx64.efi`
-         * 3) Delete `/EFI/Boot/{HashTool,loader}.efi`
+         * 3) Delete `/EFI/Boot/{grubx64,MokManager}.efi`
          */
         do {
             if(!rename_file(ms_loader, ms_loader_backup)) {
@@ -306,8 +283,8 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
             }
             attrib_save(boot_file, boot_attrs);
 
-            unlink_file(boot_hashtool);
-            unlink_file(boot_loader);
+            unlink_file(boot_grub);
+            unlink_file(boot_mokmanager);
             ret = 1;
         } while(0);
     }
@@ -315,11 +292,11 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
     if(!original_drive)
         unmount_uefi_partition(drive);
     free(lick_grub);
-    free(lick_loader);
-    free(lick_hashtool);
+    free(lick_shim);
+    free(lick_mokmanager);
     free(boot_grub);
-    free(boot_loader);
-    free(boot_hashtool);
+    free(boot_shim);
+    free(boot_mokmanager);
     free(ms_loader);
     free(ms_loader_backup);
     free(boot_file);
@@ -349,6 +326,11 @@ int uninstall_grub2(lickdir_t *lick) {
         unlink_file(grub_cfg);
     }
     free(grub_cfg);
+
+    char *lick_cert = strdup2("?:/lick.cer");
+    lick_cert[0] = drive;
+    unlink_file(lick_cert);
+    free(lick_cert);
 
     char lick_dir[] = "?:/EFI/LICK";
     lick_dir[0] = drive;
@@ -387,7 +369,7 @@ int fix_grub2(lickdir_t *lick) {
 }
 
 int check_fix_grub2(lickdir_t *lick) {
-    return fix_grub2_inner(lick, GRUB2_FIX_CHECK, '\0'); // TODO
+    return fix_grub2_inner(lick, GRUB2_FIX_CHECK, '\0');
 }
 
 menu_t *get_grub2() {

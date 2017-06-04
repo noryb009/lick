@@ -9,9 +9,10 @@
 #include "../utils.h"
 
 // install
-#define COMMAND_GRUB_INSTALL "%s/grub2/grub-install --target=x86_64-efi --bootloader-id=LICK --efi-directory=%c: --boot-directory=%c:/EFI/LICK --recheck"
-#define COMMAND_DESCRIPTION  "%s /set {%s} description \"" LOADER_DESC "\""
-#define COMMAND_FAST_BOOT    "powercfg -h off"
+#define COMMAND_COPY      "%s /copy {bootmgr} /d \"" LOADER_DESC "\""
+#define COMMAND_PATH      "%s /set {%s} path \\EFI\\LICK\\shim.efi"
+#define COMMAND_DISPLAY   "%s /set {fwbootmgr} displayorder {%s} /addfirst"
+#define COMMAND_FAST_BOOT "powercfg -h off"
 
 // uninstall
 #define COMMAND_ENUM "%s /enum all"
@@ -78,50 +79,77 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     if(drive == '\0')
         return 0;
 
-    snprintf(c, COMMAND_BUFFER_LEN, COMMAND_GRUB_INSTALL, lick->res, drive, drive);
-    if(!run_system(c)) {
-        unmount_uefi_partition(drive);
-        return 0;
-    }
-
-    char *bcdedit = get_bcdedit();
-    if(bcdedit) {
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
-        get_id_from_command_range(c, id, "----------", "EFI\\LICK\\");
-        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DESCRIPTION, bcdedit, id);
-        run_system(c);
-        free(bcdedit);
-    }
-
-    // add PreLoader.efi and HashTool.efi
+    // Add files.
+    char *efi_dir = strdup2("?:/EFI/LICK");
+    char *efi_cert = strdup2("?:/lick.cer");
     char *efi_grub = strdup2("?:/EFI/LICK/grubx64.efi");
-    char *efi_loader = strdup2("?:/EFI/LICK/loader.efi");
-    char *efi_hashtool = strdup2("?:/EFI/LICK/HashTool.efi");
-    char *res_preloader = concat_strs(2, lick->res, "/PreLoader.efi");
-    char *res_hashtool = concat_strs(2, lick->res, "/HashTool.efi");
-    efi_loader[0] = drive;
+    char *efi_shim = strdup2("?:/EFI/LICK/shim.efi");
+    char *efi_mokmanager = strdup2("?:/EFI/LICK/MokManager.efi");
+    char *res_cert = concat_strs(2, lick->res, "/lick.cer");
+    char *res_grub = concat_strs(2, lick->res, "/grub2x64.efi");
+    char *res_shim = concat_strs(2, lick->res, "/shim.efi");
+    char *res_mokmanager = concat_strs(2, lick->res, "/MokManager.efi");
+    efi_dir[0] = drive;
+    efi_cert[0] = drive;
     efi_grub[0] = drive;
-    efi_hashtool[0] = drive;
+    efi_shim[0] = drive;
+    efi_mokmanager[0] = drive;
 
-    // copy "grub" -> "loader", "hashtool" -> "hashtool", then
-    //   "preloader" -> "grub". This can safely fail at any time.
+    char *bcdedit = NULL;
+    int fail = 1;
+    id[0] = '\0';
     do {
-        if(!copy_file(efi_loader, efi_grub))
+        if(!make_dir_parents(efi_dir))
             break;
-        if(!copy_file(efi_hashtool, res_hashtool))
+        if(!copy_file(efi_cert, res_cert))
             break;
-        if(!copy_file(efi_grub, res_preloader))
+        if(!copy_file(efi_grub, res_grub))
             break;
+        if(!copy_file(efi_shim, res_shim))
+            break;
+        if(!copy_file(efi_mokmanager, res_mokmanager))
+            break;
+
+        bcdedit = get_bcdedit();
+
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_COPY, bcdedit);
+        if(!get_id_from_command(c, id))
+            break;
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id);
+        if(!run_system(c))
+            break;
+        snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DISPLAY, bcdedit, id);
+        if(!run_system(c))
+            break;
+
+        fail = 0;
     } while(0);
 
-    // clean up
+    int ret = 1;
+    if(fail) {
+        ret = 0;
+
+        if(id[0] != '\0')
+            snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
+
+        unlink_file(efi_cert);
+        unlink_file(efi_grub);
+        unlink_file(efi_shim);
+        unlink_file(efi_mokmanager);
+        unlink_dir(efi_dir);
+    }
+    free(bcdedit);
     unmount_uefi_partition(drive);
-    free(efi_loader);
+    // Clean up.
+    free(efi_dir);
+    free(efi_cert);
     free(efi_grub);
-    free(efi_hashtool);
-    free(res_preloader);
-    free(res_hashtool);
-    return 1;
+    free(efi_shim);
+    free(efi_mokmanager);
+    free(res_grub);
+    free(res_shim);
+    free(res_mokmanager);
+    return ret;
 }
 
 int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
