@@ -146,6 +146,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     free(efi_grub);
     free(efi_shim);
     free(efi_mokmanager);
+    free(res_cert);
     free(res_grub);
     free(res_shim);
     free(res_mokmanager);
