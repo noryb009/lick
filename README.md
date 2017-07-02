@@ -7,6 +7,10 @@ Linux. Currently only Puppy Linux-based distributions are supported.
 LICK runs on any Windows version, from Windows 95 to Windows 10. Check below
 for any special notes on your Windows version type.
 
+# Download
+You can download the latest version of LICK
+[from Github](https://github.com/noryb009/lick/releases/latest).
+
 # Windows Version Notes
 ## Windows 8, 8.1 and 10
 Windows 8 and up have a feature called 'Fast Startup'. This **cannot** be
