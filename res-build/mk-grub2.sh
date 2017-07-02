@@ -7,8 +7,8 @@ if [[ ! -e "$key" || ! -e "$crt" ]]; then
     exit 1
 fi
 
-unsigned="$res/grub2x64-unsigned.efi"
-signed="$res/grub2x64.efi"
+unsigned="$res/grubx64-unsigned.efi"
+signed="$res/grubx64.efi"
 
 grub-mkstandalone \
     -O x86_64-efi \

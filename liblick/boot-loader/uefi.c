@@ -86,7 +86,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     char *efi_shim = strdup2("?:/EFI/LICK/shim.efi");
     char *efi_mokmanager = strdup2("?:/EFI/LICK/" MOKMANAGER_EFI);
     char *res_cert = concat_strs(2, lick->res, "/lick.cer");
-    char *res_grub = concat_strs(2, lick->res, "/grub2x64.efi");
+    char *res_grub = concat_strs(2, lick->res, "/grubx64.efi");
     char *res_shim = concat_strs(2, lick->res, "/" SHIM_EFI);
     char *res_mokmanager = concat_strs(2, lick->res, "/" MOKMANAGER_EFI);
     efi_dir[0] = drive;
