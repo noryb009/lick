@@ -18,7 +18,7 @@ enabled if LICK is installed. LICK disables Fast Startup upon installation.
 
 ## UEFI Systems with Secure Boot
 LICK supports secure boot, but requires a manual step during the first
-reboot. On subsequent reboots, these steps should not need to be taken.
+reboot.
 
 1. On the first reboot, if you see a blue screen with writing, press enter
    to select `OK`.
