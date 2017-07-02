@@ -82,13 +82,13 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     // Add files.
     char *efi_dir = strdup2("?:/EFI/LICK");
     char *efi_cert = strdup2("?:/lick.cer");
-    char *efi_grub = strdup2("?:/EFI/LICK/grubx64.efi");
+    char *efi_grub = strdup2("?:/EFI/LICK/" GRUB2_EFI);
     char *efi_shim = strdup2("?:/EFI/LICK/shim.efi");
-    char *efi_mokmanager = strdup2("?:/EFI/LICK/MokManager.efi");
+    char *efi_mokmanager = strdup2("?:/EFI/LICK/" MOKMANAGER_EFI);
     char *res_cert = concat_strs(2, lick->res, "/lick.cer");
     char *res_grub = concat_strs(2, lick->res, "/grub2x64.efi");
-    char *res_shim = concat_strs(2, lick->res, "/shim.efi");
-    char *res_mokmanager = concat_strs(2, lick->res, "/MokManager.efi");
+    char *res_shim = concat_strs(2, lick->res, "/" SHIM_EFI);
+    char *res_mokmanager = concat_strs(2, lick->res, "/" MOKMANAGER_EFI);
     efi_dir[0] = drive;
     efi_cert[0] = drive;
     efi_grub[0] = drive;

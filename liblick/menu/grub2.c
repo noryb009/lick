@@ -79,12 +79,12 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
         }
     }
 
-    char *lick_grub = strdup2("?:/efi/lick/grubx64.efi");
+    char *lick_grub = strdup2("?:/efi/lick/" GRUB2_EFI);
     char *lick_shim = strdup2("?:/efi/lick/shim.efi");
-    char *lick_mokmanager = strdup2("?:/efi/lick/MokManager.efi");
-    char *boot_grub = strdup2("?:/efi/boot/grubx64.efi");
+    char *lick_mokmanager = strdup2("?:/efi/lick/" MOKMANAGER_EFI);
+    char *boot_grub = strdup2("?:/efi/boot/" GRUB2_EFI);
     char *boot_shim = strdup2("?:/efi/boot/shim.efi");
-    char *boot_mokmanager = strdup2("?:/efi/boot/MokManager.efi");
+    char *boot_mokmanager = strdup2("?:/efi/boot/" MOKMANAGER_EFI);
     char *boot_file = strdup("?:/efi/boot/bootx64.efi");
     char *boot_file_backup = strdup2("?:/efi/boot/bootx64-orig.efi");
     char *ms_loader = strdup2("?:/efi/microsoft/boot/bootmgfw.efi");

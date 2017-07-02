@@ -7,6 +7,19 @@
 
 #include "../menu.h"
 
+// Either PreLoader or shim can be used.
+#define USE_PRELOADER
+
+#ifdef USE_PRELOADER
+#  define GRUB2_EFI "loader.efi"
+#  define SHIM_EFI "PreLoader.efi"
+#  define MOKMANAGER_EFI "HashTool.efi"
+#else
+#  define GRUB2_EFI "grubx64.efi"
+#  define SHIM_EFI "shim.efi"
+#  define MOKMANAGER_EFI "MokManager.efi"
+#endif
+
 /**
  * @brief mounts the UEFI partition on a free drive
  * @return the letter to the drive where the UEFI partition is mounted, or
