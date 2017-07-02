@@ -14,6 +14,7 @@ grub-mkstandalone \
     -O x86_64-efi \
     -o "$unsigned" \
     --locales= \
+    --themes= \
     --compress=gz \
     /boot/grub/grub.cfg="$res_build/grub2.cfg"
 
