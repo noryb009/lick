@@ -12,6 +12,7 @@ extern "C" {
 
 typedef struct node_t node_t;
 typedef void (*free_list_item_f)(void *);
+typedef int (*compare_list_item_f)(const void *a, const void *b);
 
 /**
  * @brief A linked list node
@@ -50,7 +51,7 @@ node_t *list_reverse(node_t *lst);
  * @param compare the comparison function
  * @return the sorted list
  */
-node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b));
+node_t *list_sort(node_t *lst, compare_list_item_f compare);
 /**
  * @brief free a list, freeing all elements along the way
  * @param n the list to free

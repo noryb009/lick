@@ -50,7 +50,7 @@ node_t *array_to_list(void **arr, int len) {
     return lst;
 }
 
-node_t *list_sort(node_t *lst, int (*compare)(const void *a, const void *b)) {
+node_t *list_sort(node_t *lst, compare_list_item_f compare) {
     int len;
     void **arr = list_to_array(lst, &len);
     free_list(lst, NULL);
