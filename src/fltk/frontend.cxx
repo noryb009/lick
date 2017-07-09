@@ -97,7 +97,7 @@ void Frontend::on_drop() {
     drop_area *drop = w->drop_area_iso;
     Fl_Native_File_Chooser *chooser;
     switch(drop->event()) {
-    case FL_RELEASE:
+    case DROP_AREA_CLICK:
         chooser = new Fl_Native_File_Chooser();
         switch(chooser->show()) {
         case -1:
@@ -110,7 +110,7 @@ void Frontend::on_drop() {
             break;
         }
         break;
-    case FL_PASTE:
+    case DROP_AREA_DROP: {
         const char *text = drop->event_text();
         // get number of files
         int i = 1;
@@ -138,6 +138,11 @@ void Frontend::on_drop() {
         handle_file(file);
         delete [] file_to_delete;
 
+    }break;
+    case DROP_AREA_DROP_API:
+        handle_file(drop->event_text());
+        break;
+    case DROP_AREA_NO_EVENT:
         break;
     }
 }
@@ -523,6 +528,10 @@ int Frontend::handle_event(ipc_lick *c) {
         bar = w->progress_bar;
         id_bg = w->text_id->color();
         refresh_window();
+
+        // Enable drag and drop.
+        w->drop_area_iso->enable_drag_drop(w->window);
+
         break;
     case IPC_STATUS: {
         if(!waiting_for_backend) {
