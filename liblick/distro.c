@@ -7,13 +7,13 @@
 #include "distro/fatdog.h"
 #include "distro/puppy.h"
 
-node_t *get_all_distros() {
-    node_t *lst = NULL;
+distro_node_t *get_all_distros() {
+    distro_node_t *lst = NULL;
 
-    lst = new_node(get_distro_puppy(), lst);
-    lst = new_node(get_distro_fatdog(), lst);
+    lst = new_distro_node_t(get_distro_puppy(), lst);
+    lst = new_distro_node_t(get_distro_fatdog(), lst);
 
-    return list_reverse(lst);
+    return distro_node_t_reverse(lst);
 }
 
 // TODO: is this needed?
@@ -41,10 +41,6 @@ void free_distro(distro_t *d) {
     free(d);
 }
 
-void free_distro_list(node_t *n) {
-    free_list(n, (free_list_item_f)free_distro);
-}
-
 void free_distro_info(distro_info_t *i) {
     if(i->kernel)
         free(i->kernel);
@@ -55,10 +51,6 @@ void free_distro_info(distro_info_t *i) {
     if(i->full_text)
         free(i->full_text);
     free(i);
-}
-
-void free_distro_info_list(node_t *n) {
-    free_list(n, (free_list_item_f)free_distro_info);
 }
 
 char *menu_path(char *path) {

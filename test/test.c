@@ -16,12 +16,12 @@ void print_info(sys_info_t *info) {
 }
 
 void print_installed(lickdir_t *lick) {
-    node_t *l = list_installed(lick);
-    for(node_t *n = l; n != NULL; n = n->next) {
+    installed_node_t *l = list_installed(lick);
+    for(installed_node_t *n = l; n != NULL; n = n->next) {
         installed_t *i = n->val;
         printf("ID: %s, NAME: %s\n", i->id, i->name);
     }
-    free_list_installed(l);
+    free_installed_node_t(l);
 }
 
 lickdir_t *test_lick(const char *d) {
@@ -85,12 +85,12 @@ void test_install() {
 }
 
 void print_drives() {
-    node_t *drv = all_drives();
-    for(node_t *n = drv; n != NULL; n = n->next) {
+    drive_node_t *drv = all_drives();
+    for(drive_node_t *n = drv; n != NULL; n = n->next) {
         drive_t *d = n->val;
         printf("- %s\n", d->path);
     }
-    free_drive_list(drv);
+    free_drive_node_t(drv);
 }
 
 int even(int *i) {

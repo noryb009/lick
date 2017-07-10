@@ -92,6 +92,6 @@ void free_menu(menu_t *m);
  * @param menu the menu being used
  * @return 1 on success, 0 on error
  */
-int install_menu(node_t *files, const char *dst, distro_t *distro,
+int install_menu(string_node_t *files, const char *dst, distro_t *distro,
         const char *id, const char *name, lickdir_t *lick, menu_t *menu);
 int uninstall_menu(const char *id, lickdir_t *lick, menu_t *menu);

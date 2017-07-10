@@ -142,9 +142,9 @@ int entry_submenu(program_status_t *p) {
     while(1) {
         printf("\n\nEntry menu:\n");
         printf("Entries:\n");
-        node_t *entries = list_installed(p->lick);
-        for(node_t *n = entries; n != NULL; n = n->next)
-            printf("- %s (%s)\n", ((installed_t *)n->val)->name, ((installed_t *)n->val)->id);
+        installed_node_t *entries = list_installed(p->lick);
+        for(installed_node_t *n = entries; n != NULL; n = n->next)
+            printf("- %s (%s)\n", n->val->name, n->val->id);
 
         printf("1) Uninstall\n");
         printf("2) Return to main menu\n");
@@ -164,12 +164,12 @@ int entry_submenu(program_status_t *p) {
 }
 
 int ask_uninstall(program_status_t *p) {
-    node_t *entries = list_installed(p->lick);
+    installed_node_t *entries = list_installed(p->lick);
     int c;
     while(1) {
         int len = 0;
-        for(node_t *n = entries; n != NULL; n = n->next, ++len)
-            printf("%d) %s\n", len + 1, ((installed_t *)n->val)->name);
+        for(installed_node_t *n = entries; n != NULL; n = n->next, ++len)
+            printf("%d) %s\n", len + 1, n->val->name);
 
         if(len == 0) {
             printf("No entries!\n");
@@ -180,14 +180,14 @@ int ask_uninstall(program_status_t *p) {
         c = ask_int();
 
         if(c == 0) {
-            free_list_installed(entries);
+            free_installed_node_t(entries);
             return 0;
         }
         else if(c > 0 && c <= len)
             break;
     }
 
-    node_t *n = entries;
+    installed_node_t *n = entries;
     for(int i = 1; i < c; i++)
         n = n->next;
 
@@ -204,16 +204,15 @@ int ask_uninstall(program_status_t *p) {
         return 0;
 
     int ret = uninstall_id(p, install->id);
-    free_list_installed(entries);
+    free_installed_node_t(entries);
     return ret;
 }
 
-char *ask_drive(node_t *drives) {
+char *ask_drive(drive_node_t *drives) {
     while(1) {
         int i = 1;
-        for(node_t *n = drives; n != NULL; ++i, n = n->next) {
-            drive_t *drv = (drive_t *)n->val;
-            printf("%d) %s\n", i, drv->path);
+        for(drive_node_t *n = drives; n != NULL; ++i, n = n->next) {
+            printf("%d) %s\n", i, n->val->path);
         }
         if(i == 1)
             return NULL;
@@ -222,13 +221,13 @@ char *ask_drive(node_t *drives) {
             printf("Select a valid drive.\n\n");
             continue;
         } else {
-            node_t *n = drives;
+            drive_node_t *n = drives;
             for(int j = 1; j < choice; ++j) {
                 n = n->next;
             }
             drive_t *drv = n->val;
             char *ret = strdup2(drv->path);
-            free_drive_list(drives);
+            free_drive_node_t(drives);
             return ret;
         }
     }

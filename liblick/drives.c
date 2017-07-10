@@ -15,10 +15,6 @@ void free_drive(drive_t *drive) {
     free(drive);
 }
 
-void free_drive_list(node_t *lst) {
-    free_list(lst, (free_list_item_f)free_drive);
-}
-
 #ifdef _WIN32
 
 #define WIN32_LEAN_AND_MEAN
@@ -39,9 +35,9 @@ drive_type_e drive_type(char *path) {
     }
 }
 
-node_t *all_drives() {
+drive_node_t *all_drives() {
     DWORD drive_flags = GetLogicalDrives();
-    node_t *drives = NULL;
+    drive_node_t *drives = NULL;
 
     DWORD n = 1 << 25;
     char path[4];
@@ -53,7 +49,7 @@ node_t *all_drives() {
             path[0] = 'A' + i;
             drive_type_e type = drive_type(path);
             if(type != DRV_UNKNOWN)
-                drives = new_node(new_drive(path, type), drives);
+                drives = new_drive_node_t(new_drive(path, type), drives);
         }
     }
 
@@ -80,8 +76,8 @@ drive_type_e drive_type(char *path) {
     return DRV_HDD;
 }
 
-node_t *all_drives() {
-    return new_node(new_drive("/", DRV_HDD), NULL);
+drive_node_t *all_drives() {
+    return new_drive_node(new_drive("/", DRV_HDD), NULL);
 }
 
 char *unused_drive() {

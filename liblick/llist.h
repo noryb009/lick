@@ -62,6 +62,12 @@ node_t *list_sort(node_t *lst, compare_list_item_f compare);
  */
 void free_list(node_t *n, free_list_item_f free_fn);
 
+// A list of strings.
+#define LIST_NAME string_node_t
+#define LIST_TYPE char
+#define FREE_LIST_FN free
+#include "llist-type.h"
+
 #ifdef __cplusplus
 }
 #endif

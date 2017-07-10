@@ -15,7 +15,7 @@ typedef struct {
     /// 1 if the extraction finished, otherwise 0
     int finished;
     /// a list of relative paths to files extracted
-    node_t *files;
+    string_node_t *files;
     /// an error message, if applicable
     char *error;
 } uniso_status_t;

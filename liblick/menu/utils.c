@@ -9,17 +9,17 @@ int has_valuable_info(const char *menu) {
     char *menu_contents = file_to_str(f);
     fclose(f);
 
-    node_t *secs = get_sections(menu_contents);
-    for(node_t *cur = secs; cur; cur = cur->next) {
+    section_node_t *secs = get_sections(menu_contents);
+    for(section_node_t *cur = secs; cur; cur = cur->next) {
         section_t *sec = cur->val;
         if(sec->type != S_HEADER && sec->type != S_FOOTER) {
-            free_sections(secs);
+            free_section_node_t(secs);
             free(menu_contents);
             return 1;
         }
     }
 
-    free_sections(secs);
+    free_section_node_t(secs);
     free(menu_contents);
     return 0;
 }

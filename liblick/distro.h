@@ -33,7 +33,17 @@ typedef struct {
     char *full_text;
 } distro_info_t;
 
-typedef node_t *(*distro_info_f)(node_t *files, const char *dst,
+/**
+ * @brief Free a distro_info_t and all resources associated with it
+ */
+void free_distro_info(distro_info_t *d);
+
+#define LIST_NAME distro_info_node_t
+#define LIST_TYPE distro_info_t
+#define FREE_LIST_FN free_distro_info
+#include "llist-type.h"
+
+typedef distro_info_node_t *(*distro_info_f)(string_node_t *files, const char *dst,
         const char *name); // TODO: menu type
 typedef int (*distro_filter_f)(const char *f);
 
@@ -54,12 +64,6 @@ typedef struct {
 } distro_t;
 
 /**
- * @brief Get all distributions
- *
- * @return a list of distro_t
- */
-node_t *get_all_distros();
-/**
  * @brief Get a distro_t from its numberic id
  *
  * @return the corresponding distro_t if found, or NULL
@@ -71,23 +75,22 @@ distro_t *get_distro(distro_e distro);
  * @return the corresponding distro_t if found, or NULL
  */
 distro_t *get_distro_by_key(const char *key);
-
 /**
  * @brief Free a distro_t and all resources associated with it
  */
 void free_distro(distro_t *d);
+
+#define LIST_NAME distro_node_t
+#define LIST_TYPE distro_t
+#define FREE_LIST_FN free_distro
+#include "llist-type.h"
+
 /**
- * @brief Free all distro_t in a list
+ * @brief Get all distributions
+ *
+ * @return a list of distro_t
  */
-void free_distro_list(node_t *n);
-/**
- * @brief Free a distro_info_t and all resources associated with it
- */
-void free_distro_info(distro_info_t *d);
-/**
- * @brief Free all distro_info_t in a list
- */
-void free_distro_info_list(node_t *n);
+distro_node_t *get_all_distros();
 /**
  * @brief converts path to a grub-friendly path
  *

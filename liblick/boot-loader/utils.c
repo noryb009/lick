@@ -255,21 +255,21 @@ char *find_drive_with_file(const char *suggested_drive, const char *file) {
             return strdup2(suggested_drive);
     }
 
-    node_t *drives = all_drives();
+    drive_node_t *drives = all_drives();
 
-    for(node_t *drive = drives; drive; drive = drive->next) {
-        char *loc = unix_path(concat_strs(3, ((drive_t *)drive->val)->path,
+    for(drive_node_t *drive = drives; drive; drive = drive->next) {
+        char *loc = unix_path(concat_strs(3, drive->val->path,
                     "/", file));
         int exists = path_exists(loc);
         free(loc);
         if(exists) {
-            char *ret = strdup2(((drive_t *)drive->val)->path);
-            free_drive_list(drives);
+            char *ret = strdup2(drive->val->path);
+            free_drive_node_t(drives);
             return ret;
         }
     }
 
-    free_drive_list(drives);
+    free_drive_node_t(drives);
     return NULL;
 }
 

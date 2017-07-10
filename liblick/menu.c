@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "menu/edit-flat-menu.h"
 #include "menu.h"
 #include "utils.h"
 
@@ -38,31 +39,31 @@ void free_menu(menu_t *m) {
     free(m);
 }
 
-node_t *entries_to_sections(menu_t *menu, node_t *ents) {
-    node_t *secs = NULL;
-    for(node_t *n = ents; n != NULL; n = n->next) {
-        distro_info_t *info = (distro_info_t *)n->val;
+string_node_t *entries_to_sections(menu_t *menu, distro_info_node_t *ents) {
+    string_node_t *secs = NULL;
+    for(distro_info_node_t *n = ents; n != NULL; n = n->next) {
+        distro_info_t *info = n->val;
 
         if(info->full_text) {
-            secs = new_node(info->full_text, secs);
+            secs = new_string_node_t(info->full_text, secs);
             info->full_text = NULL;
         } else
-            secs = new_node(menu->gen_section(info), secs);
+            secs = new_string_node_t(menu->gen_section(info), secs);
     }
     return secs;
 }
 
-char *concat_sections(node_t *secs) {
+char *concat_sections(string_node_t *secs) {
     if(secs == NULL)
         return strdup2("");
-    size_t len = list_length(secs);
+    size_t len = string_node_t_length(secs);
     if(len > 1)
         len += (len - 1);
     char *strs[len];
 
     size_t i = len - 1;
-    for(node_t *n = secs; n != NULL; n = n->next, --i) {
-        strs[i] = (char *)n->val;
+    for(string_node_t *n = secs; n != NULL; n = n->next, --i) {
+        strs[i] = n->val;
         if(i > 0) {
             --i;
             strs[i] = "\n";
@@ -72,19 +73,19 @@ char *concat_sections(node_t *secs) {
     return concat_strs_arr(len, strs);
 }
 
-int install_menu(node_t *files, const char *dst, distro_t *distro,
+int install_menu(string_node_t *files, const char *dst, distro_t *distro,
         const char *id, const char *name, lickdir_t *lick, menu_t *menu) {
     // get type
-    node_t *entries = distro->info(files, dst, name);
+    distro_info_node_t *entries = distro->info(files, dst, name);
     if(entries == 0)
         return 1;
-    node_t *sections = entries_to_sections(menu, entries);
+    string_node_t *sections = entries_to_sections(menu, entries);
     char *section_text = concat_sections(sections);
 
     int ret = menu->append_section(id, section_text, lick);
 
-    free_list(sections, free);
-    free_distro_info_list(entries);
+    free_string_node_t(sections);
+    free_distro_info_node_t(entries);
 
     return ret;
 }

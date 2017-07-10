@@ -25,25 +25,24 @@ typedef struct {
  * @param path the directory to look in
  * @return a list of strings of absolute paths to conf files
  */
-node_t *get_conf_files(const char *path);
-/**
- * @brief returns a list of installed distributions
- * @param lick the LICK directory
- * @return
- *   a list of installed_t structures. Must be freed using free_list_installed
- */
-node_t *list_installed(lickdir_t *lick);
+string_node_t *get_conf_files(const char *path);
 /**
  * @brief free the memory a installed_t is using
  * @param i the installed_t to free
  */
 void free_installed(installed_t *i);
-/**
- * @brief free the memory a list of installed_t is using
- * @param n the list of installed_t to free
- */
-void free_list_installed(node_t *n);
 
+#define LIST_NAME installed_node_t
+#define LIST_TYPE installed_t
+#define FREE_LIST_FN free_installed
+#include "llist-type.h"
+
+/**
+ * @brief returns a list of installed distributions
+ * @param lick the LICK directory
+ * @return a list of installed_t structures
+ */
+installed_node_t *list_installed(lickdir_t *lick);
 /**
  * @brief install a distribution
  * @param id

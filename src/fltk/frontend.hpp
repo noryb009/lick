@@ -9,6 +9,7 @@
 #include "qqueue.hpp"
 
 class lick_fltk;
+struct installed_node_t;
 
 class Frontend {
     public:
@@ -55,7 +56,7 @@ class Frontend {
         sys_info_t *info;
 
         char *iso;
-        node_t *entries;
+        installed_node_t *entries;
         Fl_Color id_bg;
 };
 

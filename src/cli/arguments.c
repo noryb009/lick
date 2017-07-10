@@ -4,8 +4,8 @@
 #include "arguments.h"
 
 void free_program_args(program_args_t *a) {
-    free_list(a->install, NULL);
-    free_list(a->uninstall, NULL);
+    free_string_node_t(a->install);
+    free_string_node_t(a->uninstall);
     free(a);
 }
 
@@ -91,18 +91,18 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         case 'i':
             if(strcmp(optarg, "--") == 0) {
                 for(int i = optind; i < argc; ++i)
-                    a->install = new_node(argv[i], a->install);
+                    a->install = new_string_node_t(strdup2(argv[i]), a->install);
                 optind = argc;
             } else
-                a->install = new_node(optarg, a->install);
+                a->install = new_string_node_t(strdup2(optarg), a->install);
             break;
         case 'u':
             if(strcmp(optarg, "--") == 0) {
                 for(int i = optind; i < argc; ++i)
-                    a->uninstall = new_node(argv[i], a->uninstall);
+                    a->uninstall = new_string_node_t(strdup2(argv[i]), a->uninstall);
                 optind = argc;
             } else
-                a->uninstall = new_node(optarg, a->uninstall);
+                a->uninstall = new_string_node_t(strdup2(optarg), a->uninstall);
             break;
         case 'c':
             a->check_loader = 1;
@@ -124,7 +124,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
                 exit(1);
         }
     }
-    a->install = list_reverse(a->install);
-    a->uninstall = list_reverse(a->uninstall);
+    a->install = string_node_t_reverse(a->install);
+    a->uninstall = string_node_t_reverse(a->uninstall);
     return a;
 }

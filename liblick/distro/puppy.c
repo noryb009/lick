@@ -3,17 +3,16 @@
 
 #include "puppy.h"
 #include "utils.h"
-#include "../llist.h"
 #include "../utils.h"
 
-node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
+distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const char *name) {
     distro_info_t *i = new_empty_distro_info();
     i->kernel = NULL;
     i->initrd = NULL;
     i->options = NULL;
 
-    for(node_t *f = files; f != NULL; f = f->next) {
-        char *n = (char *)f->val;
+    for(string_node_t *f = files; f != NULL; f = f->next) {
+        char *n = f->val;
 
         if(i->kernel == NULL && (strstr(n, "vmlinu") || strstr(n, "VMLINU"))) {
             i->kernel = menu_path(concat_strs(3, dst, "/", n));
@@ -27,7 +26,7 @@ node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
     char *dst_menu = dst_menu_full;
     while(*dst_menu == '/')
         ++dst_menu;
-    node_t *ret = NULL;
+    distro_info_node_t *ret = NULL;
     if(i->kernel) {
         distro_info_t *i2 = copy_distro_info(i);
         i->options = concat_strs(2, "pfix=fsck psubdir=", dst_menu);
@@ -36,10 +35,10 @@ node_t *distro_puppy(node_t *files, const char *dst, const char *name) {
         i2->options = concat_strs(2,
                 "pfix=ram savefile=none psubdir=", dst_menu);
         i2->name = concat_strs(2, name, " (no save file)");
-        ret = new_node(i2, ret);
+        ret = new_distro_info_node_t(i2, ret);
     }
     i->name = strdup2(name);
-    ret = new_node(i, ret);
+    ret = new_distro_info_node_t(i, ret);
 
     free(dst_menu_full);
     return ret;

@@ -36,6 +36,17 @@ typedef struct {
 } drive_t;
 
 /**
+ * @brief free a drive structure
+ * @param drive the drive structure to free
+ */
+void free_drive(drive_t *drive);
+
+#define LIST_NAME drive_node_t
+#define LIST_TYPE drive_t
+#define FREE_LIST_FN free_drive
+#include "llist-type.h"
+
+/**
  * @brief determines the type of a drive
  * @param path a drive in the form "A:/"
  * @return the type of drive
@@ -43,24 +54,14 @@ typedef struct {
 drive_type_e drive_type(char *path);
 /**
  * @brief return a list of all drives in the system
- * @return a linked list of all drives. Must be freed using #free_drive_list
+ * @return a linked list of all drives
  */
-node_t *all_drives();
+drive_node_t *all_drives();
 /**
  * @brief return an unused drive path
  * @return an unused drive path. Must be freed using #free
  */
 char *unused_drive();
-/**
- * @brief free a drive structure
- * @param drive the drive structure to free
- */
-void free_drive(drive_t *drive);
-/**
- * @brief free a list of drive structures
- * @param lst the list of drive structures to free
- */
-void free_drive_list(node_t *lst);
 /**
  * @brief determines if a drive has LICK installed on it
  *

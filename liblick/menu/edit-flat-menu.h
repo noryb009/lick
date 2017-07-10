@@ -31,37 +31,38 @@ section_t *new_section(type_e type, const char *id, const char *content);
  * @param s the section to free
  */
 void free_section(section_t *s);
-/**
- * @brief Free memory used by a list of section_t
- * @param s the list of sections to free
- */
-void free_sections(node_t *s);
+
+#define LIST_NAME section_node_t
+#define LIST_TYPE section_t
+#define FREE_LIST_FN free_section
+#include "../llist-type.h"
+
 /**
  * @brief Gets a list of sections from a flat-file menu
  * @param f a NULL-terminated string, the contents of a flat-file menu. Must
  * exist until the return value is freed
  * @return a list of menu sections
  */
-node_t *get_sections(const char *f);
+section_node_t *get_sections(const char *f);
 /**
  * @brief Appends the section sec to the list of sections secs
  * @param secs a list of section_t
  * @param sec the section to add to the end of the list
  * @return the list of sections, with sec
  */
-node_t *append_section(node_t *secs, section_t *sec);
+section_node_t *append_section(section_node_t *secs, section_t *sec);
 /**
  * @brief Given the sections of a menu, removes the section named sec
  * @param secs the menu as a list of sections
  * @param sec the name of the section
  */
-node_t *remove_section(node_t *secs, const char *sec);
+section_node_t *remove_section(section_node_t *secs, const char *sec);
 /**
  * @brief Write a list of sections to a file
  * @param f the file to write to
  * @param secs the list of sections to write
  */
-void write_sections(FILE *f, node_t *secs);
+void write_sections(FILE *f, section_node_t *secs);
 
 /**
  * @brief append a section to a flat menu file

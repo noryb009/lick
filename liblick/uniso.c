@@ -80,11 +80,10 @@ int extract_iso(uniso_status_t *s, struct archive *iso, const char *dst,
             free(name);
             continue;
         }
-        s->files = new_node(name, s->files);
+        s->files = new_string_node_t(name, s->files);
         char *dest = unix_path(create_dest(dst, "/", name));
         if(!extract_file(s, iso, dest)) {
             free(dest);
-            free(name);
             return 0;
         }
         ++current;
@@ -132,6 +131,6 @@ void free_uniso_status(uniso_status_t *s) {
     if(s->error != NULL) {
         free(s->error);
     }
-    free_list(s->files, free);
+    free_string_node_t(s->files);
     free(s);
 }

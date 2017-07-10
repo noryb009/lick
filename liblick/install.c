@@ -15,8 +15,8 @@ int is_conf_file(const char *e) {
             && is_conf_path(e));
 }
 
-node_t *get_conf_files(const char *path) {
-    node_t *lst = NULL;
+string_node_t *get_conf_files(const char *path) {
+    string_node_t *lst = NULL;
 
     struct dirent **e;
     int n = scandir_full_path(path, &e, is_conf_file, antialphasort2);
@@ -24,7 +24,7 @@ node_t *get_conf_files(const char *path) {
         return NULL;
 
     for(int i = 0; i < n; ++i) {
-        lst = new_node(concat_strs(3, path, "/", e[i]->d_name), lst);
+        lst = new_string_node_t(concat_strs(3, path, "/", e[i]->d_name), lst);
         free(e[i]);
     }
 
@@ -90,32 +90,27 @@ int compare_install_name(const installed_t **a, const installed_t **b) {
     return strcmp((*a)->name, (*b)->name);
 }
 
-node_t *list_installed(lickdir_t *lick) {
-    node_t *lst = get_conf_files(lick->entry);
+installed_node_t *list_installed(lickdir_t *lick) {
+    string_node_t *lst = get_conf_files(lick->entry);
     installed_t *install;
-    node_t *installed = NULL;
+    installed_node_t *installed = NULL;
 
-    for(node_t *n = lst; n != NULL; n = n->next) {
+    for(string_node_t *n = lst; n != NULL; n = n->next) {
         char install_name[strlen(n->val) + 1];
         unix_path(strcpy(install_name, n->val));
         install = get_installed(lick, install_name);
         if(install)
-            installed = new_node(install, installed);
+            installed = new_installed_node_t(install, installed);
     }
 
-    free_list(lst, free);
-    return list_sort(installed,
-            (int (*)(const void *, const void *))compare_install_name);
+    free_string_node_t(lst);
+    return installed_node_t_sort(installed, compare_install_name);
 }
 
 void free_installed(installed_t *i) {
     free(i->id);
     free(i->name);
     free(i);
-}
-
-void free_list_installed(node_t *n) {
-    free_list(n, (free_list_item_f)free_installed);
 }
 
 int install_cb(const char *id, const char *name, distro_t *distro,
@@ -165,7 +160,7 @@ int install_cb(const char *id, const char *name, distro_t *distro,
         fprintf(info_f, "name %s\n", name);
         fprintf(info_f, "distribution %s\n", distro->key);
         fprintf(info_f, "-----\n");
-        for(node_t *n = status->files; n != NULL; n = n->next) {
+        for(string_node_t *n = status->files; n != NULL; n = n->next) {
             char *s = concat_strs(3, install_dir, "/", n->val);
             fprintf(info_f, "%s\n", unix_path(s));
             free(s);
@@ -182,7 +177,7 @@ int install_cb(const char *id, const char *name, distro_t *distro,
     if(status) {
         if(ret != 1) {
             // delete files
-            for(node_t *n = status->files; n != NULL; n = n->next) {
+            for(string_node_t *n = status->files; n != NULL; n = n->next) {
                 char *s = concat_strs(3, install_dir, "/", n->val);
                 unlink_file(unix_path(s));
                 free(s);

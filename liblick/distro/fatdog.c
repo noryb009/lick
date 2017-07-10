@@ -7,14 +7,14 @@
 #include "../llist.h"
 #include "../utils.h"
 
-node_t *distro_fatdog(node_t *files, const char *dst, const char *name) {
-    node_t *lst = distro_puppy(files, dst, name);
+distro_info_node_t *distro_fatdog(string_node_t *files, const char *dst, const char *name) {
+    distro_info_node_t *lst = distro_puppy(files, dst, name);
 
     // need to change pfix=ram to savefile=none in second item
     if(!lst || !lst->next)
         return lst;
 
-    distro_info_t *i = (distro_info_t*)lst->next;
+    distro_info_t *i = lst->val;
 
     char *new_options = strrep(i->options, "pfix=ram", "savefile=none");
     free(i->options);

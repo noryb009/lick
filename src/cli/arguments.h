@@ -12,8 +12,8 @@ typedef struct {
     int install_loader;
     int fix_loader;
     int check_fix_loader;
-    node_t *install;
-    node_t *uninstall;
+    string_node_t *install;
+    string_node_t *uninstall;
     int uninstall_all;
     int reinstall;
 } program_args_t;

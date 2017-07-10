@@ -14,4 +14,4 @@ int auto_install(program_status_t *p, char *iso);
 int main_menu(program_status_t *p);
 int entry_submenu(program_status_t *p);
 int ask_uninstall(program_status_t *p);
-char *ask_drive(node_t *drives);
+char *ask_drive(drive_node_t *drives);

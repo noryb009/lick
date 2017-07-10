@@ -172,11 +172,6 @@ void free_section(section_t *s) {
     free(s);
 }
 
-
-void free_sections(node_t *s) {
-    free_list(s, (free_list_item_f)free_section);
-}
-
 int is_valuable_section(section_t *s) {
     if(s->type != S_UNLABELED)
         return 1;
@@ -187,8 +182,8 @@ int is_valuable_section(section_t *s) {
     return 0;
 }
 
-node_t *get_sections(const char *f) {
-    node_t *ret = NULL;
+section_node_t *get_sections(const char *f) {
+    section_node_t *ret = NULL;
     section_t *cur = new_part_section(f);
     token_t t;
     comment_token_t tc;
@@ -202,7 +197,7 @@ node_t *get_sections(const char *f) {
             c = read_double_comment(c + t.len, &tc);
             if(tc.start) {
                 if(is_valuable_section(cur)) {
-                    ret = new_node(cur, ret);
+                    ret = new_section_node_t(cur, ret);
                     cur = new_part_section(c);
                 } else
                     reset_section(cur, c);
@@ -216,7 +211,7 @@ node_t *get_sections(const char *f) {
                     cur->id = tc.id;
                     tc.id = NULL;
                 }
-                ret = new_node(cur, ret);
+                ret = new_section_node_t(cur, ret);
                 cur = new_part_section(c);
             }
         } else {
@@ -226,19 +221,19 @@ node_t *get_sections(const char *f) {
     }
 
     if(is_valuable_section(cur))
-        ret = new_node(cur, ret);
+        ret = new_section_node_t(cur, ret);
     else
         free(cur);
 
     // remove ending newline on unlabeled sections
-    for(node_t *n = ret; n != NULL; n = n->next) {
-        cur = (section_t *)n->val;
+    for(section_node_t *n = ret; n != NULL; n = n->next) {
+        cur = n->val;
         if(cur->type == S_UNLABELED && cur->content_len > 0
                 && cur->content[cur->content_len-1] == '\n')
             --cur->content_len;
     }
 
-    return list_reverse(ret);
+    return section_node_t_reverse(ret);
 }
 
 void write_section_type(FILE *f, section_t *sec) {
@@ -280,22 +275,22 @@ void write_section(FILE *f, section_t *sec, int first) {
     }
 }
 
-void write_sections(FILE *f, node_t *secs) {
+void write_sections(FILE *f, section_node_t *secs) {
     int first = 1;
-    for(node_t *n = secs; n != NULL; n = n->next) {
+    for(section_node_t *n = secs; n != NULL; n = n->next) {
         write_section(f, n->val, first);
         first = 0;
     }
 }
 
-node_t *append_section(node_t *secs, section_t *sec) {
-    node_t *prev = NULL;
+section_node_t *append_section(section_node_t *secs, section_t *sec) {
+    section_node_t *prev = NULL;
 
-    for(node_t *n = secs;; n = n->next) {
+    for(section_node_t *n = secs;; n = n->next) {
         if(n == NULL || sec->type == S_HEADER
                 || (((section_t *)n->val)->type == S_FOOTER
                     && sec->type != S_FOOTER)) {
-            node_t *node = new_node(sec, n);
+            section_node_t *node = new_section_node_t(sec, n);
             if(!prev)
                 return node;
             prev->next = node;
@@ -305,10 +300,10 @@ node_t *append_section(node_t *secs, section_t *sec) {
     }
 }
 
-node_t *remove_section(node_t *secs, const char *sec) {
-    node_t *prev = NULL;
+section_node_t *remove_section(section_node_t *secs, const char *sec) {
+    section_node_t *prev = NULL;
 
-    for(node_t *n = secs; n != NULL; n = n->next) {
+    for(section_node_t *n = secs; n != NULL; n = n->next) {
         section_t *cur = n->val;
         if(cur->id && !strcmp(cur->id, sec)) {
             if(prev)
@@ -328,7 +323,7 @@ node_t *remove_section(node_t *secs, const char *sec) {
 int flat_append_section(const char *menu_path, const char *id, const char *section,
         lickdir_t *lick) {
     char *menu = NULL;
-    node_t *secs = NULL;
+    section_node_t *secs = NULL;
 
     if(path_exists(menu_path)) {
         FILE *f = fopen(menu_path, "r");
@@ -347,7 +342,7 @@ int flat_append_section(const char *menu_path, const char *id, const char *secti
 
     FILE *f = fopen(menu_path, "w");
     if(!f) {
-        free_sections(secs);
+        free_section_node_t(secs);
         if(menu)
             free(menu);
         if(!lick->err)
@@ -356,7 +351,7 @@ int flat_append_section(const char *menu_path, const char *id, const char *secti
     }
     write_sections(f, secs);
     fclose(f);
-    free_sections(secs);
+    free_section_node_t(secs);
     if(menu)
         free(menu);
     return 1;
@@ -371,20 +366,20 @@ int flat_remove_section(const char *menu_path, const char *id,
     char *menu = file_to_str(f);
     fclose(f);
 
-    node_t *secs = get_sections(menu);
+    section_node_t *secs = get_sections(menu);
     secs = remove_section(secs, id);
 
     f = fopen(menu_path, "w");
     if(!f) {
         if(!lick->err)
             lick->err = strdup2("Could not write to menu!");
-        free_sections(secs);
+        free_section_node_t(secs);
         free(menu);
         return 0;
     }
     write_sections(f, secs);
     fclose(f);
-    free_sections(secs);
+    free_section_node_t(secs);
     free(menu);
     return 1;
 }

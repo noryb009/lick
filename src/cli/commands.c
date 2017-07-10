@@ -99,7 +99,7 @@ int uninstall_id(program_status_t *p, char *id) {
     }
 
     // check if last entry
-    node_t *entries = list_installed(p->lick);
+    installed_node_t *entries = list_installed(p->lick);
     if(entries == NULL)
         if(check_loader(p->loader))
             if(ask_uninstall_loader(p))
@@ -107,7 +107,7 @@ int uninstall_id(program_status_t *p, char *id) {
                     handle_error(p);
                     // don't return error - still uninstalled entry
                 }
-    free_list_installed(entries);
+    free_installed_node_t(entries);
 
     return 1;
 }

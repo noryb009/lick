@@ -171,8 +171,8 @@ int main(int argc, char **argv) {
     }
 
     if(a->uninstall_all) {
-        node_t *entries = list_installed(p->lick);
-        for(node_t *n = entries; n != NULL; n = n->next) {
+        installed_node_t *entries = list_installed(p->lick);
+        for(installed_node_t *n = entries; n != NULL; n = n->next) {
             installed_t *install = n->val;
             if(!uninstall(install->id, p->lick, p->menu)) {
                 if(p->volume > VOLUME_SILENCE)
@@ -186,15 +186,15 @@ int main(int argc, char **argv) {
                     printf("Uninstalled %s\n", install->id);
             }
         }
-        free_list_installed(entries);
+        free_installed_node_t(entries);
     } else if(a->uninstall) {
-        for(node_t *n = a->uninstall; n != NULL; n = n->next) {
-            if(uninstall((char *)n->val, p->lick, p->menu)) {
+        for(string_node_t *n = a->uninstall; n != NULL; n = n->next) {
+            if(uninstall(n->val, p->lick, p->menu)) {
                 if(p->volume > VOLUME_SILENCE)
-                    printf("Uninstalled %s\n", (char *)n->val);
+                    printf("Uninstalled %s\n", n->val);
             } else {
                 if(p->volume > VOLUME_SILENCE)
-                    printf("Could not uninstall %s\n", (char *)n->val);
+                    printf("Could not uninstall %s\n", n->val);
                 if(!a->ignore_errors) {
                     return 1;
                 }
@@ -221,13 +221,13 @@ int main(int argc, char **argv) {
         }
     }
 
-    for(node_t *n = a->install; n != NULL; n = n->next) {
+    for(string_node_t *n = a->install; n != NULL; n = n->next) {
         if(auto_install(p, n->val)) {
             if(p->volume > VOLUME_SILENCE)
-                printf("Installed %s\n", (char *)n->val);
+                printf("Installed %s\n", n->val);
         } else {
             if(p->volume > VOLUME_SILENCE) {
-                printf("Could not install %s\n", (char *)n->val);
+                printf("Could not install %s\n", n->val);
                 if(!a->ignore_errors) {
                     return 1;
                 }

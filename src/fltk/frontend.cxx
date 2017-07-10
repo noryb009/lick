@@ -29,7 +29,7 @@ void Frontend::reset() {
     if(iso)
         free(iso);
     if(entries)
-        free_list_installed(entries);
+        free_installed_node_t(entries);
     clear();
 }
 
@@ -182,20 +182,19 @@ void Frontend::on_uninstall() {
     if(fl_choice("Are you sure you wish to uninstall %s?", "No", "Yes", NULL, lst->text(val)) != 1)
         return;
 
-    node_t *e = entries;
+    installed_node_t *e = entries;
     for(int i = 1; i < val && e != NULL; ++i)
         e = e->next;
     if(e == NULL) {
         refresh_window();
         return;
     }
-    installed_t *ent = (installed_t *)(e->val);
 
     if(!commands_queue.empty()) {
         fl_alert("Please wait until the current operation finishes.");
     }
 
-    commands_queue.push(new ipc_uninstall(ent->id, lick));
+    commands_queue.push(new ipc_uninstall(e->val->id, lick));
     commands_queue.push(new ipc_loader(0, lick));
     progress_set_size();
 }
@@ -302,15 +301,15 @@ void Frontend::refresh_window() {
     menu->clear();
 
     char *win_drive = get_windows_drive_path();
-    node_t *drvs = all_drives();
+    drive_node_t *drvs = all_drives();
     if(win_drive)
         menu->add(until_first_slash(win_drive), 0, 0, 0, 0);
-    for(node_t *d = drvs; d != NULL; d = d->next) {
-        drive_t *drv = (drive_t *)d->val;
+    for(drive_node_t *d = drvs; d != NULL; d = d->next) {
+        drive_t *drv = d->val;
         if(win_drive && drv->path[0] != win_drive[0])
             menu->add(until_first_slash(drv->path), 0, 0, 0, 0);
     }
-    free_drive_list(drvs);
+    free_drive_node_t(drvs);
     if(win_drive)
         free(win_drive);
     menu->value(0);
@@ -319,11 +318,11 @@ void Frontend::refresh_window() {
 
     // uninstall list
     if(entries)
-        free_list_installed(entries);
+        free_installed_node_t(entries);
     entries = list_installed(lick);
     w->lst_uninstall->clear();
-    for(node_t *e = entries; e != NULL; e = e->next) {
-        installed_t *install = (installed_t *)e->val;
+    for(installed_node_t *e = entries; e != NULL; e = e->next) {
+        installed_t *install = e->val;
         char *text = concat_strs(4, install->name, " (", install->id, ")");
         w->lst_uninstall->add(text, entries);
         free(text);
