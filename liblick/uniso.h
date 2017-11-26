@@ -25,9 +25,9 @@ typedef void (*uniso_progress_cb)(uniso_progress_t cur,
         uniso_progress_t total, void *cb_data);
 
 /**
- * @brief extract an ISO file
- * @param src the path of the ISO file to extract
- * @param dst the path to extract the ISO file to
+ * @brief extract an ISO file or a directory (presumably a CD drive)
+ * @param src the path of the ISO file or directory to extract
+ * @param dst the path to extract the ISO file or directory to
  * @param cb an optional callback to update the status
  * @param cb_data data to call the callback with
  * @return information about the extraction

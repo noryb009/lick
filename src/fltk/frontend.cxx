@@ -70,11 +70,14 @@ Frontend::~Frontend() {
 
 void Frontend::handle_file(const char *file) {
     if(!path_exists(file)) {
-        fl_alert("Please choose a valid ISO file.");
+        fl_alert("Please choose a valid ISO file or directory.");
         return;
     }
 
-    if(!strstr(file, ".iso"))
+    if(file_type(file) == FILE_TYPE_DIR) {
+        if(fl_choice("%s is a directory. Do you want to install the Linux files found at this location?", NULL, "Yes", "No", file) == 2)
+            return;
+    } else if(!strstr(file, ".iso"))
         if(fl_choice("%s doesn't look like an ISO file. Are you sure you wish to continue?", NULL, "Yes", "No", file) == 2)
             return;
 

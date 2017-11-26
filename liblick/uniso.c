@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "scandir.h"
 #include "uniso.h"
 #include "utils.h"
 
@@ -105,8 +106,55 @@ struct archive *uniso_open(uniso_status_t *s, const char *src) {
     return iso;
 }
 
+uniso_status_t *undir(const char *src, const char *dst, distro_filter_f filter,
+        uniso_progress_cb cb, void *cb_data) {
+    uniso_status_t *s = new_status();
+
+    make_dir_parents(dst);
+
+    struct dirent **e;
+    const unsigned int len = scandir2(src, &e, NULL, NULL);
+    int failed = 0;
+
+    if(cb)
+        cb(0, len, cb_data);
+
+    for(uniso_progress_t i = 0; i < len; /* Updated in loop. */) {
+        if(!failed) {
+            char *path = unix_path(concat_strs(3, src, "/", e[i]->d_name));
+            if(file_type(path) != FILE_TYPE_DIR && filter(e[i]->d_name)) {
+                char *dst_path = unix_path(concat_strs(3, dst, "/", e[i]->d_name));
+                if(copy_file(dst_path, path)) {
+                    s->files = new_string_node_t(strdup(e[i]->d_name), s->files);
+                    // If we are copying directly from a CD, the file will be
+                    // read-only. This causes problems when we try to delete
+                    // the files.
+                    attrib_open(dst_path);
+                } else {
+                    failed = 1;
+                }
+                free(dst_path);
+            }
+            free(path);
+        }
+        free(e[i]);
+        ++i;
+        if(cb)
+            cb(i, len, cb_data);
+    }
+    free(e);
+
+    s->finished = 1;
+    return s;
+}
+
 uniso_status_t *uniso(const char *src, const char *dst, distro_filter_f filter,
         uniso_progress_cb cb, void *cb_data) {
+    // Deal with directories.
+    if(file_type(src) == FILE_TYPE_DIR) {
+      return undir(src, dst, filter, cb, cb_data);
+    }
+
     uniso_status_t *s = new_status();
 
     struct archive *iso = uniso_open(s, src);
