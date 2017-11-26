@@ -155,7 +155,14 @@ int install_cb(const char *id, const char *name, distro_t *distro,
         }
 
         // write menu entries
-        install_menu(status->files, install_dir, distro, id, name, lick, menu);
+        if (!install_menu(status->files, install_dir, distro, id, name, lick, menu)) {
+            if(lick->err == NULL)
+                lick->err = strdup2("Could not add menu entry.");
+            break;
+        }
+
+        // NOTE: there is no cleanup code yet for menu entries. If we fail
+        // after this point, we need to add some cleanup code.
 
         fprintf(info_f, "name %s\n", name);
         fprintf(info_f, "distribution %s\n", distro->key);

@@ -76,9 +76,9 @@ char *concat_sections(string_node_t *secs) {
 int install_menu(string_node_t *files, const char *dst, distro_t *distro,
         const char *id, const char *name, lickdir_t *lick, menu_t *menu) {
     // get type
-    distro_info_node_t *entries = distro->info(files, dst, name);
-    if(entries == 0)
-        return 1;
+    distro_info_node_t *entries = distro->info(files, dst, name, lick);
+    if(entries == NULL)
+        return 0;
     string_node_t *sections = entries_to_sections(menu, entries);
     char *section_text = concat_sections(sections);
 

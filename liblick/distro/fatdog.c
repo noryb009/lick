@@ -7,8 +7,8 @@
 #include "../llist.h"
 #include "../utils.h"
 
-distro_info_node_t *distro_fatdog(string_node_t *files, const char *dst, const char *name) {
-    distro_info_node_t *lst = distro_puppy(files, dst, name);
+distro_info_node_t *distro_fatdog(string_node_t *files, const char *dst, const char *name, lickdir_t *lick) {
+    distro_info_node_t *lst = distro_puppy(files, dst, name, lick);
 
     // need to change pfix=ram to savefile=none in second item
     if(!lst || !lst->next)

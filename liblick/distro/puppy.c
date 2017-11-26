@@ -5,11 +5,8 @@
 #include "utils.h"
 #include "../utils.h"
 
-distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const char *name) {
+distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const char *name, lickdir_t *lick) {
     distro_info_t *i = new_empty_distro_info();
-    i->kernel = NULL;
-    i->initrd = NULL;
-    i->options = NULL;
 
     for(string_node_t *f = files; f != NULL; f = f->next) {
         char *n = f->val;
@@ -20,6 +17,16 @@ distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const ch
         if(i->initrd == NULL && (strstr(n, "initr") || strstr(n, "INITR"))) {
             i->initrd = menu_path(concat_strs(3, dst, "/", n));
         }
+    }
+
+    // Make sure we have a kernel. Without this, we segfault when generating
+    // a menu entry (and it doesn't make sense to continue
+    // if we don't have a kernel).
+    if(i->kernel == NULL) {
+        free_distro_info(i);
+        if(lick->err == NULL)
+            lick->err = strdup2("No kernel found");
+        return NULL;
     }
 
     char *dst_menu_full = menu_path(strdup2(dst));

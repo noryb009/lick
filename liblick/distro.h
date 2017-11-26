@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "lickdir.h"
 #include "llist.h"
 
 /**
@@ -44,7 +45,7 @@ void free_distro_info(distro_info_t *d);
 #include "llist-type.h"
 
 typedef distro_info_node_t *(*distro_info_f)(string_node_t *files, const char *dst,
-        const char *name); // TODO: menu type
+        const char *name, lickdir_t *lick); // TODO: menu type
 typedef int (*distro_filter_f)(const char *f);
 
 /**
