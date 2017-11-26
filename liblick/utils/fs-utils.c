@@ -83,11 +83,20 @@ int make_dir_parents(const char *d) {
 
 int copy_file(const char *dst, const char *src) {
     char src_name[strlen(src) + 1];
-    FILE *s = fopen(unix_path(strcpy(src_name, src)), "rb");
+    char dst_name[strlen(dst) + 1];
+    unix_path(strcpy(src_name, src));
+    unix_path(strcpy(dst_name, dst));
+#ifdef _WIN32
+    if (CopyFile(src_name, dst_name, 0) != 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+#else
+    FILE *s = fopen(src_name, "rb");
     if(!s)
         return 0;
-    char dst_name[strlen(dst) + 1];
-    FILE *d = fopen(unix_path(strcpy(dst_name, dst)), "wb");
+    FILE *d = fopen(dst_name, "wb");
     if(!d) {
         fclose(s);
         return 0;
@@ -109,6 +118,7 @@ int copy_file(const char *dst, const char *src) {
     fclose(d);
     fclose(s);
     return 1;
+#endif
 }
 
 int rename_file(const char *dst, const char *src) {
