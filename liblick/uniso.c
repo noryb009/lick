@@ -113,13 +113,15 @@ uniso_status_t *undir(const char *src, const char *dst, distro_filter_f filter,
     make_dir_parents(dst);
 
     struct dirent **e;
-    const unsigned int len = scandir2(src, &e, NULL, NULL);
+    const int len = scandir2(src, &e, NULL, NULL);
+    if (len == -1)
+      return s;
     int failed = 0;
 
     if(cb)
         cb(0, len, cb_data);
 
-    for(uniso_progress_t i = 0; i < len; /* Updated in loop. */) {
+    for(uniso_progress_t i = 0; i < (unsigned int)len; /* Updated in loop. */) {
         if(!failed) {
             char *path = unix_path(concat_strs(3, src, "/", e[i]->d_name));
             if(file_type(path) != FILE_TYPE_DIR && filter(e[i]->d_name)) {
