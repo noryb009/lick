@@ -22,7 +22,7 @@ void print_help() {
     printf("  -c, --check-loader     Check if boot loader is installed\n");
     printf("      --install-loader   Install boot loader\n");
     printf("      --uninstall-loader   Uninstall boot loader\n");
-    printf("  -i, --install          Install the given ISO\n");
+    printf("  -i, --install          Install the given ISO or drive\n");
     printf("  -u, --uninstall        Uninstall the given ID\n");
     printf("      --uninstall-all    Uninstall all IDs and the bootloader\n");
     printf("\n");

@@ -46,7 +46,7 @@ int ask_bool(int default_val, char *try_again) {
 }
 
 char *ask_iso() {
-    printf("ISO file: ");
+    printf("ISO file or CD drive: ");
     char *c = read_line(stdin);
     if(strcmp(c, "") == 0 || strcmp(c, "\n") == 0) {
         free(c);
@@ -103,7 +103,7 @@ int main_menu(program_status_t *p) {
 
     while(1) {
         printf("\n\nMain menu:\n");
-        printf("1) Install ISO\n");
+        printf("1) Install ISO or from CD\n");
         printf("2) Entry submenu (view/delete)\n");
         printf("3) Install/uninstall boot loader\n");
         printf("4) Quit\n");

@@ -70,7 +70,7 @@ Frontend::~Frontend() {
 
 void Frontend::handle_file(const char *file) {
     if(!path_exists(file)) {
-        fl_alert("Please choose a valid ISO file or directory.");
+        fl_alert("Please choose a valid ISO file or CD drive.");
         return;
     }
 
@@ -122,7 +122,7 @@ void Frontend::on_drop() {
                 ++i;
         }
         if(i > 1 || strlen(text) == 0) {
-            fl_alert("Only 1 ISO may be used.");
+            fl_alert("Only 1 ISO file or drive may be used.");
             return;
         }
 
@@ -152,7 +152,7 @@ void Frontend::on_drop() {
 
 void Frontend::on_install() {
     if(iso == NULL) {
-        fl_alert("Please select an ISO.");
+        fl_alert("Please select an ISO or CD drive.");
         return;
     }
     if(!check_id()) {
