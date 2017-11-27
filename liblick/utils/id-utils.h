@@ -8,7 +8,7 @@
 #include "../lickdir.h"
 
 /**
- * @brief determine if the given ID is valid
+path@brief determine if the given ID is valid
  * @param id the ID to check
  * @param lick the lick directory
  * @param install_path the drive or path to install under
@@ -16,26 +16,22 @@
  */
 int is_valid_id(const char *id, lickdir_t *lick, const char *install_path);
 /**
- * @brief generate a valid ID from an ISO path
+ * @brief generate a valid ID from a path
  *
- * Given an ISO path name, takes the base name of the ISO without the .iso
- * extension, then converts any invalid characters to dashes. If this ID
- * is used, appends a number, from 2 to 100. If a valid ID has still not
- * been found, returns NULL.
+ * Given a path name, suggests a nice id.
  *
- * @param iso the ISO path
+ * @param path the path
  * @param lick the lick directory
  * @param install_path the drive or path to install under
  * @return an ID, or NULL if a valid ID could not be created
  */
-char *gen_id(const char *iso, lickdir_t *lick, const char *install_path);
+char *gen_id(const char *path, lickdir_t *lick, const char *install_path);
 /**
- * @brief generate a human-readable name from an ISO path
+ * @brief generate a human-readable name from a path
  *
- * Given an ISO path name, takes the base name of the ISO without the .iso
- * extension, then converts any dashes and underscores to spaces.
+ * Given a path, suggests a nice name.
  *
- * @param iso the ISO path
+ * @param path the path
  * @return a human-readable name
  */
-char *gen_name(const char *iso);
+char *gen_name(const char *path);

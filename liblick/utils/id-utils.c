@@ -6,11 +6,13 @@
 #include "fs-utils.h"
 #include "string-utils.h"
 
-char *gen_name_base(const char *iso) {
+/**
+ * Return the iso file name, without the `.iso` extension.
+ */
+static char *gen_name_base_iso(const char *iso) {
     char id_arr[strlen(iso) + 1];
     char *id = id_arr;
     strcpy(id, iso);
-
     while(1) {
         char *last_slash = strpbrk(id, "/\\");
         if(last_slash)
@@ -24,6 +26,49 @@ char *gen_name_base(const char *iso) {
         iso_loc[0] = '\0';
 
     return strdup2(id);
+}
+
+static char *gen_name_base_dir(const char *dir) {
+    const char * const generic_name = "Linux";
+    size_t len = strlen(dir);
+    // Cut off any trailing slashes.
+    while (len > 0 && (dir[len - 1] == '/' || dir[len - 1] == '\\')) {
+        --len;
+    }
+
+    // We either have a directory or a drive.
+    // Drives have no more slashes in them.
+    size_t last_slash = len;
+    for (size_t i = len; i > 0; /* In loop. */) {
+        --i;
+        if (dir[i] == '/' || dir[i] == '\\') {
+            last_slash = i;
+            break;
+        }
+    }
+    if (last_slash == 0)
+        return strdup2(generic_name);
+
+    // If we have a drive, use a generic name.
+    if (last_slash == len)
+        // TODO: ask distros to guess a name.
+        return strdup2(generic_name);
+    else {
+        // We want the text from last_slash + 1 to len, inclusive.
+        const size_t copy_len = len - last_slash;
+        char *ret = malloc((copy_len + 1) * sizeof(char));
+        memcpy(ret, dir + last_slash + 1, copy_len);
+        ret[copy_len] = '\0';
+        return ret;
+    }
+}
+
+char *gen_name_base(const char *path) {
+    if (file_type(path) == FILE_TYPE_DIR) {
+        return gen_name_base_dir(path);
+    } else {
+        return gen_name_base_iso(path);
+    }
 }
 
 int is_valid_id_char(const char c) {
@@ -63,8 +108,8 @@ int is_valid_id(const char *id, lickdir_t *lick, const char *install_path) {
     return 1;
 }
 
-char *gen_id(const char *iso, lickdir_t *lick, const char *install_path) {
-    char *id = gen_name_base(iso);
+char *gen_id(const char *path, lickdir_t *lick, const char *install_path) {
+    char *id = gen_name_base(path);
 
     // remove invalid chars
     for(int i = 0; id[i] != '\0'; ++i)
@@ -92,8 +137,8 @@ char *gen_id(const char *iso, lickdir_t *lick, const char *install_path) {
     return NULL;
 }
 
-char *gen_name(const char *iso) {
-    char *name = gen_name_base(iso);
+char *gen_name(const char *path) {
+    char *name = gen_name_base(path);
 
     for(int i = 0; name[i] != '\0'; ++i) {
         char c = name[i];
