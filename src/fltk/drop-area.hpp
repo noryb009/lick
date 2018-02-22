@@ -1,5 +1,7 @@
 // based on http://www.fltk.org/articles.php?L770
 #pragma once
+#include <fstream>
+
 #include <FL/Fl.H>
 #include <FL/Fl_Box.H>
 
@@ -22,6 +24,17 @@ class drop_area : public Fl_Box {
         int handle(int e);
         int handle_drag_event(void *event);
         void enable_drag_drop(const Fl_Window *window);
+
+
+        static void log_file_drop(const char *dropMethod, const char *file, const size_t len) {
+          std::ofstream log("file-input.log", std::ios::binary | std::ios::app);
+          log
+            << "New drop via " << dropMethod << "\n"
+            << "- length: " << len << "\n"
+            << "- file: " << file << "\n"
+          ;
+        }
+
     protected:
         drop_area_events evt;
         char *evt_txt;

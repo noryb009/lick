@@ -51,11 +51,13 @@ int drop_area::handle(int e) {
         case FL_PASTE:
             // TODO: remove this code?
             evt = DROP_AREA_DROP;
-            evt_len = Fl::event_length();
+            evt_len = Fl::event_length() + 1;
             delete [] evt_txt;
 
             evt_txt = new char[evt_len];
             strcpy(evt_txt, Fl::event_text());
+
+            log_file_drop("FL_PASTE", evt_txt, evt_len);
 
             if(callback() && ((when() & FL_WHEN_RELEASE) || (when() & FL_WHEN_CHANGED)))
                 Fl::add_timeout(0.0, drop_area::callback_deferred, (void *)this);
@@ -64,11 +66,13 @@ int drop_area::handle(int e) {
         // click release
         case FL_RELEASE:
             evt = DROP_AREA_CLICK;
-            evt_len = Fl::event_length();
+            evt_len = Fl::event_length() + 1;
             delete [] evt_txt;
 
             evt_txt = new char[evt_len];
             strcpy(evt_txt, Fl::event_text());
+
+            log_file_drop("FL_RELEASE", evt_txt, evt_len);
 
             if(callback() && ((when() & FL_WHEN_RELEASE) || (when() & FL_WHEN_CHANGED)))
                 Fl::add_timeout(0.0, drop_area::callback_deferred, (void *)this);
@@ -105,6 +109,8 @@ int drop_area::handle_drag_event(void *event) {
         if(!DragQueryFileA(hdrop, 0, evt_txt, evt_len))
             fl_alert("An error occurred while processing the file you dropped. Try clicking the button instead.");
         else {
+            log_file_drop("handle_drag_event", evt_txt, evt_len);
+
             // Process the filename later.
             evt = DROP_AREA_DROP_API; // TODO: make this better.
             Fl::add_timeout(0.0, drop_area::callback_deferred, (void *)this);

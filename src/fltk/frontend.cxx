@@ -102,6 +102,7 @@ void Frontend::on_drop() {
     switch(drop->event()) {
     case DROP_AREA_CLICK:
         chooser = new Fl_Native_File_Chooser();
+        //chooser->type(Fl_Native_File_Chooser::Type::BROWSE_DIRECTORY);
         switch(chooser->show()) {
         case -1:
             fl_alert("Error:\n%s", chooser->errmsg());
@@ -109,6 +110,7 @@ void Frontend::on_drop() {
         case 1:
             break;
         default:
+            drop_area::log_file_drop("DROP_AREA_CLICK", chooser->filename(), 0);
             handle_file(chooser->filename());
             break;
         }
