@@ -42,7 +42,7 @@ ExternalProject_Add(
         -DENABLE_ICONV=OFF -DENABLE_TEST=OFF -DENABLE_COVERAGE=OFF
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_C_FLAGS=-static-libgcc)
 set(external_projects libarchive-3.3.1)
 
