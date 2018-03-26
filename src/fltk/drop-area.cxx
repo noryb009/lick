@@ -51,7 +51,7 @@ int drop_area::handle(int e) {
         case FL_PASTE:
             // TODO: remove this code?
             evt = DROP_AREA_DROP;
-            evt_len = Fl::event_length();
+            evt_len = Fl::event_length() + 1;
             delete [] evt_txt;
 
             evt_txt = new char[evt_len];
@@ -64,7 +64,7 @@ int drop_area::handle(int e) {
         // click release
         case FL_RELEASE:
             evt = DROP_AREA_CLICK;
-            evt_len = Fl::event_length();
+            evt_len = Fl::event_length() + 1;
             delete [] evt_txt;
 
             evt_txt = new char[evt_len];
