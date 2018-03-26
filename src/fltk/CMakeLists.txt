@@ -1,11 +1,11 @@
 set(exe_name "lick-fltk")
 
 set(sources
-    backend.cxx
-    drop-area.cxx
-    frontend.cxx
-    ipc.cxx
-    ipc-lick.cxx)
+    backend.cc
+    drop-area.cc
+    frontend.cc
+    ipc.cc
+    ipc-lick.cc)
 
 find_package(FLTK REQUIRED)
 
@@ -15,7 +15,7 @@ find_package(FLTK REQUIRED)
 #    ${sources}
 #    ${${exe_name}_FLTK_UI_SRCS})
 set(gui_header ${CMAKE_CURRENT_BINARY_DIR}/gui.h)
-set(gui_source ${CMAKE_CURRENT_BINARY_DIR}/gui.cxx)
+set(gui_source ${CMAKE_CURRENT_BINARY_DIR}/gui.cc)
 set(gui_fl ${CMAKE_CURRENT_LIST_DIR}/gui.fl)
 message("${CMAKE_CURRENT_LIST_DIR}/gui.fl")
 add_custom_command(

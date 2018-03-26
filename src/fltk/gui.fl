@@ -1,7 +1,7 @@
 # data file for the Fltk User Interface Designer (fluid)
 version 1.0304
 header_name {.h}
-code_name {.cxx}
+code_name {.cc}
 decl {class Frontend;} {public global
 }
 
