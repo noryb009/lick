@@ -22,7 +22,7 @@ class lick_fltk {open
           xywh {5 45 260 215}
         } {
           Fl_Box drop_area_iso {
-            label {Click or drop ISO here}
+            label {Drop ISO or CD drive here\n(Or click to select an ISO)}
             callback {frontend->on_drop();}
             xywh {10 56 250 75} box ENGRAVED_BOX
             code0 {\#include "drop-area.hpp"}
