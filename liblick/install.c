@@ -1,3 +1,5 @@
+#include "install.h"
+
 #include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,7 +8,6 @@
 
 #include "boot-loader.h"
 #include "distro.h"
-#include "install.h"
 #include "scandir.h"
 #include "utils.h"
 

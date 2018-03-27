@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../distro.h"
+#include "distro.h"
 
 #define DISTRO_PUPPY_KEY "puppy"
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "edit-flat-menu.h"
-#include "../utils/file-utils.h"
+
+#include "menu/edit-flat-menu.h"
+#include "utils/file-utils.h"
 
 int has_valuable_info(const char *menu) {
     FILE *f = fopen(menu, "r");

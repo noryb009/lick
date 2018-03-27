@@ -1,7 +1,7 @@
+#include "system-info.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "system-info.h"
 
 #ifdef _WIN32
 

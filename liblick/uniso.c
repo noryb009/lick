@@ -1,3 +1,5 @@
+#include "uniso.h"
+
 #include <archive.h>
 #include <archive_entry.h>
 #include <stdio.h>
@@ -5,7 +7,6 @@
 #include <string.h>
 
 #include "scandir.h"
-#include "uniso.h"
 #include "utils.h"
 
 uniso_status_t *new_status() {

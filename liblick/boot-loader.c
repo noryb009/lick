@@ -1,6 +1,7 @@
+#include "boot-loader.h"
+
 #include <stdlib.h>
 
-#include "boot-loader.h"
 #include "boot-loader/9x.h"
 #include "boot-loader/me.h"
 #include "boot-loader/nt.h"

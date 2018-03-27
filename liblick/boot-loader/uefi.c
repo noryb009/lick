@@ -1,12 +1,13 @@
+#include "boot-loader/uefi.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "uefi.h"
+#include "boot-loader/boot-loader-utils.h"
+#include "drives.h"
+#include "lickdir.h"
+#include "menu/grub2.h"
 #include "utils.h"
-#include "../drives.h"
-#include "../lickdir.h"
-#include "../menu/grub2.h"
-#include "../utils.h"
 
 // install
 #define COMMAND_COPY      "%s /copy {bootmgr} /d \"" LOADER_DESC "\""

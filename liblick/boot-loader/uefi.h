@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../boot-loader.h"
+#include "boot-loader.h"
 
 /**
  * @brief get the UEFI boot loader plugin

@@ -1,6 +1,7 @@
+#include "utils/file-utils.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "file-utils.h"
 
 #define LINE_SIZE_START 1024
 

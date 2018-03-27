@@ -1,10 +1,11 @@
+#include "utils/id-utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "id-utils.h"
-#include "fs-utils.h"
-#include "string-utils.h"
+#include "utils/fs-utils.h"
+#include "utils/string-utils.h"
 
 /**
  * Return the iso file name, without the `.iso` extension.

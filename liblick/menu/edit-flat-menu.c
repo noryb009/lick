@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "edit-flat-menu.h"
-#include "../utils.h"
+#include "menu/edit-flat-menu.h"
+#include "utils.h"
 
 typedef struct {
     enum {

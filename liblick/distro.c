@@ -1,11 +1,11 @@
+#include "distro.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "distro.h"
-#include "utils.h"
-
 #include "distro/fatdog.h"
 #include "distro/puppy.h"
+#include "utils.h"
 
 distro_node_t *get_all_distros() {
     distro_node_t *lst = NULL;

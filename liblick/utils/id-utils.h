@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../lickdir.h"
+#include "lickdir.h"
 
 /**
 path@brief determine if the given ID is valid

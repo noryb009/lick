@@ -12,12 +12,12 @@ set(sources
     "boot-loader/me.c"
     "boot-loader/nt.c"
     "boot-loader/uefi.c"
-    "boot-loader/utils.c"
+    "boot-loader/boot-loader-utils.c"
     "boot-loader/vista.c"
     "distro.c"
     "distro/fatdog.c"
     "distro/puppy.c"
-    "distro/utils.c"
+    "distro/distro-utils.c"
     "drives.c"
     "install.c"
     "lickdir.c"
@@ -26,7 +26,7 @@ set(sources
     "menu/grub2.c"
     "menu/grub4dos.c"
     "menu/edit-flat-menu.c"
-    "menu/utils.c"
+    "menu/menu-utils.c"
     "scandir.c"
     "system-info.c"
     "uniso.c"
@@ -38,6 +38,7 @@ set(sources
 
 set(inc_dirs
     ${inc_dirs}
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}/libarchive/include
     ${PROJECT_BINARY_DIR}/liblick)
 

@@ -1,6 +1,6 @@
-#include <stdlib.h>
-
 #include "llist.h"
+
+#include <stdlib.h>
 
 node_t *new_node(void *val, node_t *next) {
     node_t *n = malloc(sizeof(node_t));

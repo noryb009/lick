@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "edit-flat-menu.h"
-#include "grub2.h"
+#include "menu/edit-flat-menu.h"
+#include "menu/grub2.h"
+#include "menu/menu-utils.h"
+#include "drives.h"
+#include "lickdir.h"
 #include "utils.h"
-#include "../drives.h"
-#include "../lickdir.h"
-#include "../utils.h"
 
 #define GRUB2_TITLE "menuentry \'%s\' {\n"
 #define GRUB2_SEARCH INDENT "search --set=root --file %s\n"

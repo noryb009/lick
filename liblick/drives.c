@@ -1,6 +1,7 @@
+#include "drives.h"
+
 #include <stdlib.h>
 
-#include "drives.h"
 #include "utils.h"
 
 drive_t *new_drive(char *name, drive_type_e type) {

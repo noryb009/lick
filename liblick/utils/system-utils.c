@@ -1,8 +1,10 @@
+#include "utils/system-utils.h"
+
 #include <assert.h>
 #include <stdlib.h>
-#include "fs-utils.h"
-#include "string-utils.h"
-#include "system-utils.h"
+
+#include "utils/fs-utils.h"
+#include "utils/string-utils.h"
 
 #ifdef _WIN32
 

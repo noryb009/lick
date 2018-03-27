@@ -1,8 +1,8 @@
+#include "scandir.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "scandir.h"
 
 int alphasort2(const struct dirent **a, const struct dirent **b) {
     return strcmp((*a)->d_name, (*b)->d_name);

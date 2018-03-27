@@ -1,12 +1,13 @@
+#include "boot-loader/me.h"
+
 #include <stdlib.h>
 
-#include "9x.h"
-#include "me.h"
+#include "boot-loader/9x.h"
+#include "boot-loader/boot-loader-utils.h"
+#include "drives.h"
+#include "lickdir.h"
+#include "menu/grub4dos.h"
 #include "utils.h"
-#include "../drives.h"
-#include "../lickdir.h"
-#include "../menu/grub4dos.h"
-#include "../utils.h"
 
 int supported_loader_me(sys_info_t *info) {
     return info->version == V_WINDOWS_ME;

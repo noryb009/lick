@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "edit-flat-menu.h"
-#include "grub4dos.h"
+#include "menu/edit-flat-menu.h"
+#include "menu/grub4dos.h"
+#include "menu/menu-utils.h"
+#include "drives.h"
+#include "lickdir.h"
+#include "menu.h"
 #include "utils.h"
-#include "../drives.h"
-#include "../lickdir.h"
-#include "../menu.h"
-#include "../utils.h"
 
 int install_grub4dos(lickdir_t *lick) {
     char *menu = unix_path(concat_strs(2, lick->drive, "/lickmenu.lst"));

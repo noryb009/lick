@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../menu.h"
+#include "menu.h"
 
 // Either PreLoader or shim can be used.
 #define USE_PRELOADER

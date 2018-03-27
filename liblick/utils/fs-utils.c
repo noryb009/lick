@@ -1,3 +1,5 @@
+#include "utils/fs-utils.h"
+
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -5,9 +7,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "fs-utils.h"
-#include "../scandir.h"
-#include "string-utils.h"
+
+#include "scandir.h"
+#include "utils/string-utils.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

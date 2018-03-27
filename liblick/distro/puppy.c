@@ -1,9 +1,10 @@
+#include "distro/puppy.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "puppy.h"
+#include "distro/distro-utils.h"
 #include "utils.h"
-#include "../utils.h"
 
 distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const char *name, lickdir_t *lick) {
     distro_info_t *i = new_empty_distro_info();

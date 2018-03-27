@@ -1,12 +1,13 @@
+#include "boot-loader/vista.h"
+
 #include <stdlib.h>
 #include <string.h>
 
+#include "boot-loader/boot-loader-utils.h"
+#include "drives.h"
+#include "lickdir.h"
+#include "menu/grub4dos.h"
 #include "utils.h"
-#include "vista.h"
-#include "../drives.h"
-#include "../lickdir.h"
-#include "../menu/grub4dos.h"
-#include "../utils.h"
 
 // install
 #define COMMAND_CREATE "%s /create /d \"" LOADER_DESC "\" /application bootsector"

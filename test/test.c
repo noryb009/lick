@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <boot-loader/9x.h>
 #include <boot-loader/nt.h>
-#include <boot-loader/utils.h>
+#include <boot-loader/boot-loader-utils.h>
 #include <lick.h>
 #include <stdio.h>
 #include <stdlib.h>

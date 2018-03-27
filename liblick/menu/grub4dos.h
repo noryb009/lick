@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../menu.h"
+#include "menu.h"
 
 /**
  * @brief get the grub4dos menu plugin

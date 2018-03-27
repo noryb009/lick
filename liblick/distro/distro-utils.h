@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../distro.h"
+#include "distro.h"
 
 distro_info_t *new_distro_info(char *k, char *i, char *op, char *ft);
 distro_info_t *new_empty_distro_info();

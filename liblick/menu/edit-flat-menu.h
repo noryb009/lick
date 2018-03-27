@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "../lickdir.h"
-#include "../llist.h"
+#include "lickdir.h"
+#include "llist.h"
 
 typedef enum {
     S_UNLABELED,

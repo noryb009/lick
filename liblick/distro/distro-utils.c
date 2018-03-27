@@ -1,3 +1,5 @@
+#include "distro/distro-utils.h"
+
 #include <stdlib.h>
 #include <string.h>
 

@@ -1,11 +1,12 @@
+#include "distro/fatdog.h"
+
 #include <stdlib.h>
 #include <string.h>
 
-#include "fatdog.h"
-#include "puppy.h"
+#include "distro/puppy.h"
+#include "distro/distro-utils.h"
+#include "llist.h"
 #include "utils.h"
-#include "../llist.h"
-#include "../utils.h"
 
 distro_info_node_t *distro_fatdog(string_node_t *files, const char *dst, const char *name, lickdir_t *lick) {
     distro_info_node_t *lst = distro_puppy(files, dst, name, lick);
