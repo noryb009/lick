@@ -27,10 +27,10 @@ int install_grub4dos(lickdir_t *lick) {
     }
 
     fprintf(f, "## start header\n");
-    fprintf(f, "static timeout=5\n");
-    fprintf(f, "static default=0\n");
+    fprintf(f, "timeout=5\n");
+    fprintf(f, "default=0\n");
     fprintf(f, "## end header\n");
-    //fprintf(f, "static gfxmenu=/grub4dos-gui.gz\n");
+    //fprintf(f, "gfxmenu=/grub4dos-gui.gz\n");
 
     fclose(f);
 
