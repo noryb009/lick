@@ -130,7 +130,16 @@ int rename_file(const char *dst, const char *src) {
 int replace_file(const char *dst, const char *src) {
 #ifdef _WIN32
     static_assert(sizeof(char) == sizeof(TCHAR), "Unicode is not supported");
-    return ReplaceFile(dst, src, NULL, 0, NULL, NULL);
+
+    HMODULE a = LoadLibrary("Kernel32.dll");
+    if(!a)
+        return 0;
+    typedef BOOL (WINAPI *rep_file)(LPCTSTR, LPCTSTR, LPCTSTR, DWORD, LPVOID, LPVOID);
+    rep_file fn_rep = GetProcAddress(a, "ReplaceFileA");
+
+    int res = fn_rep(dst, src, NULL, 0, NULL, NULL);
+    FreeLibrary(a);
+    return res;
 #else
     return rename_file(dst, src);
 #endif
