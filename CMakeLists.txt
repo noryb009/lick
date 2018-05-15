@@ -18,12 +18,16 @@ if(WIN32)
 endif()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -Os")
+    set(LIBARCHIVE_C_FLAGS "-Os")
 else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
+    set(LIBARCHIVE_C_FLAGS "")
 endif()
+
+set(LIBARCHIVE_C_FLAGS "${LIBARCHIVE_C_FLAGS} -static-libgcc")
 
 include(ExternalProject)
 ExternalProject_Add(
@@ -43,7 +47,7 @@ ExternalProject_Add(
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
         -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_C_FLAGS=-static-libgcc)
+        -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
 set(external_projects libarchive-3.3.1)
 
 add_subdirectory(liblick)
