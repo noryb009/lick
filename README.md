@@ -33,3 +33,38 @@ On subsequent reboots, these steps will not need to be taken.
 By default, Windows ME does not have all dependencies LICK requires. To fix
 this, install [Me2Dos](http://www.rkgage.net/bobby/download/Me2Dos.exe).
 You can also read the [README](http://www.rkgage.net/bobby/download/readme.txt).
+
+## Early Versions of Windows
+
+The GUI does not work on some early versions of Windows, including 95, 98,
+and 2000. If run, it will complain that a procedure could not be found in
+a dll file.
+
+If this occurs, you must use the command line interface.
+
+# Using the Command Line Interface
+
+An example CLI session is shown below. I suggest you place the ISO file
+in a path with a short name (eg. in `C:/`). On some versions of Windows,
+you can drag and drop the ISO file onto the command prompt window to
+automatically type the ISO path.
+
+```
+  Main menu:
+  1) Install ISO or from CD
+  2) Entry submenu (view/delete)
+  3) Install/uninstall boot loader
+  4) Quit
+  Choice:
+1<enter>
+  ISO file or CD drive:
+C:/xenialpup64-7.5-uefi.iso<enter>
+  Install to drive:
+  1) C:/
+  2) D:/
+1<enter>
+  Enter ID [xenialpup64-7.5-uefi]:
+<enter>
+  Enter Name [xenialpup64 7.5 uefi]:
+<enter>
+```
