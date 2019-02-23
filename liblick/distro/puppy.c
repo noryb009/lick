@@ -15,8 +15,16 @@ distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const ch
         if(i->kernel == NULL && (strstr(n, "vmlinu") || strstr(n, "VMLINU"))) {
             i->kernel = menu_path(concat_strs(3, dst, "/", n));
         }
-        if(i->initrd == NULL && (strstr(n, "initr") || strstr(n, "INITR"))) {
-            i->initrd = menu_path(concat_strs(3, dst, "/", n));
+        if((strstr(n, "initr") || strstr(n, "INITR"))) {
+            // Issue #32 has an example of when an ISO might have two
+            // initrd files: `initrd` and `initrd-nano.xz`. As a
+            // heuristic, take the one with the smaller name.
+            if (i->initrd == NULL || strlen(n) < strlen(i->initrd)) {
+                if (i->initrd) {
+                    free(i->initrd);
+                }
+                i->initrd = menu_path(concat_strs(3, dst, "/", n));
+            }
         }
     }
 
