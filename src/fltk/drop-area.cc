@@ -114,6 +114,7 @@ int drop_area::handle_drag_event(void *event) {
     return 1;
 #else
     (void)event;
+    return 1;
 #endif
 }
 
@@ -146,5 +147,6 @@ void drop_area::enable_drag_drop(const Fl_Window *window) {
     FreeLibrary(lib);
 #else
     (void)window;
+    (void)drop_handler;
 #endif
 }

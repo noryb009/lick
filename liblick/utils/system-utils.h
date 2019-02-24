@@ -71,3 +71,9 @@ char *get_program_path();
  * @return a string. Must be freed using free
  */
 char *get_config_path();
+
+
+#ifndef _WIN32
+#define MB_OK 0
+int MessageBox(void *handle, const char *text, const char *cap, unsigned int type);
+#endif

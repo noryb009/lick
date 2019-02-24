@@ -142,6 +142,7 @@ int Backend::main(int argc, char *argv[]) {
     send = new ipc(DIRECTION_SEND, (pipe_t)input);
     recv = new ipc(DIRECTION_RECV, (pipe_t)output);
 #else
+    (void)c;
     return 0;
 #endif
 

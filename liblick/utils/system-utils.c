@@ -253,6 +253,14 @@ int run_unprivileged(const char *c, void *input, void *output) {
     (void)output;
     return run_system_output(c, NULL);
 }
+
+int run_privileged(const char *c, const char *p, int *ret) {
+    (void)c;
+    (void)p;
+    (void)ret;
+    // Fail the call to not get stuck in an infinite loop.
+    return 0;
+}
 #endif
 
 int run_system(const char *c) {
@@ -375,5 +383,13 @@ char *get_config_path() {
 }
 const char *get_command_line() {
     return "";
+}
+
+int MessageBox(void *handle, const char *text, const char *cap, unsigned int type) {
+  (void)handle;
+  (void)text;
+  (void)cap;
+  (void)type;
+  return 0;
 }
 #endif
