@@ -8,22 +8,25 @@
 
 distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const char *name, lickdir_t *lick) {
     distro_info_t *i = new_empty_distro_info();
+    size_t initrd_str_len = 0;
 
-    for(string_node_t *f = files; f != NULL; f = f->next) {
-        char *n = f->val;
+    for(const string_node_t *f = files; f != NULL; f = f->next) {
+        const char *n = f->val;
 
         if(i->kernel == NULL && (strstr(n, "vmlinu") || strstr(n, "VMLINU"))) {
             i->kernel = menu_path(concat_strs(3, dst, "/", n));
         }
-        if((strstr(n, "initr") || strstr(n, "INITR"))) {
+        if(strstr(n, "initr") || strstr(n, "INITR")) {
             // Issue #32 has an example of when an ISO might have two
             // initrd files: `initrd` and `initrd-nano.xz`. As a
             // heuristic, take the one with the smaller name.
-            if (i->initrd == NULL || strlen(n) < strlen(i->initrd)) {
+            const size_t n_len = strlen(n);
+            if (i->initrd == NULL || n_len < initrd_str_len) {
                 if (i->initrd) {
                     free(i->initrd);
                 }
                 i->initrd = menu_path(concat_strs(3, dst, "/", n));
+                initrd_str_len = n_len;
             }
         }
     }
