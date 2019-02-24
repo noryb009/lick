@@ -10,6 +10,8 @@ extern "C" {
 
 #include <stdlib.h>
 
+#include "llist-type.h"
+
 typedef struct node_t node_t;
 typedef void (*free_list_item_f)(void *);
 typedef int (*compare_list_item_f)(const void *a, const void *b);
@@ -62,30 +64,13 @@ node_t *list_sort(node_t *lst, compare_list_item_f compare);
  */
 void free_list(node_t *n, free_list_item_f free_fn);
 
-// A list of strings.
-#define LIST_NAME string_node_t
-#define LIST_TYPE char
-#include "llist-type.h"
-
-#define LIST_NAME drive_node_t
-#define LIST_TYPE struct drive_t
-#include "llist-type.h"
-
-#define LIST_NAME installed_node_t
-#define LIST_TYPE struct installed_t
-#include "llist-type.h"
-
-#define LIST_NAME distro_info_node_t
-#define LIST_TYPE struct distro_info_t
-#include "llist-type.h"
-
-#define LIST_NAME distro_node_t
-#define LIST_TYPE struct distro_t
-#include "llist-type.h"
-
-#define LIST_NAME section_node_t
-#define LIST_TYPE struct section_t
-#include "llist-type.h"
+// Use the macros in llist-type to make type-safe lists.
+DEFINE_LIST(string_node_t, char, free)
+DEFINE_LIST(drive_node_t, struct drive_t, free_drive)
+DEFINE_LIST(installed_node_t, struct installed_t, free_installed)
+DEFINE_LIST(distro_info_node_t, struct distro_info_t, free_distro_info)
+DEFINE_LIST(distro_node_t, struct distro_t, free_distro)
+DEFINE_LIST(section_node_t, struct section_t, free_section)
 
 #ifdef __cplusplus
 }
