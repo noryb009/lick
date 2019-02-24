@@ -6,6 +6,9 @@
 // TODO: more distributions
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "lickdir.h"
 #include "llist.h"
@@ -89,3 +92,7 @@ distro_node_t *get_all_distros();
  * @return A pointer to the mutated path
  */
 char *menu_path(char *path);
+
+#ifdef __cplusplus
+}
+#endif
