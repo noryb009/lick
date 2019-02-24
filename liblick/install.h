@@ -13,7 +13,7 @@
 /**
  * @brief information about an installed distribution
  */
-typedef struct {
+typedef struct installed_t {
     /// the distribution id
     char *id;
     /// the distribution human-friendly name
@@ -31,11 +31,6 @@ string_node_t *get_conf_files(const char *path);
  * @param i the installed_t to free
  */
 void free_installed(installed_t *i);
-
-#define LIST_NAME installed_node_t
-#define LIST_TYPE installed_t
-#define FREE_LIST_FN free_installed
-#include "llist-type.h"
 
 /**
  * @brief returns a list of installed distributions

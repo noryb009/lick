@@ -28,7 +28,7 @@ typedef enum {
 /**
  * @brief info about a drive
  */
-typedef struct {
+typedef struct drive_t {
     /// the path to the root of a drive
     char *path;
     /// the type of drive
@@ -40,11 +40,6 @@ typedef struct {
  * @param drive the drive structure to free
  */
 void free_drive(drive_t *drive);
-
-#define LIST_NAME drive_node_t
-#define LIST_TYPE drive_t
-#define FREE_LIST_FN free_drive
-#include "llist-type.h"
 
 /**
  * @brief determines the type of a drive

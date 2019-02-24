@@ -10,7 +10,7 @@ typedef enum {
     S_SECTION,
 } type_e;
 
-typedef struct {
+typedef struct section_t {
     type_e type;
     char *id;
     const char *content;
@@ -31,11 +31,6 @@ section_t *new_section(type_e type, const char *id, const char *content);
  * @param s the section to free
  */
 void free_section(section_t *s);
-
-#define LIST_NAME section_node_t
-#define LIST_TYPE section_t
-#define FREE_LIST_FN free_section
-#include "../llist-type.h"
 
 /**
  * @brief Gets a list of sections from a flat-file menu

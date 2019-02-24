@@ -11,9 +11,6 @@
 #ifndef LIST_TYPE
 #   error "LIST_TYPE required when including llist_type.h."
 #endif
-#ifndef FREE_LIST_FN
-#   error "FREE_LIST_FN required when including llist_type.h."
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,39 +45,29 @@ struct LIST_NAME {
     LIST_NAME *next;
 };
 
-inline LIST_NAME *LIST_NEW_FN(LIST_TYPE *val, LIST_NAME *next) {
-    static_assert(sizeof(node_t) == sizeof(LIST_NAME), "List is not the same size as list type.");
-    return (LIST_NAME *)new_node((void *)val, (node_t *)next);
-}
+LIST_NAME *LIST_NEW_FN(LIST_TYPE *val, LIST_NAME *next);
 
-inline size_t LIST_LENGTH_FN(LIST_NAME *lst) {
-    return list_length((node_t *)lst);
-}
+size_t LIST_LENGTH_FN(LIST_NAME *lst);
 
-inline LIST_NAME *LIST_REVERSE_FN(LIST_NAME *lst) {
-    return (LIST_NAME *)list_reverse((node_t *)lst);
-}
+LIST_NAME *LIST_REVERSE_FN(LIST_NAME *lst);
 
-inline LIST_NAME *LIST_SORT_FN(LIST_NAME *lst,
-                               int (*compare)(const LIST_TYPE **a, const LIST_TYPE **b)) {
-    return (LIST_NAME *)list_sort((node_t *)lst, (compare_list_item_f)compare);
-}
+LIST_NAME *LIST_SORT_FN(LIST_NAME *lst,
+    int (*compare)(const LIST_TYPE **a, const LIST_TYPE **b));
 
-inline void LIST_FREE_FN(LIST_NAME *lst) {
-    free_list((node_t *)lst, (free_list_item_f)FREE_LIST_FN);
-}
+void LIST_FREE_FN(LIST_NAME *lst);
 
 // Clean up the function names.
+#ifndef NO_UNDEF
 #undef LIST_NEW_FN
 #undef LIST_LENGTH_FN
 #undef LIST_REVERSE_FN
 #undef LIST_SORT_FN
 #undef LIST_FREE_FN
+#endif
 
 // Remove the parameters.
 #undef LIST_NAME
 #undef LIST_TYPE
-#undef FREE_LIST_FN
 
 #ifdef __cplusplus
 }

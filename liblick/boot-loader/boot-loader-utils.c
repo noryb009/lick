@@ -8,6 +8,7 @@
 #endif
 
 #include "drives.h"
+#include "llist.h"
 #include "utils.h"
 
 char *advance_to_newline(char *s) {

@@ -21,7 +21,7 @@ typedef enum {
 /**
  * @brief Information taken from a list of files
  */
-typedef struct {
+typedef struct distro_info_t {
     /// a human-readable name
     char *name;
     /// the path to the kernel
@@ -39,11 +39,6 @@ typedef struct {
  */
 void free_distro_info(distro_info_t *d);
 
-#define LIST_NAME distro_info_node_t
-#define LIST_TYPE distro_info_t
-#define FREE_LIST_FN free_distro_info
-#include "llist-type.h"
-
 typedef distro_info_node_t *(*distro_info_f)(string_node_t *files, const char *dst,
         const char *name, lickdir_t *lick); // TODO: menu type
 typedef int (*distro_filter_f)(const char *f);
@@ -51,7 +46,7 @@ typedef int (*distro_filter_f)(const char *f);
 /**
  * @brief Information about a distribution
  */
-typedef struct {
+typedef struct distro_t {
     /// a numeric identifier
     distro_e id;
     /// a string identifier
@@ -80,11 +75,6 @@ distro_t *get_distro_by_key(const char *key);
  * @brief Free a distro_t and all resources associated with it
  */
 void free_distro(distro_t *d);
-
-#define LIST_NAME distro_node_t
-#define LIST_TYPE distro_t
-#define FREE_LIST_FN free_distro
-#include "llist-type.h"
 
 /**
  * @brief Get all distributions

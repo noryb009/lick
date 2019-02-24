@@ -78,7 +78,7 @@ drive_type_e drive_type(char *path) {
 }
 
 drive_node_t *all_drives() {
-    return new_drive_node(new_drive("/", DRV_HDD), NULL);
+    return new_drive_node_t(new_drive("/", DRV_HDD), NULL);
 }
 
 char *unused_drive() {

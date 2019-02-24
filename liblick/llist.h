@@ -65,7 +65,26 @@ void free_list(node_t *n, free_list_item_f free_fn);
 // A list of strings.
 #define LIST_NAME string_node_t
 #define LIST_TYPE char
-#define FREE_LIST_FN free
+#include "llist-type.h"
+
+#define LIST_NAME drive_node_t
+#define LIST_TYPE struct drive_t
+#include "llist-type.h"
+
+#define LIST_NAME installed_node_t
+#define LIST_TYPE struct installed_t
+#include "llist-type.h"
+
+#define LIST_NAME distro_info_node_t
+#define LIST_TYPE struct distro_info_t
+#include "llist-type.h"
+
+#define LIST_NAME distro_node_t
+#define LIST_TYPE struct distro_t
+#include "llist-type.h"
+
+#define LIST_NAME section_node_t
+#define LIST_TYPE struct section_t
 #include "llist-type.h"
 
 #ifdef __cplusplus

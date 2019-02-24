@@ -22,6 +22,7 @@ set(sources
     "install.c"
     "lickdir.c"
     "llist.c"
+    "llist-type.c"
     "menu.c"
     "menu/grub2.c"
     "menu/grub4dos.c"
