@@ -231,12 +231,16 @@ void attrib_save(const char *file, attrib_t attrib) {
 }
 #else
 attrib_t attrib_get(const char *file) {
+    (void)file;
     return 0;
 }
 attrib_t attrib_open(const char *file) {
+    (void)file;
     return 0;
 }
 void attrib_save(const char *file, attrib_t attrib) {
+    (void)file;
+    (void)attrib;
     return;
 }
 #endif

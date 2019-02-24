@@ -264,7 +264,7 @@ void write_section(FILE *f, section_t *sec, int first) {
         fprintf(f, "\n");
     }
 
-    fprintf(f, "%.*s", sec->content_len, sec->content);
+    fprintf(f, "%.*s", (int)sec->content_len, sec->content);
     if(sec->content_len > 0 && sec->content[sec->content_len-1] != '\n')
         fprintf(f, "\n");
 

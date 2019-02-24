@@ -249,6 +249,8 @@ int run_system_output(const char *c, char **out) {
     return (system(c) == 0);
 }
 int run_unprivileged(const char *c, void *input, void *output) {
+    (void)input;
+    (void)output;
     return run_system_output(c, NULL);
 }
 #endif

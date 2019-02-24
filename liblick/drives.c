@@ -74,6 +74,7 @@ char *unused_drive() {
 }
 #else
 drive_type_e drive_type(char *path) {
+    (void)path;
     return DRV_HDD;
 }
 
