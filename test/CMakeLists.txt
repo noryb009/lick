@@ -8,6 +8,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         ${sources}
         test-bootloader.cc
         test-list.cc
+        test-puppy.cc
         test-tools.cc
     )
 
