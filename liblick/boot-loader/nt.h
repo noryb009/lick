@@ -4,6 +4,9 @@
  */
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../boot-loader.h"
 
@@ -19,3 +22,7 @@ char *uninstall_from_boot_ini(char *boot, lickdir_t *lick);
  * @brief get the NT boot loader plugin
  */
 loader_t get_nt();
+
+#ifdef __cplusplus
+}
+#endif

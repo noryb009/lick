@@ -67,7 +67,7 @@ char *after_last_entry(char *sec, char *sec_end, const char *needle) {
         return item;
 }
 
-char *check_timeout(char *f, char *key, char *sep) {
+char *check_timeout(char *f, const char *key, const char *sep) {
     char *loc = strstr(f, key);
     if(!loc) // did not find key, use system default
         return f;

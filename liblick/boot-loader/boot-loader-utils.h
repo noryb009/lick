@@ -3,6 +3,9 @@
  * @brief functions used by multiple boot loader plugins
  */
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdio.h>
 
@@ -50,7 +53,7 @@ char *after_last_entry(char *sec, char *sec_end, const char *needle);
  * @param sep the string before the start of the timeout
  * @return the INI file. Must be freed using free
  */
-char *check_timeout(char *f, char *key, char *sep);
+char *check_timeout(char *f, const char *key, const char *sep);
 /**
  * @brief create a backup of a file
  * @param f the file to backup
@@ -119,3 +122,7 @@ char *find_drive_with_file(const char *suggested_drive, const char *file);
  * @return a path that must be freed using free on success, NULL on failure
  */
 char *boot_drive(const char *boot_file);
+
+#ifdef __cplusplus
+}
+#endif
