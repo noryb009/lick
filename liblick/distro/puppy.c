@@ -48,8 +48,8 @@ distro_info_node_t *distro_puppy(string_node_t *files, const char *dst, const ch
     distro_info_node_t *ret = NULL;
     if(i->kernel) {
         distro_info_t *i2 = copy_distro_info(i);
-        i->options = concat_strs(2, "pfix=fsck psubdir=", dst_menu);
-        // TODO: savefile=none is for fatdog.
+        i->options = concat_strs(2, "pfix=fsck dofsck psubdir=", dst_menu);
+        // TODO: savefile=none and dofsck is for fatdog.
         //   Fatdog should probably be its own distro
         i2->options = concat_strs(2,
                 "pfix=ram savefile=none psubdir=", dst_menu);
