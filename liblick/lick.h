@@ -18,6 +18,7 @@ extern "C" {
 #include "llist.h"
 #include "menu.h"
 #include "system-info.h"
+#include "trace.h"
 #include "utils.h"
 
 #ifdef __cplusplus

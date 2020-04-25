@@ -51,12 +51,19 @@ char *strrep(const char *haystack, const char *needle,
     return ret;
 }
 
+static const char * const NULL_STR = "(null)";
+
 char *concat_strs_arr(size_t n, char **strs) {
     size_t str_len = 1;
     size_t lens[n];
 
     for(size_t i = 0; i < n; ++i) {
-        lens[i] = strlen(strs[i]);
+        const char * const str = strs[i];
+        if (str != NULL) {
+            lens[i] = strlen(str);
+        } else {
+            lens[i] = strlen(NULL_STR);
+        }
         str_len += lens[i];
     }
 
@@ -65,7 +72,12 @@ char *concat_strs_arr(size_t n, char **strs) {
 
     str_len = 0;
     for(size_t i = 0; i < n; ++i) {
-        strcpy(s + str_len, strs[i]);
+        const char * const str = strs[i];
+        if (str != NULL) {
+            strcpy(s + str_len, str);
+        } else {
+            strcpy(s + str_len, NULL_STR);
+        }
         str_len += lens[i];
     }
 

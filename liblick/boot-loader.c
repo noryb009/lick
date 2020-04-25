@@ -7,6 +7,7 @@
 #include "boot-loader/nt.h"
 #include "boot-loader/uefi.h"
 #include "boot-loader/vista.h"
+#include "trace.h"
 
 #define NUM_LOADERS 5
 
@@ -54,14 +55,22 @@ int check_loader(loader_t *l) {
 
 int install_loader(loader_t *l, sys_info_t *info,
         lickdir_t *lick) {
+    LICK_TRACE(lick, "Installing boot loader");
+
     if(!l->check()) {
-        if(!l->install(info, lick))
+        LICK_TRACE(lick, "Boot loader not installed");
+        if(!l->install(info, lick)) {
+            LICK_TRACE(lick, "Boot loader failed installation");
             return 0;
+        }
+        LICK_TRACE(lick, "Getting menu");
         menu_t *m = get_menu(l);
+        LICK_TRACE(lick, "Installing to menu");
         m->install(lick);
         free(m);
         return 1;
     }
+    LICK_TRACE(lick, "Boot loader already installed");
     return -1; // already installed
 }
 

@@ -7,6 +7,7 @@
 #include "drives.h"
 #include "lickdir.h"
 #include "menu/grub2.h"
+#include "trace.h"
 #include "utils.h"
 
 // install
@@ -46,8 +47,10 @@ int check_loader_uefi() {
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
-    if(!bcdedit)
+    if(!bcdedit) {
+        LICK_TRACE(lick, "Could not find bcdedit");
         return 0;
+    }
 
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_ENUM, bcdedit);
     free(bcdedit);
@@ -55,6 +58,7 @@ int check_loader_uefi() {
 }
 
 int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
+    LICK_TRACE(lick, "Installing UEFI bootloader");
     char c[COMMAND_BUFFER_LEN];
     char id[ID_LEN];
 
@@ -63,7 +67,12 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_8_1:
     case V_WINDOWS_10:
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_FAST_BOOT);
-        if(!run_system(c)) {return 0;}
+        LICK_TRACE2(lick, "Windows 8+, running: ", c);
+        if(!run_system(c)) {
+            LICK_TRACE2(lick, "Command failed: ", c);
+            LICK_ERROR(lick, "Could not disable fastboot");
+            return 0;
+        }
     case V_UNKNOWN:
     case V_WINDOWS_95:
     case V_WINDOWS_98:
@@ -73,12 +82,21 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     case V_WINDOWS_XP:
     case V_WINDOWS_VISTA:
     case V_WINDOWS_7:
+        LICK_TRACE2(lick, "Windows 7 or lower, not disabling fastboot");
         break;
     }
 
     char drive = mount_uefi_partition();
-    if(drive == '\0')
+    if(drive == '\0') {
+        LICK_ERROR(lick, "Failed to mount UEFI partition");
         return 0;
+    }
+    {
+        char drive_str[2];
+        drive_str[0] = drive;
+        drive_str[1] = '\0';
+        LICK_TRACE2(lick, "UEFI partition mounted on: ", drive_str);
+    }
 
     // Add files.
     char *efi_dir = strdup2("?:/EFI/LICK");
@@ -96,42 +114,74 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     efi_shim[0] = drive;
     efi_mokmanager[0] = drive;
 
+    LICK_TRACE2(lick, "Switching UEFI files: efi_dir='", efi_dir,
+        "', efi_cert='", efi_cert, "', efi_grub='", efi_grub,
+        "', efi_shim='", efi_shim, "', efi_mokmanager='", efi_mokmanager,
+        "', res_cert='", res_cert, "', res_grub='", res_grub,
+        "', res_shim='", res_shim, "', res_mokmanager='", res_mokmanager, "'");
+
     char *bcdedit = NULL;
     int fail = 1;
     id[0] = '\0';
     do {
-        if(!make_dir_parents(efi_dir))
+        if(!make_dir_parents(efi_dir)) {
+            LICK_ERROR(lick, "Could not create EFI directory");
             break;
-        if(!copy_file(efi_cert, res_cert))
+        }
+        if(!copy_file(efi_cert, res_cert)) {
+            LICK_ERROR(lick, "Could not copy cert");
             break;
-        if(!copy_file(efi_grub, res_grub))
+        }
+        if(!copy_file(efi_grub, res_grub)) {
+            LICK_ERROR(lick, "Could not copy grub");
             break;
-        if(!copy_file(efi_shim, res_shim))
+        }
+        if(!copy_file(efi_shim, res_shim)) {
+            LICK_ERROR(lick, "Could not copy shim");
             break;
-        if(!copy_file(efi_mokmanager, res_mokmanager))
+        }
+        if(!copy_file(efi_mokmanager, res_mokmanager)) {
+            LICK_ERROR(lick, "Could not copy mokmanager");
             break;
+        }
 
         bcdedit = get_bcdedit();
+        LICK_TRACE2(lick, "Got bcdedit: ", bcdedit);
 
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_COPY, bcdedit);
-        if(!get_id_from_command(c, id))
+        LICK_TRACE2(lick, "Copying bootloader entry with: ", c);
+        if(!get_id_from_command(c, id)) {
+            LICK_ERROR(lick, "Failed copying bootloader entry");
             break;
+        }
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_PATH, bcdedit, id);
-        if(!run_system(c))
+        LICK_TRACE2(lick, "Running path command: ", c);
+        if(!run_system(c)) {
+            LICK_ERROR(lick, "Could not set path of bootloader entry");
             break;
+        }
         snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DISPLAY, bcdedit, id);
-        if(!run_system(c))
+        LICK_TRACE2(lick, "Running display command: ", c);
+        if(!run_system(c)) {
+            LICK_ERROR(lick, "Could not set path of bootloader entry");
             break;
+        }
 
         fail = 0;
     } while(0);
 
     int ret = 1;
     if(fail) {
+        if (lick->err) {
+            LICK_TRACE(lick, "Install failed: ", lick->err);
+        } else {
+            LICK_TRACE(lick, "Install failed, no reason recorded.");
+        }
         ret = 0;
 
-        if(id[0] != '\0')
+        if(id[0] != '\0') {
             snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
+        }
 
         unlink_file(efi_cert);
         unlink_file(efi_grub);
@@ -140,6 +190,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
         unlink_dir(efi_dir);
     }
     free(bcdedit);
+    LICK_TRACE(lick, "Unmounting UEFI partition");
     unmount_uefi_partition(drive);
     // Clean up.
     free(efi_dir);
@@ -151,6 +202,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     free(res_grub);
     free(res_shim);
     free(res_mokmanager);
+    LICK_TRACE(lick, "Finished installing");
     return ret;
 }
 
@@ -161,8 +213,7 @@ int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
     if(!bcdedit) {
-        if(!lick->err)
-            lick->err = strdup2("Could not find bcdedit!");
+        LICK_ERROR(lick, "Could not find bcdedit");
         return 0;
     }
 
@@ -172,8 +223,7 @@ int uninstall_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     snprintf(c, COMMAND_BUFFER_LEN, COMMAND_DELETE, bcdedit, id);
     free(bcdedit);
     if(!run_system(c)) {
-        if(!lick->err)
-            lick->err = strdup2("Could not delete entry from boot loader!");
+        LICK_ERROR(lick, "Could not delete entry from boot loader");
         return 0;
     }
 

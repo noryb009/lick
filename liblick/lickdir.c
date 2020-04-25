@@ -17,6 +17,7 @@ lickdir_t *new_lickdir(char drive, char *entry, char *res) {
     l->entry = unix_path(entry);
     l->res = unix_path(res);
     l->err = NULL;
+    l->trace = NULL;
 
     return l;
 }
@@ -27,6 +28,8 @@ void free_lickdir(lickdir_t *l) {
     free(l->res);
     if(l->err != NULL)
         free(l->err);
+    if (l->trace != NULL)
+        free_trace_state(l->trace);
     free(l);
 }
 

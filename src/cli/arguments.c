@@ -6,6 +6,7 @@
 void free_program_args(program_args_t *a) {
     free_string_node_t(a->install);
     free_string_node_t(a->uninstall);
+    free(a->trace_path);
     free(a);
 }
 
@@ -28,6 +29,7 @@ void print_help() {
     printf("\n");
     printf("      --check-program    Check if the binary can run\n");
     printf("      --ignore-errors    If errors occur, continue\n");
+    printf("      --trace <file>     Trace debug info to the given file\n");
     printf("      --no-try-uac       Do not ask to elevate process\n");
     printf("      --no-me-check      Ignore possible ME incompatibilities\n");
     printf("  -v  --version          Show the version\n");
@@ -39,6 +41,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
     a->check_program = 0;
     a->try_uac = 1;
     a->ignore_errors = 0;
+    a->trace_path = NULL;
     a->me_check = 1;
     a->check_loader = 0;
     a->install_loader = -1;
@@ -54,6 +57,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
         {"help", no_argument, 0, 'h'},
         {"version", no_argument, 0, 'v'},
         {"check-program", no_argument, &a->check_program, 1},
+        {"trace", required_argument, 0, 't'},
         {"no-try-uac", no_argument, &a->try_uac, 0},
         {"ignore-errors", no_argument, &a->ignore_errors, 1},
         {"no-me-check", no_argument, &a->me_check, 0},
@@ -106,6 +110,9 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
             break;
         case 'c':
             a->check_loader = 1;
+            break;
+        case 't':
+            a->trace_path = strdup2(argv[i]);
             break;
         case 'v':
             printf("%s\n", LIBLICK_VERSION);

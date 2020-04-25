@@ -21,6 +21,8 @@ typedef struct {
     char *res;
     /// error message
     char *err;
+    /// Tracing state.
+    struct trace_state_t *trace;
 } lickdir_t;
 
 /**

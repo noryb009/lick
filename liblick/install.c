@@ -8,6 +8,7 @@
 
 #include "boot-loader.h"
 #include "distro.h"
+#include "macro-helpers.h"
 #include "scandir.h"
 #include "utils.h"
 
@@ -117,6 +118,9 @@ void free_installed(installed_t *i) {
 int install_cb(const char *id, const char *name, distro_t *distro,
         const char *iso, const char *install_dir, lickdir_t *lick,
         menu_t *menu, uniso_progress_cb cb, void *cb_data) {
+    LICK_TRACE2(lick, "Installing: id = '", id, "', name = '", name,
+        "', iso = ", iso, ", install_dir = ", install_dir);
+
     int ret = 0;
     char *info_path = NULL;
     bool entry_dir_created = false;

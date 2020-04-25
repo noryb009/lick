@@ -16,6 +16,10 @@ int main(int argc, char **argv) {
     p->info = get_system_info();
     p->lick = get_lickdir();
 
+    if (a->trace_path) {
+        p->lick->trace = new_trace_state(trace_path);
+    }
+
     if(a->check_program) {
         int ret = 0;
         p->loader = get_loader(p->info);

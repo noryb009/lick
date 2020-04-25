@@ -8,6 +8,7 @@
 #include "menu/menu-utils.h"
 #include "drives.h"
 #include "lickdir.h"
+#include "macro-helpers.h"
 #include "utils.h"
 
 #define GRUB2_TITLE "menuentry \'%s\' {\n"
@@ -59,8 +60,7 @@ int install_grub2(lickdir_t *lick) {
         if(!copy_file(grub_cfg_lick, grub_cfg_header)) {
             free(grub_cfg_lick);
             free(grub_cfg_header);
-            if(!lick->err)
-                lick->err = strdup2("Error writing to grub menu.");
+            LICK_ERROR(lick, "Error writing to grub menu");
             return 0;
         }
         free(grub_cfg_header);
@@ -70,11 +70,13 @@ int install_grub2(lickdir_t *lick) {
 }
 
 int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_drive) {
+    LICK_TRACE(lick, "In fix_grub2_inner");
+
     char drive = original_drive;
     if(!drive) {
         drive = mount_uefi_partition();
         if(!drive) {
-            lick->err = strdup2("Could not mount UEFI partition.");
+            LICK_ERROR(lick, "Could not mount UEFI partition");
             return 0;
         }
     }
@@ -127,13 +129,13 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
     if(function == GRUB2_FIX_CHECK) {
         if(status == GRUB2_FIX_INSTALLED)
             ret = 1;
-    } else if(status == GRUB2_FIX_PARTLY_INSTALLED)
-        lick->err = strdup2("Partial boot fix applied.");
-    else if(function == GRUB2_FIX_INSTALL && status == GRUB2_FIX_INSTALLED)
-        lick->err = strdup2("Boot fix already applied!");
-    else if(function == GRUB2_FIX_UNINSTALL && status == GRUB2_FIX_UNINSTALLED)
+    } else if(status == GRUB2_FIX_PARTLY_INSTALLED) {
+        LICK_ERROR(lick, "Partial boot fix applied.");
+    } else if(function == GRUB2_FIX_INSTALL && status == GRUB2_FIX_INSTALLED) {
+        LICK_ERROR(lick, "Boot fix already applied");
+    } else if(function == GRUB2_FIX_UNINSTALL && status == GRUB2_FIX_UNINSTALLED) {
         ret = 1;
-    else if(function == GRUB2_FIX_INSTALL) {
+    } else if(function == GRUB2_FIX_INSTALL) {
         /* Steps:
          * 1) Copy `/EFI/LICK/{grubx64,shim,MokManager}.efi` to `/EFI/Boot/`
          * 2) Rename `/EFI/Boot/bootx64.efi` to `bootx64-orig.efi`
@@ -143,19 +145,27 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
         do {
             int fail = 1;
             do {
-                if(!copy_file(boot_grub, lick_grub))
+                if(!copy_file(boot_grub, lick_grub)) {
+                    LICK_ERROR(lick, "Could not copy grub");
                     break;
-                if(!copy_file(boot_shim, lick_shim))
+                }
+                if(!copy_file(boot_shim, lick_shim)) {
+                    LICK_ERROR(lick, "Could not copy shim");
                     break;
-                if(!copy_file(boot_mokmanager, lick_mokmanager))
+                }
+                if(!copy_file(boot_mokmanager, lick_mokmanager)) {
+                    LICK_ERROR(lick, "Could not copy mokmanager");
                     break;
-                if(!copy_file(boot_file_backup, boot_file))
+                }
+                if(!copy_file(boot_file_backup, boot_file)) {
+                    LICK_ERROR(lick, "Could not backup boot file");
                     break;
+                }
 
                 attrib_t boot_attrs = attrib_open(boot_file);
                 if(!replace_file(boot_file, boot_shim)) {
                     attrib_save(boot_file, boot_attrs);
-                    lick->err = strdup2("Could not overwrite boot file.");
+                    LICK_ERROR(lick, "Could not overwrite boot file");
                     break;
                 }
                 if(!rename_file(ms_loader_backup, ms_loader)) {
@@ -164,11 +174,11 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
                         // At this point we are stuck with the fix being
                         // half applied. Realistically, this should never occur.
                         attrib_save(boot_file, boot_attrs);
-                        lick->err = strdup2(fatal_warning);
+                        LICK_ERROR(lick, fatal_warning);
                         fail = 0;
                         break;
                     }
-                    lick->err = strdup2("Could not rename directory.");
+                    LICK_ERROR(lick, "Could not rename directory");
                     break;
                 }
 
@@ -181,16 +191,14 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
                 unlink_file(boot_shim);
                 unlink_file(boot_mokmanager);
                 unlink_file(boot_file_backup);
-                if(!lick->err)
-                    lick->err = strdup2("Could not copy files on EFI partition.");
+                LICK_ERROR(lick, "Could not copy files on EFI partition");
                 break;
             }
 
             // Edit grub menu.
             FILE *f = fopen(grub_cfg, "r");
             if(!f) {
-                if(!lick->err)
-                    lick->err = strdup2("Successfully installed, but could not modify configuration file.");
+                LICK_ERROR(lick, "Successfully installed, but could not open configuration file");
                 break;
             }
             grub_menu = file_to_str(f);
@@ -247,8 +255,7 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
 
                 f = fopen(grub_cfg, "w");
                 if(!f) {
-                    if(!lick->err)
-                        lick->err = strdup2("Successfully installed, but could not modify configuration file.");
+                    LICK_ERROR(lick, "Successfully installed, but could not modify configuration file");
                     free(new_grub_menu);
                     free(grub_menu_lower);
                     break;
@@ -268,17 +275,17 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
          */
         do {
             if(!rename_file(ms_loader, ms_loader_backup)) {
-                lick->err = strdup2("Could not rename directory.");
+                LICK_ERROR(lick, "Could not rename directory");
                 break;
             }
             attrib_t boot_attrs = attrib_open(boot_file_backup);
             if(!replace_file(boot_file, boot_file_backup)) {
                 attrib_save(boot_file_backup, boot_attrs);
                 if(!rename_file(ms_loader_backup, ms_loader)) {
-                    lick->err = strdup2(fatal_warning);
+                    LICK_ERROR(lick, fatal_warning);
                     break;
                 }
-                lick->err = strdup2("Could not replace boot file.");
+                LICK_ERROR(lick, "Could not replace boot file.");
                 break;
             }
             attrib_save(boot_file, boot_attrs);
@@ -289,8 +296,11 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
         } while(0);
     }
 
-    if(!original_drive)
+    LICK_TRACE(lick, "Finished fix");
+
+    if(!original_drive) {
         unmount_uefi_partition(drive);
+    }
     free(lick_grub);
     free(lick_shim);
     free(lick_mokmanager);
@@ -309,15 +319,13 @@ int fix_grub2_inner(lickdir_t *lick, grub2_fix_function function, char original_
 int uninstall_grub2(lickdir_t *lick) {
     char drive = mount_uefi_partition();
     if(drive == '\0') {
-        if(!lick->err)
-            lick->err = strdup2("Could not mount EFI partition.");
+        LICK_ERROR(lick, "Could not mount EFI partition");
         return 0;
     }
 
     if(!fix_grub2_inner(lick, GRUB2_FIX_UNINSTALL, drive)) {
         unmount_uefi_partition(drive);
-        if(!lick->err)
-            lick->err = strdup2("Could not revert boot fix.");
+        LICK_ERROR(lick, "Could not revert boot fix");
         return 0;
     }
 
@@ -341,13 +349,15 @@ int uninstall_grub2(lickdir_t *lick) {
 }
 
 char *gen_grub2(distro_info_t *info) {
-    return concat_strs(12,
+    char * const entry = concat_strs(12,
             "menuentry '", (info->name?info->name:""), "' {\n",
             "search --set=root --file ", info->kernel,
             "\nlinux ", info->kernel, (info->options?" ":""),
             (info->options?info->options:""),
             (info->initrd?"\ninitrd ":""), (info->initrd?info->initrd:""),
             "\n}\n");
+    LICK_TRACE2(lick, "Menu entry START", entry, "Menu entry END");
+    return entry
 }
 
 int append_grub2(const char *id, const char *section, lickdir_t *lick) {
