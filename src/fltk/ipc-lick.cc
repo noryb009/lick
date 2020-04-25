@@ -17,14 +17,17 @@ lickdir_t *copy_lickdir_t(lickdir_t *src) {
 }
 
 void exchange_lick(ipc *p, lickdir_t *&lick) {
-    if(lick == NULL)
+    if(lick == NULL) {
         lick = (lickdir_t *)malloc(sizeof(lickdir_t));
+    }
     p
         ->exchange_str(lick->drive)
         ->exchange_str(lick->entry)
         ->exchange_str(lick->res)
         ->exchange_str(lick->err)
     ;
+    // TODO: Add support for tracing.
+    lick->trace = NULL;
 }
 
 // IPC_INSTALL
