@@ -9,6 +9,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         test-bootloader.cc
         test-list.cc
         test-puppy.cc
+        test-string-utils.cc
         test-tools.cc
     )
 

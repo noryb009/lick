@@ -30,6 +30,7 @@ set(sources
     "menu/menu-utils.c"
     "scandir.c"
     "system-info.c"
+    "trace.c"
     "uniso.c"
     "utils/file-utils.c"
     "utils/fs-utils.c"

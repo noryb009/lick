@@ -8,7 +8,7 @@ struct trace_state_t {
     FILE *f;
 };
 
-trace_state_t create_trace_state(const char *log_file_path) {
+trace_state_t *create_trace_state(const char *log_file_path) {
     trace_state_t *state = malloc(sizeof(trace_state_t));
     state->f = NULL;
 
@@ -34,5 +34,5 @@ void free_trace_state(trace_state_t *state) {
 }
 
 void trace_str(trace_state_t *state, const char *str) {
-    fprintf(f, "%s\n", str);
-};
+    fprintf(state->f, "%s\n", str);
+}

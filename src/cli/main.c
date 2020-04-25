@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     p->lick = get_lickdir();
 
     if (a->trace_path) {
-        p->lick->trace = new_trace_state(trace_path);
+        p->lick->trace = create_trace_state(a->trace_path);
     }
 
     if(a->check_program) {

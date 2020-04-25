@@ -349,15 +349,13 @@ int uninstall_grub2(lickdir_t *lick) {
 }
 
 char *gen_grub2(distro_info_t *info) {
-    char * const entry = concat_strs(12,
+    return concat_strs(12,
             "menuentry '", (info->name?info->name:""), "' {\n",
             "search --set=root --file ", info->kernel,
             "\nlinux ", info->kernel, (info->options?" ":""),
             (info->options?info->options:""),
             (info->initrd?"\ninitrd ":""), (info->initrd?info->initrd:""),
             "\n}\n");
-    LICK_TRACE2(lick, "Menu entry START", entry, "Menu entry END");
-    return entry
 }
 
 int append_grub2(const char *id, const char *section, lickdir_t *lick) {

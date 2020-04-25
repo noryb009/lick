@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "drives.h"
+#include "trace.h"
 #include "utils.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN

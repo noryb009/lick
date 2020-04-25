@@ -6,6 +6,7 @@
 #include "boot-loader/boot-loader-utils.h"
 #include "drives.h"
 #include "lickdir.h"
+#include "macro-helpers.h"
 #include "menu/grub2.h"
 #include "trace.h"
 #include "utils.h"
@@ -48,7 +49,6 @@ int check_loader_uefi() {
     char id[ID_LEN];
     char *bcdedit = get_bcdedit();
     if(!bcdedit) {
-        LICK_TRACE(lick, "Could not find bcdedit");
         return 0;
     }
 
@@ -73,6 +73,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
             LICK_ERROR(lick, "Could not disable fastboot");
             return 0;
         }
+        break;
     case V_UNKNOWN:
     case V_WINDOWS_95:
     case V_WINDOWS_98:
@@ -173,7 +174,7 @@ int install_loader_uefi(sys_info_t *info, lickdir_t *lick) {
     int ret = 1;
     if(fail) {
         if (lick->err) {
-            LICK_TRACE(lick, "Install failed: ", lick->err);
+            LICK_TRACE2(lick, "Install failed: ", lick->err);
         } else {
             LICK_TRACE(lick, "Install failed, no reason recorded.");
         }

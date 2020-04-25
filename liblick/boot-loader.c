@@ -7,6 +7,7 @@
 #include "boot-loader/nt.h"
 #include "boot-loader/uefi.h"
 #include "boot-loader/vista.h"
+#include "macro-helpers.h"
 #include "trace.h"
 
 #define NUM_LOADERS 5

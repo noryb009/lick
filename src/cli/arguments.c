@@ -112,7 +112,7 @@ program_args_t *handle_args(program_status_t *p, int argc, char **argv) {
             a->check_loader = 1;
             break;
         case 't':
-            a->trace_path = strdup2(argv[i]);
+            a->trace_path = strdup2(optarg);
             break;
         case 'v':
             printf("%s\n", LIBLICK_VERSION);

@@ -16,7 +16,7 @@ typedef struct {
     string_node_t *uninstall;
     int uninstall_all;
     int reinstall;
-    const char *trace_path;
+    char *trace_path;
 } program_args_t;
 
 void free_program_args(program_args_t *a);
