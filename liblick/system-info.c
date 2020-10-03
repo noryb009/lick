@@ -138,7 +138,7 @@ void enable_se_env_name() {
     AdjustTokenPrivilegesT adjust_token_privileges =
         (AdjustTokenPrivilegesT)GetProcAddress(advapi32, "AdjustTokenPrivileges");
 
-    bool have_token = false;
+    int have_token = 0;
     HANDLE token;
     unsigned char *token_bytes = NULL;
 
@@ -159,7 +159,7 @@ void enable_se_env_name() {
         if (!open_process_token(get_current_process(), TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES, &token)) {                    
             break;
         }
-        have_token = true;
+        have_token = 1;
 
         DWORD len;
         if (get_token_information(token, TokenPrivileges, NULL, 0, &len)) {
@@ -173,22 +173,20 @@ void enable_se_env_name() {
         }
 
         TOKEN_PRIVILEGES *privs = (TOKEN_PRIVILEGES *)token_bytes;
-        bool found = false;
         for (size_t i = 0; i < privs->PrivilegeCount; ++i) {
             if (privs->Privileges[i].Luid.LowPart == reqPrivilege.LowPart
                   && privs->Privileges[i].Luid.HighPart == reqPrivilege.HighPart) {
-                found = true;
                 privs->Privileges[i].Attributes |= SE_PRIVILEGE_ENABLED;
-                adjust_token_privileges(token, false, privs, len, NULL, NULL);
+                adjust_token_privileges(token, 0, privs, len, NULL, NULL);
                 break;
             }
         }
-    } while (false);
+    } while (0);
 
     if (token_bytes) {
         free(token_bytes);
     }
-    if (have_token) {
+    if (have_token == 1) {
         CloseHandle(token);
     }
     CloseHandle(kernel32);
