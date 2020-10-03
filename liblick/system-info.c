@@ -91,6 +91,110 @@ void admin(sys_info_t *v) {
     FreeLibrary(s);
 }
 
+typedef DWORD (WINAPI *GetLastErrorT)(void);
+
+// Based on:
+// https://github.com/microsoft/Windows-classic-samples/blob/1d363ff4bd17d8e20415b92e2ee989d615cc0d91/Samples/ManagementInfrastructure/cpp/Process/Provider/WindowsProcess.c#L49
+void enable_se_env_name() {
+    typedef BOOL (WINAPI *LookupPrivilegeValueT)(
+        LPCSTR lpSystemName, LPCSTR lpName, PLUID lpLuid);
+    typedef BOOL (WINAPI *OpenProcessTokenT)(
+        HANDLE processHandle, DWORD desiredAccess, PHANDLE tokenHandle);
+    typedef HANDLE (WINAPI *GetCurrentProcessT)();
+    typedef BOOL (WINAPI *OpenProcessTokenT)(
+        HANDLE processHandle, DWORD desiredAccess, PHANDLE tokenHandle);
+    typedef BOOL (WINAPI *GetTokenInformationT)(
+        HANDLE TokenHandle,
+        TOKEN_INFORMATION_CLASS TokenInformationClass,
+        LPVOID TokenInformation,
+        DWORD TokenInformationLength,
+        PDWORD ReturnLength);
+    typedef BOOL (WINAPI *AdjustTokenPrivilegesT)(
+        HANDLE TokenHandle,
+        BOOL DisableAllPrivileges,
+        PTOKEN_PRIVILEGES NewState,
+        DWORD BufferLength,
+        PTOKEN_PRIVILEGES PreviousState,
+        PDWORD ReturnLength);
+
+    HMODULE kernel32 = LoadLibrary("Kernel32.dll");
+    if (!kernel32) {
+        return;
+    }
+    HMODULE advapi32 = LoadLibrary("Advapi32.dll");
+    if (!advapi32) {
+        CloseHandle(kernel32);
+        return;
+    }
+
+    LookupPrivilegeValueT lookup_privilege_value =
+        (LookupPrivilegeValueT)GetProcAddress(advapi32, "LookupPrivilegeValueA");
+    OpenProcessTokenT open_process_token =
+        (OpenProcessTokenT)GetProcAddress(advapi32, "OpenProcessToken");
+    GetCurrentProcessT get_current_process =
+        (GetCurrentProcessT)GetProcAddress(kernel32, "GetCurrentProcess");
+    GetTokenInformationT get_token_information =
+        (GetTokenInformationT)GetProcAddress(advapi32, "GetTokenInformation");
+    AdjustTokenPrivilegesT adjust_token_privileges =
+        (AdjustTokenPrivilegesT)GetProcAddress(advapi32, "AdjustTokenPrivileges");
+
+    bool have_token = false;
+    HANDLE token;
+    unsigned char *token_bytes = NULL;
+
+    do {
+        if (!lookup_privilege_value
+            || !open_process_token
+            || !get_current_process
+            || !get_token_information
+            || !adjust_token_privileges) {
+            break;
+        }
+
+        LUID reqPrivilege;
+        if (!lookup_privilege_value(NULL, SE_SYSTEM_ENVIRONMENT_NAME, &reqPrivilege)) {
+            break;
+        }
+
+        if (!open_process_token(get_current_process(), TOKEN_QUERY | TOKEN_ADJUST_PRIVILEGES, &token)) {                    
+            break;
+        }
+        have_token = true;
+
+        DWORD len;
+        if (get_token_information(token, TokenPrivileges, NULL, 0, &len)) {
+            break;
+        }
+
+        token_bytes = malloc(len);
+
+        if (!get_token_information(token, TokenPrivileges, token_bytes, len, &len)) {
+            break;
+        }
+
+        TOKEN_PRIVILEGES *privs = (TOKEN_PRIVILEGES *)token_bytes;
+        bool found = false;
+        for (size_t i = 0; i < privs->PrivilegeCount; ++i) {
+            if (privs->Privileges[i].Luid.LowPart == reqPrivilege.LowPart
+                  && privs->Privileges[i].Luid.HighPart == reqPrivilege.HighPart) {
+                found = true;
+                privs->Privileges[i].Attributes |= SE_PRIVILEGE_ENABLED;
+                adjust_token_privileges(token, false, privs, len, NULL, NULL);
+                break;
+            }
+        }
+    } while (false);
+
+    if (token_bytes) {
+        free(token_bytes);
+    }
+    if (have_token) {
+        CloseHandle(token);
+    }
+    CloseHandle(kernel32);
+    CloseHandle(advapi32);
+}
+
 void bios(sys_info_t *v) {
     HMODULE k = LoadLibrary("Kernel32.dll");
 
@@ -101,10 +205,14 @@ void bios(sys_info_t *v) {
     if(!fn) {fn = (GetVar)GetProcAddress(k, "GetFirmwareEnvironmentVariableW");}
     if(!fn) {v->is_bios = BIOS_BIOS; FreeLibrary(k); return;}
 
-    typedef DWORD (WINAPI *GetError)(void);
-    GetError errfn = (GetError)GetProcAddress(k, "GetLastError");
+    GetLastErrorT errfn = (GetLastErrorT)GetProcAddress(k, "GetLastError");
 
     fn("", "{00000000-0000-0000-0000-000000000000}", NULL, 0);
+    if(errfn != NULL && errfn() == ERROR_PRIVILEGE_NOT_HELD) {
+        enable_se_env_name();
+        fn("", "{00000000-0000-0000-0000-000000000000}", NULL, 0);
+    }
+
     if(!errfn || errfn() == ERROR_INVALID_FUNCTION) {
         v->is_bios = BIOS_BIOS;
     } else {
