@@ -7,8 +7,6 @@ set(sources
     ipc.cc
     ipc-lick.cc)
 
-find_package(FLTK REQUIRED)
-
 # TODO: swap when cmake fixes fltk_wrap_ui
 #fltk_wrap_ui(${exe_name} gui.fl)
 #set(sources
@@ -20,7 +18,7 @@ set(gui_fl ${CMAKE_CURRENT_LIST_DIR}/gui.fl)
 message("${CMAKE_CURRENT_LIST_DIR}/gui.fl")
 add_custom_command(
     OUTPUT ${gui_source}
-    COMMAND ${FLTK_FLUID_EXECUTABLE} -h ${gui_header} -o ${gui_source} -c ${gui_fl}
+    COMMAND fluid -h ${gui_header} -o ${gui_source} -c ${gui_fl}
     DEPENDS ${gui_fl})
 set(sources
     ${sources}
@@ -34,11 +32,13 @@ set(inc_dirs
 set(inc_dirs
     ${inc_dirs}
     ${CMAKE_CURRENT_LIST_DIR}
+    ${PROJECT_BINARY_DIR}/fltk/include
     ${PROJECT_BINARY_DIR}/libarchive/include
     ${PROJECT_SOURCE_DIR}/liblick
     ${PROJECT_BINARY_DIR}/liblick)
 set(link_dirs
     ${link_dirs}
+    ${PROJECT_BINARY_DIR}/fltk/lib
     ${PROJECT_BINARY_DIR}/libarchive/lib
     ${PROJECT_BINARY_DIR}/liblick)
 

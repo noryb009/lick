@@ -21,15 +21,36 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s -Os")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -Os")
     set(LIBARCHIVE_C_FLAGS "-Os")
+    set(FLTK_C_FLAGS "-Os")
+    set(FLTK_CXX_FLAGS "")
 else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
     set(LIBARCHIVE_C_FLAGS "")
+    set(FLTK_C_FLAGS "")
+    set(FLTK_CXX_FLAGS "")
 endif()
 
 set(LIBARCHIVE_C_FLAGS "${LIBARCHIVE_C_FLAGS} -static-libgcc")
+set(FLTK_C_FLAGS "${FLTK_C_FLAGS} -static-libgcc")
+set(FLTK_CXX_FLAGS "${FLTK_CXX_FLAGS} -static-libgcc")
 
 include(ExternalProject)
+ExternalProject_Add(
+    fltk-1.3.5
+    URL https://www.fltk.org/pub/fltk/1.3.5/fltk-1.3.5-source.tar.bz2
+    URL_HASH SHA256=2933c72400f9e7c0f4c3a81a1ce98bc9582b2a3edc44b8597ccd26e240e32c3c
+    CMAKE_ARGS
+        -DOPTION_BUILD_EXAMPLES=OFF
+        -DOPTION_USE_GL=OFF
+        -DOPTION_USE_SYSTEM_LIBJPEG=OFF
+        -DOPTION_USE_SYSTEM_ZLIB=OFF
+        -DOPTION_USE_SYSTEM_LIBPNG=OFF
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/fltk
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
+
 ExternalProject_Add(
     libarchive-3.3.1
     URL http://libarchive.org/downloads/libarchive-3.3.1.tar.gz
@@ -48,7 +69,10 @@ ExternalProject_Add(
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
-set(external_projects libarchive-3.3.1)
+
+set(external_projects
+    fltk-1.3.5
+    libarchive-3.3.1)
 
 add_subdirectory(liblick)
 add_subdirectory(test)
