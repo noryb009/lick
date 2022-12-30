@@ -1,2 +1,6 @@
 add_subdirectory(cli)
-add_subdirectory(fltk)
+
+# Only build fltk if compiling for Windows.
+if (WIN32)
+  add_subdirectory(fltk)
+endif()
