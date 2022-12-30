@@ -396,7 +396,7 @@ void Frontend::progress_set_sub(uniso_progress_t cur, uniso_progress_t total) {
     int max_size = (int)(0.5+bar->maximum());
 
     char *lbl = new char[128];
-    snprintf(lbl, 127, "Step %d / %d: %s, %d / %d files extracted",
+    snprintf(lbl, 127, "Step %d / %d: %s, %ld / %ld files extracted",
             max_size-size+1, max_size, command_name(commands_queue.front()), cur, total);
     bar->copy_label(lbl);
     delete [] lbl;
