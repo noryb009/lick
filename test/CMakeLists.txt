@@ -59,3 +59,5 @@ link_directories(${link_dirs})
 add_executable(${exe_name} ${sources})
 target_link_libraries(${exe_name} ${libs})
 add_dependencies(${exe_name} ${catch})
+
+add_test(NAME LickTests COMMAND ${exe_name})

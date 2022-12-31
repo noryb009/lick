@@ -37,21 +37,19 @@
           nix_pkgs.pkgs.buildPackages.cmake
           nix_pkgs.pkgs.buildPackages.fltk
           nix_pkgs.pkgs.buildPackages.nsis
-          #native_nix_pkgs.pkgs.cmake
-          #native_nix_pkgs.pkgs.fltk
-          #native_nix_pkgs.pkgs.nsis
         ];
-        configurePhase = ''
+        preConfigurePhase = ''
           # Write nix cmake flags (including cross-compilation flags) to file.
           touch nix-cmake-config.cmake
           for i in $cmakeFlags; do
             i="''${i:2}"
             echo "set(''${i/%=*/} ''${i/#*=/})" >> nix-cmake-config.cmake
           done
-
-          cmake . -DCMAKE_TOOLCHAIN_FILE=nix-cmake-config.cmake
-          # TODO: -DCMAKE_BUILD_TYPE=Release
-
+        '';
+        configurePhase = ''
+          cmake . -DCMAKE_TOOLCHAIN_FILE=nix-cmake-config.cmake -DCMAKE_BUILD_TYPE=Release
+        '';
+        preBuildPhase = ''
           # Copy external dependencies to avoid downloading them.
           mkdir -p libarchive-3.3.1-prefix/src/
           cp ${libarchive_tarball} libarchive-3.3.1-prefix/src/libarchive-3.3.1.tar.gz
@@ -62,6 +60,9 @@
         '';
         buildPhase = ''
           make
+        '';
+        checkPhase = ''
+          make test
         '';
         installPhase = ''
           make package

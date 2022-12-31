@@ -155,3 +155,4 @@ if(WIN32 AND NOT UNIX)
 endif()
 
 include(CPack)
+include(CTest)
