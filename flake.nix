@@ -25,20 +25,34 @@
       systems = [ "x86_64-linux" "mingw32" ];
       forEachItem = items: f: (nixpkgs.lib.genAttrs items (item: (f item)));
       forEachSystem = forEachItem systems;
-      project = nix_pkgs: native_nix_pkgs: {
+      project = nix_pkgs: {
         name = "lick";
         src = self;
-        buildInputs = [
-          # Only needed in Linux:
-          #nix_pkgs.pkgs.xorg.libX11
-        ];
+        buildInputs = ([]
+          ++ nix_pkgs.lib.optional nix_pkgs.targetPlatform.isLinux [
+            nix_pkgs.pkgs.xorg.libX11
+          ]
+        );
         nativeBuildInputs = [
-          native_nix_pkgs.pkgs.cmake
-          native_nix_pkgs.pkgs.fltk
-          native_nix_pkgs.pkgs.nsis
+          nix_pkgs.pkgs.buildPackages.cmake
+          nix_pkgs.pkgs.buildPackages.fltk
+          nix_pkgs.pkgs.buildPackages.nsis
+          #native_nix_pkgs.pkgs.cmake
+          #native_nix_pkgs.pkgs.fltk
+          #native_nix_pkgs.pkgs.nsis
         ];
         configurePhase = ''
-          cmake . -DCMAKE_TOOLCHAIN_FILE=nix-mingw-config.cmake
+          # Write nix cmake flags (including cross-compilation flags) to file.
+          touch nix-cmake-config.cmake
+          for i in $cmakeFlags; do
+            i="''${i:2}"
+            echo "set(''${i/%=*/} ''${i/#*=/})" >> nix-cmake-config.cmake
+          done
+
+          cmake . -DCMAKE_TOOLCHAIN_FILE=nix-cmake-config.cmake
+          # TODO: -DCMAKE_BUILD_TYPE=Release
+
+          # Copy external dependencies to avoid downloading them.
           mkdir -p libarchive-3.3.1-prefix/src/
           cp ${libarchive_tarball} libarchive-3.3.1-prefix/src/libarchive-3.3.1.tar.gz
           mkdir -p fltk-1.3.5-prefix/src/
@@ -65,14 +79,13 @@
             nix_pkgs = (import nixpkgs { system = "${system}"; });
             otherSystems = (nixpkgs.lib.filter (x: x != system) systems);
             forEachOtherSystem = forEachItem otherSystems;
-          in (
-            (nix_pkgs.stdenv.mkDerivation ((project nix_pkgs nix_pkgs))) // {
-              pkgsCross = forEachOtherSystem (target: (
-                let crossPkgs = nix_pkgs.pkgsCross.mingw32; # TODO: Use `target`.
-                in crossPkgs.stdenv.mkDerivation (project crossPkgs nix_pkgs)
-              ));
-            }
-          )
+          in {
+            default = nix_pkgs.stdenv.mkDerivation ((project nix_pkgs));
+            pkgsCross = forEachOtherSystem (target: (
+              let crossPkgs = nix_pkgs.pkgsCross."${target}";
+              in crossPkgs.stdenv.mkDerivation (project crossPkgs)
+            ));
+          }
         ))
       );
     }

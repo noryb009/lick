@@ -14,7 +14,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
 if(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc")
+    # `--no-insert-timestamp` is needed for deterministic builds.
+    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -Xlinker --no-insert-timestamp")
 endif()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
@@ -48,7 +49,7 @@ ExternalProject_Add(
         -DOPTION_USE_SYSTEM_LIBPNG=OFF
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/fltk
-        -DCMAKE_BUILD_TYPE=Release
+	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
 
 ExternalProject_Add(
@@ -67,7 +68,7 @@ ExternalProject_Add(
         -DENABLE_ICONV=OFF -DENABLE_TEST=OFF -DENABLE_COVERAGE=OFF
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
-        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
 
 set(external_projects
