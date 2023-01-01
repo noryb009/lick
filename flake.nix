@@ -53,8 +53,8 @@
           cp ${libarchive_tarball} cmake/libarchive/libarchive_external-prefix/src/libarchive-3.3.1.tar.gz
           mkdir -p cmake/fltk/external_fltk-prefix/src/
           cp ${fltk_tarball} cmake/fltk/external_fltk-prefix/src/fltk-1.3.5-source.tar.bz2
-          mkdir -p _deps/catch2-subbuild/catch2-populate-prefix/src/
-          cp ${catch_header} _deps/catch2-subbuild/catch2-populate-prefix/src/v2.13.10.tar.gz
+          mkdir -p cmake/catch2/external_catch-prefix/src/
+          cp ${catch_header} cmake/catch2/external_catch-prefix/src/catch.hpp
         '';
         buildPhase = ''
           make

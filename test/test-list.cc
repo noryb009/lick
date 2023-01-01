@@ -1,6 +1,6 @@
 #include <array>
 
-#include "catch2/catch.hpp"
+#include "catch.hpp"
 #include "lick.h"
 
 static int num_frees = 0;

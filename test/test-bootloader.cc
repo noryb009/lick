@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "catch2/catch.hpp"
+#include "catch.hpp"
 #include "lick.h"
 #include "boot-loader/9x.h"
 #include "boot-loader/boot-loader-utils.h"
