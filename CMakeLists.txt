@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
+
+include(FetchContent)
 
 set(proj_name "LICK")
 set(VERSION_MAJOR "1")
@@ -6,77 +8,37 @@ set(VERSION_MINOR "3")
 set(VERSION_PATCH "4")
 set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
-project(${proj_name})
+project(LICK LANGUAGES C CXX)
 
-# TODO: branding
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+if ("${CMAKE_TOOLCHAIN_FILE}" MATCHES "")
+  set(TOOLCHAIN_FILE "")
+else()
+  get_filename_component(TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}" ABSOLUTE)
+endif()
 
 if(WIN32)
     # `--no-insert-timestamp` is needed for deterministic builds.
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -Xlinker --no-insert-timestamp")
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s -Os")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -Os")
-    set(LIBARCHIVE_C_FLAGS "-Os")
-    set(FLTK_C_FLAGS "-Os")
-    set(FLTK_CXX_FLAGS "")
-else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-    set(LIBARCHIVE_C_FLAGS "")
-    set(FLTK_C_FLAGS "")
-    set(FLTK_CXX_FLAGS "")
+# TODO: Use -Os
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(LIBARCHIVE_C_FLAGS "${LIBARCHIVE_C_FLAGS} -static-libgcc")
-set(FLTK_C_FLAGS "${FLTK_C_FLAGS} -static-libgcc")
-set(FLTK_CXX_FLAGS "${FLTK_CXX_FLAGS} -static-libgcc")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -pedantic -static-libgcc")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -static-libgcc")
 
-include(ExternalProject)
-ExternalProject_Add(
-    fltk-1.3.5
-    URL https://www.fltk.org/pub/fltk/1.3.5/fltk-1.3.5-source.tar.bz2
-    URL_HASH SHA256=2933c72400f9e7c0f4c3a81a1ce98bc9582b2a3edc44b8597ccd26e240e32c3c
-    CMAKE_ARGS
-        -DOPTION_BUILD_EXAMPLES=OFF
-        -DOPTION_USE_GL=OFF
-        -DOPTION_USE_SYSTEM_LIBJPEG=OFF
-        -DOPTION_USE_SYSTEM_ZLIB=OFF
-        -DOPTION_USE_SYSTEM_LIBPNG=OFF
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/fltk
-	-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s -Os")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -Os")
 
-ExternalProject_Add(
-    libarchive-3.3.1
-    URL http://libarchive.org/downloads/libarchive-3.3.1.tar.gz
-    URL_HASH SHA256=29ca5bd1624ca5a007aa57e16080262ab4379dbf8797f5c52f7ea74a3b0424e7
-    # Remove wincrypt calls; enables Win95 support (before OEM2).
-    PATCH_COMMAND patch -p1 < ${CMAKE_SOURCE_DIR}/res-build/libarchive-no-wincrypt.patch
-    CMAKE_ARGS
-        -DENABLE_NETTLE=OFF -DENABLE_OPENSSL=OFF -DENABLE_LZO=OFF
-        -DENABLE_LZMA=OFF -DENABLE_ZLIB=OFF -DENABLE_BZip2=OFF
-        -DENABLE_LIBXML2=OFF -DENABLE_EXPAT=OFF -DENABLE_PCREPOSIX=OFF
-        -DENABLE_CNG=OFF -DENABLE_TAR=OFF -DENABLE_TAR_SHARED=OFF
-        -DENABLE_CPIO=OFF -DENABLE_CPIO_SHARED=OFF -DENABLE_CAT=OFF
-        -DENABLE_CAT_SHARED=OFF -DENABLE_XATTR=OFF -DENABLE_ACL=OFF
-        -DENABLE_ICONV=OFF -DENABLE_TEST=OFF -DENABLE_COVERAGE=OFF
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/libarchive
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_C_FLAGS=${LIBARCHIVE_C_FLAGS})
-
-set(external_projects
-    fltk-1.3.5
-    libarchive-3.3.1)
+add_subdirectory(cmake)
 
 add_subdirectory(liblick)
+
+include(CTest)
 add_subdirectory(test)
+
 add_subdirectory(src)
 
 install(DIRECTORY res
@@ -155,4 +117,3 @@ if(WIN32 AND NOT UNIX)
 endif()
 
 include(CPack)
-include(CTest)

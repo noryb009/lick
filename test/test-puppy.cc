@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 #include "distro/puppy.h"
 
 #include "test-tools.h"

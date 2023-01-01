@@ -49,12 +49,12 @@
           cmake . -DCMAKE_TOOLCHAIN_FILE=nix-cmake-config.cmake -DCMAKE_BUILD_TYPE=Release
 
           # Copy external dependencies to avoid downloading them.
-          mkdir -p libarchive-3.3.1-prefix/src/
-          cp ${libarchive_tarball} libarchive-3.3.1-prefix/src/libarchive-3.3.1.tar.gz
-          mkdir -p fltk-1.3.5-prefix/src/
-          cp ${fltk_tarball} fltk-1.3.5-prefix/src/fltk-1.3.5-source.tar.bz2
-          mkdir -p test/catch-2.13.9/src/
-          cp ${catch_header} test/catch-2.13.9/src/catch.hpp
+          mkdir -p cmake/libarchive/libarchive_external-prefix/src/
+          cp ${libarchive_tarball} cmake/libarchive/libarchive_external-prefix/src/libarchive-3.3.1.tar.gz
+          mkdir -p cmake/fltk/external_fltk-prefix/src/
+          cp ${fltk_tarball} cmake/fltk/external_fltk-prefix/src/fltk-1.3.5-source.tar.bz2
+          mkdir -p _deps/catch2-subbuild/catch2-populate-prefix/src/
+          cp ${catch_header} _deps/catch2-subbuild/catch2-populate-prefix/src/v2.13.10.tar.gz
         '';
         buildPhase = ''
           make

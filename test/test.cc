@@ -1,6 +1,6 @@
 #include <cstdint>
 
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 
 int fib(const uint64_t n) {
   uint64_t a = 1;
