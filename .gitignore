@@ -1,3 +1,5 @@
+*.swp
+
 build*
 doc/*
 !doc/Doxyfile
@@ -6,3 +8,4 @@ keys/*
 res/*
 !res/lick.cer
 !res/lickgrub.cfg
+/result

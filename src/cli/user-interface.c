@@ -194,7 +194,7 @@ int ask_uninstall(program_status_t *p) {
     installed_t *install = n->val;
     char *q = concat_strs(5, "Are you sure you wish to uninstall ",
             install->name, " (", install->id, ")? [Y/n]\n");
-    printf(q);
+    printf("%s", q);
     char *invalid = concat_strs(2, "Invalid input. ", q);
     int check = ask_bool(1, invalid);
 

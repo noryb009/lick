@@ -43,7 +43,7 @@ set(link_dirs
     ${PROJECT_BINARY_DIR}/liblick)
 
 if(WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS " -static")
+    set(CMAKE_EXE_LINKER_FLAGS " -static -Xlinker  --no-insert-timestamp")
     set(libs
         ${libs}
         fltk wsock32 comctl32
